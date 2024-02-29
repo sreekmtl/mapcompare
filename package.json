@@ -1,0 +1,22 @@
+{
+  "name": "mapcompare",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "sreekmtl",
+  "license": "ISC",
+  "dependencies": {
+    "node-polyfill-webpack-plugin": "^3.0.0",
+    "ol": "^8.2.0",
+    "pixelmatch": "^5.3.0"
+  },
+  "devDependencies": {
+    "css-loader": "^6.9.1",
+    "style-loader": "^3.3.4",
+    "webpack-cli": "^5.1.4"
+  }
+}
