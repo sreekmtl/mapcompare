@@ -9,6 +9,8 @@ import '../styles/myStyles.css'
 import 'ol/ol.css';
 import { getContours, getCannyEdge } from './cvOps.js';
 import { colorCompare } from './pixmatch.js';
+import kmeans from './kmeans.js';
+import { colorFromPixel, getChannels } from './utils.js';
 
 
 
@@ -127,7 +129,13 @@ map1.on('moveend',(e)=>{
 
 map2.on('moveend',(e)=>{
   mapToImg(map2, canvas2, canvasCtx2);
-})
+});
+
+map1.on('click',(e)=>{
+  let imgData= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
+  console.log(colorFromPixel(e.pixel, imgData.data, 300, 300));
+  
+});
 
 
 
@@ -140,10 +148,14 @@ processBtn.addEventListener('click',()=>{
   getCannyEdge(imgData1, canvas1);
   //getContours(imgData1,canvas1)
   let imgData2= canvasCtx2.getImageData(0,0,canvas2.width,canvas2.height);
-  getCannyEdge(imgData2, canvas2);
-  //var op= colorCompare(imgData2, canvas2.width, canvas2.height);
-  //console.log(op, 'op');
-  //canvasCtx2.putImageData(op, 0, 0);
+  //getCannyEdge(imgData2, canvas2);
+  var op= colorCompare(imgData1, canvas2.width, canvas2.height);
+  console.log(op, 'op');
+  canvasCtx2.putImageData(op, 0, 0);
+
+  //let data= getChannels(imgData1.data);
+  //console.log(kmeans(data, 5));
+  
 
 });
 

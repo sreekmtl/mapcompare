@@ -1,4 +1,6 @@
-
+/**
+ * All OpenCV.js based functions are written in this file
+ */
 
 function getContours(imgData,canvas){
 
@@ -39,7 +41,7 @@ function getCannyEdge(imgData, canvas){
 
     let ksize = new cv.Size(3, 3);
     let anchor = new cv.Point(-1, -1);
-    //cv.blur(src, src, ksize, anchor, cv.BORDER_DEFAULT);
+    cv.blur(src, src, ksize, anchor, cv.BORDER_DEFAULT);
     //cv.GaussianBlur(src, src, ksize, 0, 0, cv.BORDER_DEFAULT);
 
     cv.Canny(src, dst, 50, 100, 3, false);
