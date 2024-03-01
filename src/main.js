@@ -10,7 +10,8 @@ import 'ol/ol.css';
 import { getContours, getCannyEdge } from './cvOps.js';
 import { colorCompare } from './pixmatch.js';
 import kmeans from './kmeans.js';
-import { colorFromPixel, getChannels } from './utils.js';
+import { colorFromPixel, extractChannel, getChannels } from './utils.js';
+import { modeFilter } from './modeFilter.js';
 
 
 
@@ -149,9 +150,16 @@ processBtn.addEventListener('click',()=>{
   //getContours(imgData1,canvas1)
   let imgData2= canvasCtx2.getImageData(0,0,canvas2.width,canvas2.height);
   //getCannyEdge(imgData2, canvas2);
-  var op= colorCompare(imgData1, canvas2.width, canvas2.height);
-  console.log(op, 'op');
-  canvasCtx2.putImageData(op, 0, 0);
+  let a=modeFilter([],5, extractChannel(imgData2.data, 'R'), canvas2.width, canvas2.height);
+  canvas2.width=304;
+  canvas2.height=304;
+  canvasCtx2.putImageData(a,0,0);
+  console.log(extractChannel(imgData2.data, 'R'), 'extracted data');
+  console.log(a,'paddedImage');
+
+  //var op= colorCompare(imgData1, canvas2.width, canvas2.height);
+  //console.log(op, 'op');
+  //canvasCtx2.putImageData(op, 0, 0);
 
   //let data= getChannels(imgData1.data);
   //console.log(kmeans(data, 5));
