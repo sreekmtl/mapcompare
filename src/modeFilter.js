@@ -43,22 +43,19 @@ function convolution(paddedImageData, kernelSize){
                 let kernelCenter= paddedImageData[pos] ;
                 let kernel= new Array(kernelSize*kernelSize);
                 let el=[]; //Array for storing kernel elements
-                let center= kernelSize+((kernelSize+1)/2);
-                el[center]= paddedImageData[pos];
+                let center= (kernel.length/2)-1;
+                //el[center]= paddedImageData[pos];
 
                 //Array for filling kernel elements from image
-                let l=0;
-                for (let k=0; k<kernel.length; k++){
+                let kPos= pos- (padWidth+padding); //initial kernel element
+                for (let k=0, l=0; k<kernel.length; k++, l++){
 
-                    el[k]= paddedImageData[pos- (padWidth+(kernelSize-k))]; 
-                    l++;
-                    if(l===(kernelSize-1)){
-
-                    
-
+                    if ((l+1)%kernelSize===0){
+                        kPos= kPos+padWidth; //move to next line of kernel
+                        l=0; 
                     }
-
-    
+                    
+                    el[k]= paddedImageData[kPos+l];
 
                 }
 
