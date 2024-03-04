@@ -17,3 +17,8 @@ console.log(6%3);
 let d= new Array(3);
 d=[...b];
 console.log(d, 'd');
+
+let x= [4,5,6];
+let y= [1,2,3];
+
+console.log(x+y);

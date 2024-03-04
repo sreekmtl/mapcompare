@@ -7,12 +7,13 @@ import MapEvent from 'ol/MapEvent.js'
 import Keys from './keys.js';
 import '../styles/myStyles.css'
 import 'ol/ol.css';
-import { getContours, getCannyEdge } from './cvOps.js';
+import { getContours, getCannyEdge, watershed } from './cvOps.js';
 import { colorCompare } from './pixmatch.js';
 import kmeans from './kmeans.js';
 import { colorFromPixel, extractChannel, getChannels } from './utils.js';
 import Image from 'image-js';
 import modFilter from './modeFilter.js';
+import { colorInRange } from './yiqRange.js';
 
 
 const keys= new Keys();
@@ -135,6 +136,8 @@ map2.on('moveend',(e)=>{
 map1.on('click',(e)=>{
   let imgData= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
   console.log(colorFromPixel(e.pixel, imgData.data, 300, 300));
+  let diffImg= colorInRange(imgData, colorFromPixel(e.pixel, imgData.data, 300, 300));
+  canvasCtx2.putImageData(diffImg,0,0);
   
 });
 
@@ -147,6 +150,7 @@ processBtn.addEventListener('click',()=>{
   //mapToImg(map1, canvas1, canvasCtx1);
   let imgData1= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
   //getCannyEdge(imgData1, canvas1);
+  //watershed(imgData1, canvas1);
   let img_2= Image.fromCanvas(canvas1);
   console.log(img_2);
   //let m= img_2.medianFilter({channels:3, radius:1, border:'copy'});
