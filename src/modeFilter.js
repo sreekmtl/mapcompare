@@ -1,139 +1,64 @@
+import { findMode } from './utils';
+import { validateArrayOfChannels } from 'image-js/src/util/channel';
+import {checkProcessable} from 'image-js/src/image/core/checkProcessable';
+import Image from 'image-js/src/image/Image';
 
+/**
+ * Each pixel of the image becomes the median of the neighbor pixels.
+ * @memberof Image
+ * @instance
+ * @param {Image} image
+ * @param {object} options
+ * @param {SelectedChannels} [options.channels] - Specify which channels should be processed.
+ * @param {number} [options.radius=1] - Distance of the square to take the mean of.
+ * @param {string} [options.border='copy'] - Algorithm that will be applied after to deal with borders.
+ * @return {Image}
+ */
+export default function modFilter(image, options = {}) {
+  let { radius = 1, border = 'copy', channels } = options;
 
+  image.checkProcessable('medianFilter', {
+    bitDepth: [8, 16],
+  });
 
-function mode(kernel, kernelSize){
+  if (radius < 1) {
+    throw new Error('radius must be greater than 0');
+  }
 
-    //Finds the mode value frm the kernel
+  channels = validateArrayOfChannels(image, channels, true);
 
-    let count={};
-    let mode=0;
+  let kWidth = radius;
+  let kHeight = radius;
+  let newImage = Image.createFrom(image);
 
-    for (let i=0; i<kernel.length; i++){
+  let size = (kWidth * 2 + 1) * (kHeight * 2 + 1);
+  let kernel = new Array(size);
 
-        if (kernel[i].toString() in count){
-
-            count[(kernel[i]).toString()]+=1;
-            
-            if (count[(kernel[i]).toString()]> mode){
-                mode= kernel[i];
-            }
-
-        } else {
-
-            count[(kernel[i]).toString()]=1;
-
+  for (let channel = 0; channel < channels.length; channel++) {
+    let c = channels[channel];
+    for (let y = kHeight; y < image.height - kHeight; y++) {
+      for (let x = kWidth; x < image.width - kWidth; x++) {
+        let n = 0;
+        for (let j = -kHeight; j <= kHeight; j++) {
+          for (let i = -kWidth; i <= kWidth; i++) {
+            let index = ((y + j) * image.width + x + i) * image.channels + c;
+            kernel[n++] = image.data[index];
+          }
         }
 
+        let index = (y * image.width + x) * image.channels + c;
+
+        newImage.data[index] = findMode(kernel);
+      }
     }
-
-    return [count, mode];
-
-}
-
-function convolution(paddedImageData, kernelSize){
-
-    for (let i=(padWidth*padding)+padding; i<paddedImageData.length;i++){
-
-        if (i<(paddedImageData.length-(padWidth*padding))){  
-
-
-            for (let j=0; j<imageWidth; j++){
-
-                let pos= i+j;
-                let kernelCenter= paddedImageData[pos] ;
-                let kernel= new Array(kernelSize*kernelSize);
-                let el=[]; //Array for storing kernel elements
-                let center= (kernel.length/2)-1;
-                //el[center]= paddedImageData[pos];
-
-                //Array for filling kernel elements from image
-                let kPos= pos- (padWidth+padding); //initial kernel element
-                for (let k=0, l=0; k<kernel.length; k++, l++){
-
-                    if ((l+1)%kernelSize===0){
-                        kPos= kPos+padWidth; //move to next line of kernel
-                        l=0; 
-                    }
-                    
-                    el[k]= paddedImageData[kPos+l];
-
-                }
-
-                kernel= [...el];
-
-                let mode= mode(kernel, kernelSize);
-
-                paddedImageData[pos]= mode;
-    
-            }
-
-            i+=imageWidth+ ( (2*padding)-1);
-    
-
-        }
-
-
+  }
+  if (image.alpha && !channels.includes(image.channels)) {
+    for (let i = image.components; i < image.data.length; i = i + image.channels) {
+      newImage.data[i] = image.data[i];
     }
+  }
 
+  newImage.setBorder({ size: [kWidth, kHeight], algorithm: border });
 
-
+  return newImage;
 }
-
-function modeFilter(kernel, kernelSize, imageData, imageWidth, imageHeight){
-
-    //Adding padding based on kernel size
-
-    const padding= kernelSize-((kernelSize+1)/2);
-    const padWidth= imageWidth+ (2*padding);
-    const padHeight= imageHeight+ (2*padding);
-
-    const paddedImageData= new Uint8ClampedArray(padWidth*padHeight);
-    console.log(paddedImageData);
-
-    //converting original image to padded image
-
-    let k=0;
-
-    for (let i=(padWidth*padding)+padding; i<paddedImageData.length;i++){
-
-        if (i<(paddedImageData.length-(padWidth*padding))){  
-
-
-            for (let j=0; j<imageWidth; j++){
-
-                paddedImageData[i+j]= imageData[k];
-                k++;
-    
-            }
-
-            i+=imageWidth+ ( (2*padding)-1);
-    
-
-        }
-
-
-    }
-    console.log(k);
-
-// passing the kernel and padded image for convolution    
-
-let filteredImageData= convolution(paddedImageData, kernel, kernelSize);
-
-let filteredImage= new ImageData(padWidth, padHeight);
-let q=0;
-for (let i=0; i<paddedImageData.length; i++){
-
-    filteredImage.data[q]= paddedImageData[i];
-    filteredImage.data[q+3]=255;
-    q+=4;
-}
-
-
-    
-return filteredImage;
-
-}
-
-export {modeFilter};
-
-//console.log(mode([5,3,5,5,3,5,2,1,3], 3));

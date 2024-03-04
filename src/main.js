@@ -11,8 +11,8 @@ import { getContours, getCannyEdge } from './cvOps.js';
 import { colorCompare } from './pixmatch.js';
 import kmeans from './kmeans.js';
 import { colorFromPixel, extractChannel, getChannels } from './utils.js';
-import { modeFilter } from './modeFilter.js';
-
+import Image from 'image-js';
+import modFilter from './modeFilter.js';
 
 
 const keys= new Keys();
@@ -146,16 +146,45 @@ map1.on('click',(e)=>{
 processBtn.addEventListener('click',()=>{
   //mapToImg(map1, canvas1, canvasCtx1);
   let imgData1= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
-  getCannyEdge(imgData1, canvas1);
+  //getCannyEdge(imgData1, canvas1);
+  let img_2= Image.fromCanvas(canvas1);
+  console.log(img_2);
+  //let m= img_2.medianFilter({channels:3, radius:1, border:'copy'});
+  let m= modFilter(img_2, {channels:3, radius:2, border:'copy'});
+  
+  let img_22= new ImageData(canvas2.width, canvas2.height);
+
+  for (let i=0; i<m.data.length; i+=4){
+
+    img_22.data[i]= m.data[i];
+    img_22.data[i+1]= m.data[i+1];
+    img_22.data[i+2]= m.data[i+2];
+    img_22.data[i+3]= m.data[i+3];
+
+  }
+
+  canvasCtx2.putImageData(img_22,0,0);
+  //getCannyEdge(img_22, canvas2);
+
+  
+
+ 
+
+
   //getContours(imgData1,canvas1)
-  let imgData2= canvasCtx2.getImageData(0,0,canvas2.width,canvas2.height);
+  //let imgData2= canvasCtx2.getImageData(0,0,canvas2.width,canvas2.height);
+  //let v= extractChannel(imgData2.data, 'R');
+  
+
+
+
   //getCannyEdge(imgData2, canvas2);
-  let a=modeFilter([],5, extractChannel(imgData2.data, 'R'), canvas2.width, canvas2.height);
-  canvas2.width=304;
-  canvas2.height=304;
-  canvasCtx2.putImageData(a,0,0);
-  console.log(extractChannel(imgData2.data, 'R'), 'extracted data');
-  console.log(a,'paddedImage');
+  //let a=modeFilter(5, extractChannel(imgData2.data, 'R'), canvas2.width, canvas2.height);
+  //canvas2.width=304;
+  //canvas2.height=304;
+  //canvasCtx2.putImageData(a,0,0);
+  //console.log(extractChannel(imgData2.data, 'R'), 'extracted data');
+  //console.log(a,'paddedImage');
 
   //var op= colorCompare(imgData1, canvas2.width, canvas2.height);
   //console.log(op, 'op');
