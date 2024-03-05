@@ -40,6 +40,9 @@ var img2= new Image();
 
 const processBtn= document.getElementById('mapToCanvasBtn');
 
+let featureSelected= false; //Whether user selected feature from map or not
+let contourData;
+
 let map1, map2;
 
 async function mapToImg(map,mapCanvas,canvasContext) {
@@ -137,8 +140,8 @@ map1.on('click',(e)=>{
   let imgData= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
   console.log(colorFromPixel(e.pixel, imgData.data, 300, 300));
   let diffImg= colorInRange(imgData, colorFromPixel(e.pixel, imgData.data, 300, 300), 0);
-  canvasCtx2.putImageData(diffImg,0,0);
-  console.log(diffImg);
+  canvasCtx1.putImageData(diffImg,0,0);
+  featureSelected=true;
   
 });
 
@@ -148,11 +151,13 @@ map1.on('click',(e)=>{
 
 
 processBtn.addEventListener('click',()=>{
-  //mapToImg(map1, canvas1, canvasCtx1);
+  
   let imgData1= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
   //getCannyEdge(imgData1, canvas1);
+  contourData= getContours(imgData1, canvas1);
+  console.log(contourData);
   //watershed(imgData1, canvas1);
-  let img_2= Image.fromCanvas(canvas1);
+  let img_2= Image.fromCanvas(canvas2);
   console.log(img_2);
   //let m= img_2.medianFilter({channels:3, radius:1, border:'copy'});
   let m= modFilter(img_2, {channels:3, radius:2, border:'copy'});

@@ -19,6 +19,6 @@ d=[...b];
 console.log(d, 'd');
 
 let x= [4,5,6];
-let y= [1,2,3];
+let y= [4,5,6];
 
-console.log(x+y);
+console.log(x===y);

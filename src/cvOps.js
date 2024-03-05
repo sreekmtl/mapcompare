@@ -4,6 +4,9 @@
 
 function getContours(imgData,canvas){
 
+    let cData=[];
+    let contourColors= [];
+
     let src= cv.matFromImageData(imgData)
     console.log(src);
 
@@ -11,20 +14,25 @@ function getContours(imgData,canvas){
     console.log(dst);
     
     cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
-    cv.threshold(src, src, 200, 255, cv.THRESH_BINARY);
+    cv.threshold(src, src, 0, 255, cv.THRESH_BINARY);
     let contours = new cv.MatVector();
     let hierarchy = new cv.Mat();
     cv.findContours(src, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
     for (let i = 0; i < contours.size(); ++i) {
         let color = new cv.Scalar(Math.round(Math.random() * 255), Math.round(Math.random() * 255),
                                 Math.round(Math.random() * 255));
-        cv.drawContours(dst, contours, i, color, 1, cv.LINE_8, hierarchy, 100);
+        cv.drawContours(dst, contours, i, color, 1, cv.LINE_8, hierarchy, 10);
+        
+        contourColors.push([color[0], color[1], color[2]]);
     }
-
-
+    cData= dst;
+    //console.log(contourColors, 'contourColors');
+    //console.log(cData.data, 'contourData');
     cv.imshow(canvas,dst);
     src.delete();
-    dst.delete();
+    //dst.delete();
+
+    return {contour:cData.data, color:contourColors};
 
 
 }
