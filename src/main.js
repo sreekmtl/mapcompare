@@ -24,8 +24,8 @@ let bingMapKey= keys.getKeys().BingMapKey;
 const canvas1= document.getElementById('imgCanvas1');
 const canvas2= document.getElementById('imgCanvas2');
 
-const canvasCtx1= canvas1.getContext('2d');
-const canvasCtx2= canvas2.getContext('2d');
+const canvasCtx1= canvas1.getContext('2d',  { willReadFrequently: true });
+const canvasCtx2= canvas2.getContext('2d',  { willReadFrequently: true });
 
 var mCanvas1= document.createElement('canvas');
 var mCanvas2= document.createElement('canvas');
@@ -136,8 +136,9 @@ map2.on('moveend',(e)=>{
 map1.on('click',(e)=>{
   let imgData= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
   console.log(colorFromPixel(e.pixel, imgData.data, 300, 300));
-  let diffImg= colorInRange(imgData, colorFromPixel(e.pixel, imgData.data, 300, 300));
+  let diffImg= colorInRange(imgData, colorFromPixel(e.pixel, imgData.data, 300, 300), 0);
   canvasCtx2.putImageData(diffImg,0,0);
+  console.log(diffImg);
   
 });
 

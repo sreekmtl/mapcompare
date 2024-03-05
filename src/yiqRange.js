@@ -2,14 +2,14 @@
  * 
  * @param {ImageData} imageData Map tile data
  * @param {Array} selectedColor User selected color of pixel from map
- * @param {Number} threshold
+ * @param {Number} sensitivity
  * @returns {ImageData} diffImage
  * 
  * This returns all the pixels with value lying in given range in YIQ space
  */
 
 
-function colorInRange(imageData, selectedColor, threshold){
+function colorInRange(imageData, selectedColor, sensitivity){
 
     let diffData= [];
     let diffImg= new ImageData(imageData.width, imageData.height);
@@ -36,21 +36,24 @@ function colorInRange(imageData, selectedColor, threshold){
             rgb2q(r,g,b)
         ];
 
-        let distanceinYIQ= (                                        //calculating squared distance for efficiency
-        0.5053*(Math.pow((yiq[0]-selectedColor[0]),2))+
-         0.299*(Math.pow((yiq[1]-selectedColor[1]),2))+
-         0.1957*(Math.pow((yiq[2]-selectedColor[2]),2))
+        let distanceinYIQ= Math.sqrt(                                        //calculating squared distance for efficiency
+        0.5053*(Math.pow((yiq[0]-colorSelected[0]),2))+
+         0.299*(Math.pow((yiq[1]-colorSelected[1]),2))+
+         0.1957*(Math.pow((yiq[2]-colorSelected[2]),2))
         );
 
+        diffData.push(distanceinYIQ);
+
      
-        if (Math.abs(0.01*distanceinYIQ)<200){
-            diffImg.data[i]=Math.abs(0.01*distanceinYIQ);
+        if (Math.abs(distanceinYIQ)===sensitivity){
+            diffImg.data[i]=255;
+            diffImg.data[i+3]=255;
         }
         
 
     }
 
-
+    console.log('original YIQ distance', diffData);
     return diffImg;
 
 }
