@@ -14,6 +14,7 @@ import { colorFromPixel, extractChannel, getChannels } from './utils.js';
 import Image from 'image-js';
 import modFilter from './modeFilter.js';
 import { colorInRange } from './yiqRange.js';
+import { contourToPolygon } from './pixelToSpatial.js';
 
 
 const keys= new Keys();
@@ -153,9 +154,12 @@ map1.on('click',(e)=>{
 processBtn.addEventListener('click',()=>{
   
   let imgData1= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
-  //getCannyEdge(imgData1, canvas1);
+  let extent= map1.getView().calculateExtent(map1.getSize());
+  console.log(extent, 'extent');
   contourData= getContours(imgData1, canvas1);
-  console.log(contourData);
+  contourToPolygon(contourData, canvas1.width, canvas1.height, extent);
+
+
   //watershed(imgData1, canvas1);
   let img_2= Image.fromCanvas(canvas2);
   console.log(img_2);

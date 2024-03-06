@@ -87,4 +87,11 @@ function findMode(kernel){
 
 }
 
-export {getChannels, colorFromPixel, extractChannel, findMode};
+function geoJSONParser(){
+
+    
+
+    
+}
+
+export {getChannels, colorFromPixel, extractChannel, findMode, geoJSONParser};
