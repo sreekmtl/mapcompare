@@ -63,7 +63,7 @@ function contourToPolygon(contourData, width, height, extent){
         for (let j=0; j<featurePixel[pixPos].length; j++){
 
             //converting contour positions to x-y based from UInt8Array
-            let x= (featurePixel[pixPos][j]%width)-1;
+            let x= (featurePixel[pixPos][j]%width);
             let y= Math.floor((featurePixel[pixPos][j]/width));
 
             //converting x-y based pixel positions into Easting and Northing (EPSG:3857)
@@ -75,6 +75,7 @@ function contourToPolygon(contourData, width, height, extent){
         }
 
         console.log(tempArr, 'temparr');
+        console.log(sortContourPixels(tempArr), 'sortedarr');
 
     }
 
@@ -95,35 +96,42 @@ function contourToPolygon(contourData, width, height, extent){
    
 }
 
-function sortContourPixels(posArray){
+function sortContourPixels(positionArray){
 
     /**
      * Sort points in location array such that
      * arrange point in an order in order to create a polygon out of these points
      * Here I am implementing it in clock-wise order
      * FOR THAT :
-     * Take first pixel position 
-     * initialize a 3*3 kernel with values represent pixel position w.r.t central pixel which is our first pixel
-     * search for any random position in kernel and check whether it is present in our array of locations. If not-> Exit, Else:
-     * Add that point next to first point, move kernel to the new point. Continue...
+     * 
      */
 
-    let sortedArray=[];
-    let ip= posArray[0]; //initial point
-    sortedArray.push(ip);
+    let simplifiedArray=[];
 
-    let kernel= [
-        [ip[0]-1, ip[1]-1],[ip[0], ip[1]-1],[ip[0]+1, ip[1]-1],
-        [ip[0]-1, ip[1]],ip,[ip[0]+1, ip[1]],
-        [ip[0]-1, ip[1]+1],[ip[0], ip[1]+1],[ip[0]+1, ip[1]+1]
-    ];  
+    for (let i=0; i<positionArray.length;i++){
+
+        let x,y;
+
+        if (simplifiedArray.length===0){
+            simplifiedArray.push(positionArray[i])
+            x=positionArray[i][0];
+            y= positionArray[i][1];
+        }else{
+            if (x===simplifiedArray.slice(-1)[0][0] | y===simplifiedArray.slice(-1)[0][1]){
+                 continue;
+            }else {
+
+                simplifiedArray.push(positionArray[i]);
+                x=positionArray[i][0];
+                y=positionArray[i][1]; //or just calculate the bounding box, centroid for positional accuracy.... its fastttt
+                
+            }
+            
+        }
+    }
 
     
-    
-
-
-    return sortedArray;
-
+    return simplifiedArray;
 
 }
 

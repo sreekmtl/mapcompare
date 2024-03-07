@@ -39,18 +39,12 @@ console.log(x-1);
 
 ip= [10,20];
 
-let kernel= [
-    [ip[0]-1, ip[1]-1],[ip[0], ip[1]-1],[ip[0]+1, ip[1]-1],
-    [ip[0]-1, ip[1]],ip,[ip[0]+1, ip[1]],
-    [ip[0]-1, ip[1]+1],[ip[0], ip[1]+1],[ip[0]+1, ip[1]+1]
-];
-
-console.log(kernel);
-
-for (let i=0; i<10; i++){
-    console.log(i);
-    if (i===5){
-        break;
-    }
+function kernel(k){return [[k[0]-1, k[1]-1],[k[0], k[1]-1],[k[0]+1, k[1]-1],
+    [k[0]-1, k[1]],k,[k[0]+1, k[1]],
+    [k[0]-1, k[1]+1],[k[0], k[1]+1],[k[0]+1, k[1]+1]];
 }
 
+console.log(kernel([19,4]));
+
+let c=[4];
+console.log(kernel([19,4]).slice(-1));
