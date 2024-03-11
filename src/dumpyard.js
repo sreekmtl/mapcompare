@@ -76,4 +76,67 @@ function sortContourPixels(positionArray){
 
 }
 
+    let simplifiedArray=[];
+
+    for (let i=0; i<positionArray.length;i++){
+
+        let x,y;
+
+        if (simplifiedArray.length===0){
+            simplifiedArray.push(positionArray[i])
+            x=positionArray[i][0];
+            y= positionArray[i][1];
+        }else{
+            if (x===simplifiedArray.slice(-1)[0][0] | y===simplifiedArray.slice(-1)[0][1]){
+                 continue;
+            }else {
+
+                simplifiedArray.push(positionArray[i]);
+                x=positionArray[i][0];
+                y=positionArray[i][1]; //or just calculate the bounding box, centroid for positional accuracy.... its fastttt
+                
+            }
+            
+        }
+    }
+
+    
+    return simplifiedArray;
+
+    let posArray= positionArray.slice();
+    let sortedArray= [];
+    sortedArray.push(posArray[0]);
+    posArray[0]=[NaN,NaN];
+
+    for (let i=0; i<sortedArray.length;i++){
+        for (let j=1; j<posArray.length; j++){
+
+            let E= posArray[j][0]; //Easting value
+            let N= posArray[j][1]; //Northing value
+
+            let E0= sortedArray[i][0];
+            let N0= sortedArray[i][1];
+
+            let d= Math.sqrt(Math.pow((E-E0), 2)+Math.pow((N-N0), 2));
+
+            if (d<0.2){
+                sortedArray.push(posArray[i]); //create buffer search in that buffer...add if found
+                posArray[i]=[NaN, NaN];
+            }
+
+            
+        }
+
+        if (sortedArray.length===posArray.length){
+            break;
+        }
+    }
+
+
+    return sortedArray;
+
+   
+   
+
+
  */

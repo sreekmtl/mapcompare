@@ -1,5 +1,6 @@
 
 
+
 function contourToPolygon(contourData, width, height, extent){
 
     /**
@@ -18,6 +19,7 @@ function contourToPolygon(contourData, width, height, extent){
     let featurePixel= {}; //Object for storing array of pixel's position where each inner array contain pixel position of a single polygon
     let pixelWidth= (extent[2]-extent[0])/width;
     let pixelHeight= (extent[3]-extent[1])/height;
+    let sub_factor=0;
 
     for (let i=0; i<contours.length; i+=3){  //Alpha channel is not considered here
 
@@ -70,7 +72,7 @@ function contourToPolygon(contourData, width, height, extent){
             let x1= extent[0]+ (x*pixelWidth);  
             let y1= extent[1]+ (y*pixelHeight); 
 
-            tempArr.push([x, y]);
+            tempArr.push([x,y]);
 
         }
 
@@ -106,32 +108,78 @@ function sortContourPixels(positionArray){
      * 
      */
 
-    let simplifiedArray=[];
+    let posArray= positionArray.slice();
+    let sortedArray=[];
+    let ip= posArray[0]; //initial point
+    sortedArray.push(ip);
+    posArray[0]=[NaN,NaN]; 
+    console.log(posArray, 'pos');
+    let i_f=0;
+    let sub_factor=1;
 
-    for (let i=0; i<positionArray.length;i++){
-
-        let x,y;
-
-        if (simplifiedArray.length===0){
-            simplifiedArray.push(positionArray[i])
-            x=positionArray[i][0];
-            y= positionArray[i][1];
-        }else{
-            if (x===simplifiedArray.slice(-1)[0][0] | y===simplifiedArray.slice(-1)[0][1]){
-                 continue;
-            }else {
-
-                simplifiedArray.push(positionArray[i]);
-                x=positionArray[i][0];
-                y=positionArray[i][1]; //or just calculate the bounding box, centroid for positional accuracy.... its fastttt
-                
-            }
-            
-        }
+    function kernel(k){
+        let kern= [[k[0]-1, k[1]-1],[k[0], k[1]-1],[k[0]+1, k[1]-1],
+        [k[0]-1, k[1]],k,[k[0]+1, k[1]],
+        [k[0]-1, k[1]+1],[k[0], k[1]+1],[k[0]+1, k[1]+1]];
+    
+        return kern; 
+       
     }
 
+    loop1:
+    for (let k=0; k<sortedArray.length; k++){
+        let il= sortedArray.length;
+        let ker= kernel(sortedArray[k]);
+
+        loop2:
+        for (let j=0; j<ker.length; j++){  
+
+            loop3:
+            for (let i=1; i<posArray.length; i++){
+
+                if (j===4){ //if kernel center, its same. So break
+                    break loop3;
+                }
+
+                if (((ker[j][0]===posArray[i][0]) && (ker[j][1]===posArray[i][1])) && ((posArray[i][0]!=NaN && posArray[i][1]!=NaN))){ //checking current pos equals any element in kernel
+
+                    
+                    sortedArray.push(positionArray[i]);
+                    posArray[i]=[NaN,NaN];
+                    sub_factor+=1;
+                    break loop2;
+        
+                }
+            }
+
+        }
+
+        let fl= sortedArray.length;
+        console.log([il,fl], 'ilfl');
+
+        if (fl-il===2){
+            //console.log(sortedArray[k]);
+            let v=sortedArray.pop();
+            //console.log(v);
+            k=k-2;
+        
+        }
+
+        if (sub_factor===posArray.length){
+            break;
+        }
+
+      
+
+    }
+
+    console.log(sub_factor,'subf');
     
-    return simplifiedArray;
+
+
+    return sortedArray;
+
+
 
 }
 
