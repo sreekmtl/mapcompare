@@ -76,6 +76,8 @@ function contourToPolygon(contourData, width, height, extent){
 
         }
 
+        //remove temparr with single pixels
+
         console.log(tempArr, 'temparr');
         console.log(sortContourPixels(tempArr), 'sortedarr');
 
@@ -98,6 +100,7 @@ function contourToPolygon(contourData, width, height, extent){
    
 }
 
+
 function sortContourPixels(positionArray){
 
     /**
@@ -115,7 +118,8 @@ function sortContourPixels(positionArray){
     posArray[0]=[NaN,NaN]; 
     console.log(posArray, 'pos');
     let i_f=0;
-    let sub_factor=1;
+    let sub_factor=posArray.length-1;
+    let ii=0; //independent iterator
 
     function kernel(k){
         let kern= [[k[0]-1, k[1]-1],[k[0], k[1]-1],[k[0]+1, k[1]-1],
@@ -127,7 +131,8 @@ function sortContourPixels(positionArray){
     }
 
     loop1:
-    for (let k=0; k<sortedArray.length; k++){
+    for (let k=0; k<=sortedArray.length; k++){
+        ii++
         let il= sortedArray.length;
         let ker= kernel(sortedArray[k]);
 
@@ -144,9 +149,10 @@ function sortContourPixels(positionArray){
                 if (((ker[j][0]===posArray[i][0]) && (ker[j][1]===posArray[i][1])) && ((posArray[i][0]!=NaN && posArray[i][1]!=NaN))){ //checking current pos equals any element in kernel
 
                     
+                    
                     sortedArray.push(positionArray[i]);
                     posArray[i]=[NaN,NaN];
-                    sub_factor+=1;
+                    sub_factor-=1;
                     break loop2;
         
                 }
@@ -155,17 +161,23 @@ function sortContourPixels(positionArray){
         }
 
         let fl= sortedArray.length;
-        console.log([il,fl], 'ilfl');
-
-        if (fl-il===2){
+        //console.log([k, il,fl], 'ilfl');
+        if (fl-il===0){
             //console.log(sortedArray[k]);
             let v=sortedArray.pop();
-            //console.log(v);
+            //console.log(v, 'v');
             k=k-2;
+            i_f+=1;
+            //console.log(k);
         
         }
 
-        if (sub_factor===posArray.length){
+        let gap= sub_factor+i_f;
+
+        
+
+        if(ii===posArray.length-1){
+            console.log('breaked');
             break;
         }
 
@@ -174,7 +186,9 @@ function sortContourPixels(positionArray){
     }
 
     console.log(sub_factor,'subf');
-    
+    //console.log(posArray);
+    console.log(i_f, 'if');
+    console.log(ii,'ii');
 
 
     return sortedArray;

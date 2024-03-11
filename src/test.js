@@ -92,7 +92,9 @@ function sortContourPixels(positionArray){
 
     loop1:
     for (let k=0; k<=sortedArray.length; k++){
+        ii++
         let il= sortedArray.length;
+        
         let ker= kernel(sortedArray[k]);
 
         loop2:
@@ -112,6 +114,7 @@ function sortContourPixels(positionArray){
                     sortedArray.push(positionArray[i]);
                     posArray[i]=[NaN,NaN];
                     sub_factor-=1;
+                    //ii++
                     break loop2;
         
                 }
@@ -126,18 +129,16 @@ function sortContourPixels(positionArray){
             let v=sortedArray.pop();
             console.log(v, 'v');
             k=k-2;
-            ii+=2;
             i_f+=1;
             console.log(k);
         
         }
 
         let gap= sub_factor+i_f;
-        let limit= posArray.length-gap;
 
-        i
+        
 
-        if(k===(sortedArray.length-(gap))){
+        if(ii===posArray.length-1){
             console.log('breaked');
             break;
         }
@@ -202,7 +203,7 @@ let qa=[
     [71,8],
     [70,9]
 ];
-let cc= sortContourPixels(pa);
+let cc= sortContourPixels(qa);
 console.log(cc);
-console.log(pa.length);
+console.log(qa.length);
 console.log(cc.length);
