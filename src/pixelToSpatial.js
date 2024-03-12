@@ -1,5 +1,3 @@
-import { addGeoJSONLayer } from "./main";
-
 
 
 function contourToPolygon(contourData, width, height, extent){
