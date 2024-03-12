@@ -207,3 +207,11 @@ let cc= sortContourPixels(qa);
 console.log(cc);
 console.log(qa.length);
 console.log(cc.length);
+
+class jj{
+    constructor(a,b){
+        console.log(a,b);
+    }
+}
+
+let aaa= new jj(2,3);

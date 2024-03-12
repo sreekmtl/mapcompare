@@ -9,12 +9,14 @@ import '../styles/myStyles.css'
 import 'ol/ol.css';
 import { getContours, getCannyEdge, watershed } from './cvOps.js';
 import { colorCompare } from './pixmatch.js';
-import kmeans from './kmeans.js';
 import { colorFromPixel, extractChannel, getChannels } from './utils.js';
 import Image from 'image-js';
 import modFilter from './modeFilter.js';
 import { colorInRange } from './yiqRange.js';
 import { contourToPolygon } from './pixelToSpatial.js';
+import VectorLayer from 'ol/layer/Vector.js';
+import VectorSource from 'ol/source/Vector.js';
+import GeoJSON from 'ol/format/GeoJSON.js';
 
 
 const keys= new Keys();
@@ -102,63 +104,96 @@ async function mapToImg(map,mapCanvas,canvasContext) {
 
 function init(){
 
-const view= new View({
-  center: [8687373.06, 3544749.53],
-  zoom: 13,
-});
-
-map1=    new Map({
-        layers: [
-          new TileLayer({source: new OSM()}),
-        ],
-        view:view,
-        target: 'map1',
-      });
-    
-map2=    new Map({
-        layers:[
-            new TileLayer({source:new BingMaps({
-                key:bingMapKey,
-                imagerySet:'RoadOnDemand'
-            })}),
-        ],
-        view:view,
-        target:'map2',
-    
-    });
-
-
-
-map1.on('moveend',(e)=>{
-  mapToImg(map1, canvas1, canvasCtx1);
-});
-
-map2.on('moveend',(e)=>{
-  mapToImg(map2, canvas2, canvasCtx2);
-});
-
-map1.on('click',(e)=>{
-  let imgData= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
-  console.log(colorFromPixel(e.pixel, imgData.data, 300, 300));
-  let diffImg= colorInRange(imgData, colorFromPixel(e.pixel, imgData.data, 300, 300), 0);
-  canvasCtx1.putImageData(diffImg,0,0);
-  featureSelected=true;
+  const view= new View({
+    center: [8687373.06, 3544749.53],
+    zoom: 13,
+  });
   
-});
-
-
+  map1=    new Map({
+          layers: [
+            new TileLayer({source: new OSM()}),
+          ],
+          view:view,
+          target: 'map1',
+        });
+      
+  map2=    new Map({
+          layers:[
+              new TileLayer({source:new BingMaps({
+                  key:bingMapKey,
+                  imagerySet:'RoadOnDemand'
+              })}),
+          ],
+          view:view,
+          target:'map2',
+      
+      });
+  
+  
+  
+  map1.on('moveend',(e)=>{
+    mapToImg(map1, canvas1, canvasCtx1);
+  });
+  
+  map2.on('moveend',(e)=>{
+    mapToImg(map2, canvas2, canvasCtx2);
+  });
+  
+  map1.on('click',(e)=>{
+    let imgData= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
+    console.log(colorFromPixel(e.pixel, imgData.data, 300, 300));
+    let diffImg= colorInRange(imgData, colorFromPixel(e.pixel, imgData.data, 300, 300), 0);
+    canvasCtx1.putImageData(diffImg,0,0);
+    featureSelected=true;
+    
+  });
+  
+  
 
 }
 
+export function addGeoJSONLayer(data){
 
-processBtn.addEventListener('click',()=>{
+    const vectorSource= new VectorSource({
+      features:new GeoJSON({dataProjection:'EPSG:3857'}).readFeatures(data),
+    });
+
+  const vectorLayer= new VectorLayer({
+      source:vectorSource,
+    });
+
+    map1.addLayer(vectorLayer);
+  
+
+}
+
+function download(file, text){
+  var element = document.createElement('a');
+                element.setAttribute('href',
+                'data:application/json;charset=utf-8, '
+                + encodeURIComponent(text));
+                element.setAttribute('download', file);
+                document.body.appendChild(element);
+                element.click();
+ 
+                document.body.removeChild(element);
+}
+
+
+processBtn.addEventListener('click',(e)=>{
   
   let imgData1= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
   let extent= map1.getView().calculateExtent(map1.getSize());
-  console.log(extent, 'extent');
+  
   contourData= getContours(imgData1, canvas1);
-  contourToPolygon(contourData, canvas1.width, canvas1.height, extent);
+  let dwnld=contourToPolygon(contourData, canvas1.width, canvas1.height, extent);
 
+  addGeoJSONLayer(dwnld);
+
+  //let text= JSON.stringify(dwnld);
+  //var filename = "dwnld.geojson";
+ 
+  //download(filename, text);
 
   //watershed(imgData1, canvas1);
   let img_2= Image.fromCanvas(canvas2);

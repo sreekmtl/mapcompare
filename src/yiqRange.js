@@ -53,7 +53,7 @@ function colorInRange(imageData, selectedColor, sensitivity){
 
     }
 
-    console.log('original YIQ distance', diffData);
+    //console.log('original YIQ distance', diffData);
     return diffImg;
 
 }
