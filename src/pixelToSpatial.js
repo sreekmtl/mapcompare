@@ -19,7 +19,7 @@ function contourToPolygon(contourData, width, height, extent){
     let pixelWidth= (extent[2]-extent[0])/width;
     let pixelHeight= (extent[3]-extent[1])/height;
 
-    console.log(extent, pixelWidth, pixelHeight, 'extent');
+    //console.log(extent, pixelWidth, pixelHeight, 'extent');
 
     for (let i=0; i<contours.length; i+=3){  //Alpha channel is not considered here
 

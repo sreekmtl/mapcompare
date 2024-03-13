@@ -215,3 +215,8 @@ class jj{
 }
 
 let aaa= new jj(2,3);
+
+var cols= Array.from({length:50}, (value, i)=>i+1);
+console.log(cols);
+
+console.log(610/300);

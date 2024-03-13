@@ -21,7 +21,7 @@ function colorInRange(imageData, selectedColor, sensitivity){
 
     ];
 
-    console.log(colorSelected, 'inYIQ');
+    //console.log(colorSelected, 'inYIQ');
 
 
     for (let i=0; i<imageData.data.length;i+=4){

@@ -9,7 +9,7 @@ import '../styles/myStyles.css'
 import 'ol/ol.css';
 import { getContours, getCannyEdge, watershed } from './cvOps.js';
 import { colorCompare } from './pixmatch.js';
-import { colorFromPixel, extractChannel, getChannels } from './utils.js';
+import { colorFromPixel, extractChannel, getChannels, imageCovariance } from './utils.js';
 import Image from 'image-js';
 import modFilter from './modeFilter.js';
 import { colorInRange } from './yiqRange.js';
@@ -17,6 +17,7 @@ import { contourToPolygon } from './pixelToSpatial.js';
 import VectorLayer from 'ol/layer/Vector.js';
 import VectorSource from 'ol/source/Vector.js';
 import GeoJSON from 'ol/format/GeoJSON.js';
+import { createChart } from './chart.js';
 
 
 const keys= new Keys();
@@ -43,11 +44,16 @@ var img2= new Image();
 
 const processBtn= document.getElementById('mapToCanvasBtn');
 const downloadBtn= document.getElementById('downloadVector');
+const imgCovBtn= document.getElementById('imageCov');
+const extentBox= document.getElementById('extentBox');
+const zoomLevelBox= document.getElementById('zoomLevel');
 
-let featureSelected= false; //Whether user selected feature from map or not
-let vectorFilePresent= false;
-let contourData;
-let vectorData;
+let map1Selected= false; //Whether user selected feature from map1 or not
+let map2Selected= false;
+let vectorFilePresent1= false;
+let vectorFilePresent2=false;
+let bothMapSelected=false;
+let contourData1, contourData2, vectorData1, vectorData2 ;
 
 let map1, map2;
 
@@ -110,6 +116,7 @@ function init(){
   const view= new View({
     center: [8687373.06, 3544749.53],
     zoom: 13,
+    constrainResolution:true,
   });
   
   map1=    new Map({
@@ -132,10 +139,13 @@ function init(){
       
       });
   
-  
+  extentBox.textContent="Extent: "+map1.getView().calculateExtent(map1.getSize());
+  zoomLevelBox.textContent="Zoom Level: "+map1.getView().getZoom();
   
   map1.on('moveend',(e)=>{
     mapToImg(map1, canvas1, canvasCtx1);
+    extentBox.textContent="Extent: "+map1.getView().calculateExtent(map1.getSize());
+    zoomLevelBox.textContent="Zoom Level: "+map1.getView().getZoom();
   });
   
   map2.on('moveend',(e)=>{
@@ -144,13 +154,20 @@ function init(){
   
   map1.on('click',(e)=>{
     let imgData= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
-    console.log(colorFromPixel(e.pixel, imgData.data, 300, 300));
+    //console.log(colorFromPixel(e.pixel, imgData.data, 300, 300));
     let diffImg= colorInRange(imgData, colorFromPixel(e.pixel, imgData.data, 300, 300), 0);
     canvasCtx1.putImageData(diffImg,0,0);
-    featureSelected=true;
+    map1Selected=true;
     
   });
-  
+
+  map2.on('click',(e)=>{
+    let imgData= canvasCtx2.getImageData(0,0,canvas2.width,canvas2.height);
+    //console.log(colorFromPixel(e.pixel, imgData.data, 300, 300));
+    let diffImg= colorInRange(imgData, colorFromPixel(e.pixel, imgData.data, 300, 300), 0);
+    canvasCtx2.putImageData(diffImg,0,0);
+    map2Selected=true;
+  })
   
 
 }
@@ -183,42 +200,63 @@ function download(file, text){
 }
 
 
+/**
+ * All the UI events are written below
+ * This includes button, slider events etc.
+ */
+
+
 processBtn.addEventListener('click',(e)=>{
-  
-  let imgData1= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
-  let extent= map1.getView().calculateExtent(map1.getSize());
-  getCannyEdge(imgData1,canvas1);
-  contourData= getContours(imgData1, canvas1);
-  vectorData=contourToPolygon(contourData, canvas1.width, canvas1.height, extent);
-  vectorFilePresent=true;
-  addGeoJSONLayer(vectorData);
 
+  if (map1Selected===true){
 
-  let img_2= Image.fromCanvas(canvas2);
-  //let m= img_2.medianFilter({channels:3, radius:1, border:'copy'});
-  let m= modFilter(img_2, {channels:3, radius:2, border:'copy'});
-  
-  let img_22= new ImageData(canvas2.width, canvas2.height);
-
-  for (let i=0; i<m.data.length; i+=4){
-
-    img_22.data[i]= m.data[i];
-    img_22.data[i+1]= m.data[i+1];
-    img_22.data[i+2]= m.data[i+2];
-    img_22.data[i+3]= m.data[i+3];
+    let imgData1= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
+    let extent1= map1.getView().calculateExtent(map1.getSize());
+    //getCannyEdge(imgData1,canvas1);
+    contourData1= getContours(imgData1, canvas1);
+    vectorData1=contourToPolygon(contourData1, canvas1.width, canvas1.height, extent1);
+    vectorFilePresent1=true;
+    addGeoJSONLayer(vectorData1);
 
   }
 
-  canvasCtx2.putImageData(img_22,0,0);
+  if (map2Selected===true){
+    let imgData2= canvasCtx2.getImageData(0,0,canvas2.width,canvas2.height);
+    let extent2= map2.getView().calculateExtent(map2.getSize());
+    //getCannyEdge(imgData2,canvas2);
+    contourData2= getContours(imgData2, canvas2);
+    vectorData2=contourToPolygon(contourData2, canvas2.width, canvas2.height, extent2);
+    vectorFilePresent2=true;
+    addGeoJSONLayer(vectorData2);
+  }
+  
+  
+
+
+  //let img_2= Image.fromCanvas(canvas2);
+  //let m= modFilter(img_2, {channels:3, radius:2, border:'copy'});
+  
+  //let img_22= new ImageData(canvas2.width, canvas2.height);
+
+  //for (let i=0; i<m.data.length; i+=4){
+
+    //img_22.data[i]= m.data[i];
+    //img_22.data[i+1]= m.data[i+1];
+    //img_22.data[i+2]= m.data[i+2];
+    //img_22.data[i+3]= m.data[i+3];
+
+  //}
+
+  //canvasCtx2.putImageData(img_22,0,0);
   
 
 });
 
 downloadBtn.addEventListener('click',(e)=>{
 
-  if (vectorFilePresent===true){
+  if (vectorFilePresent1===true){
 
-    let text= JSON.stringify(vectorData);
+    let text= JSON.stringify(vectorData1);
     var filename = "layer.geojson";
  
     download(filename, text);
@@ -227,6 +265,30 @@ downloadBtn.addEventListener('click',(e)=>{
     alert('Generate vector file before downloading');
   }
 
+
+});
+
+imgCovBtn.addEventListener('click',(e)=>{
+
+  if (map1Selected===true && map1Selected===true){
+
+    let imgData1= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
+    let imgData2= canvasCtx2.getImageData(0,0,canvas2.width,canvas2.height);
+
+    getCannyEdge(imgData1, canvas1);
+    getCannyEdge(imgData2, canvas2);
+
+    let cannyData1= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
+    let cannyData2= canvasCtx2.getImageData(0,0,canvas2.width,canvas2.height);
+
+    console.log(cannyData1,cannyData2);
+
+    let covImage= imageCovariance(cannyData1, cannyData2);
+
+
+  }else {
+    alert('Select features from both maps');
+  }
 
 });
 

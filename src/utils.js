@@ -2,6 +2,8 @@
  * Utility functions
  */
 
+import { createChart } from "./chart";
+
 function getChannels(imgDataArray){
 
     let rgbArray=[];
@@ -87,11 +89,52 @@ function findMode(kernel){
 
 }
 
-function geoJSONParser(){
 
-    
+function imageCovariance(imageData1, imageData2){
 
+    let dataArray1= getChannels(imageData1.data);
+    let dataArray2= getChannels(imageData2.data);
+
+    let cBand1= new Array(dataArray1.length);
+    let cBand2= new Array(dataArray2.length);
+
+    for (let i=0; i<dataArray1.length; i++){
+        if(dataArray1[i][0] && dataArray1[i][1] && dataArray1[i][2]===255){
+            cBand1[i]=255;
+        }else{
+            cBand1[i]=0;
+        }
+    }
+
+    for (let i=0; i<dataArray2.length; i++){
+        if(dataArray2[i][0] && dataArray2[i][1] && dataArray2[i][2]===255){
+            cBand2[i]=255;
+        }else{
+            cBand2[i]=0;
+        }
+    }
+
+    let N= cBand1.length;
+    let Xbar= cBand1.reduce((a,c)=>a+c)/N;
+    let Ybar= cBand2.reduce((a,c)=>a+c)/N;
+    let covData= new Array(N);
+
+    for (let i=0; i<N; i++){
+
+        covData[i]= ((cBand1[i]-Xbar)*(cBand2[i]-Ybar))/N;
+    }
+
+    //let covImage= new ImageData(300, 300, );
+
+    let min= Math.min(...covData);
+    let max= Math.max(...covData);
+    console.log(min, max, covData);
+
+    createChart(covData);
+ 
+
+    return 1;
     
 }
 
-export {getChannels, colorFromPixel, extractChannel, findMode, geoJSONParser};
+export {getChannels, colorFromPixel, extractChannel, findMode, imageCovariance};
