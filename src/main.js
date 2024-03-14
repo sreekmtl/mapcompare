@@ -7,13 +7,13 @@ import MapEvent from 'ol/MapEvent.js'
 import Keys from './keys.js';
 import '../styles/myStyles.css'
 import 'ol/ol.css';
-import { getContours, getCannyEdge, watershed } from './cvOps.js';
+import { getContours, getCannyEdge, watershed, erode } from './cvOps.js';
 import { colorCompare } from './pixmatch.js';
 import { colorFromPixel, extractChannel, getChannels, imageCovariance } from './utils.js';
 import Image from 'image-js';
 import modFilter from './modeFilter.js';
 import { colorInRange } from './yiqRange.js';
-import { contourToPolygon } from './pixelToSpatial.js';
+import { contourToPolygon } from './imageToPolygon.js';
 import VectorLayer from 'ol/layer/Vector.js';
 import VectorSource from 'ol/source/Vector.js';
 import GeoJSON from 'ol/format/GeoJSON.js';
@@ -47,6 +47,7 @@ const downloadBtn= document.getElementById('downloadVector');
 const imgCovBtn= document.getElementById('imageCov');
 const extentBox= document.getElementById('extentBox');
 const zoomLevelBox= document.getElementById('zoomLevel');
+const featureDropDown= document.getElementById('FeatureType');
 
 let map1Selected= false; //Whether user selected feature from map1 or not
 let map2Selected= false;
@@ -208,28 +209,54 @@ function download(file, text){
 
 processBtn.addEventListener('click',(e)=>{
 
-  if (map1Selected===true){
+  if (featureDropDown.value==='1'){
 
-    let imgData1= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
-    let extent1= map1.getView().calculateExtent(map1.getSize());
-    //getCannyEdge(imgData1,canvas1);
-    contourData1= getContours(imgData1, canvas1);
-    vectorData1=contourToPolygon(contourData1, canvas1.width, canvas1.height, extent1);
-    vectorFilePresent1=true;
-    addGeoJSONLayer(vectorData1);
+    alert('Choose a feature type from drop down');
 
-  }
+  }else if (featureDropDown.value==='2'){
 
-  if (map2Selected===true){
-    let imgData2= canvasCtx2.getImageData(0,0,canvas2.width,canvas2.height);
-    let extent2= map2.getView().calculateExtent(map2.getSize());
-    //getCannyEdge(imgData2,canvas2);
-    contourData2= getContours(imgData2, canvas2);
-    vectorData2=contourToPolygon(contourData2, canvas2.width, canvas2.height, extent2);
-    vectorFilePresent2=true;
-    addGeoJSONLayer(vectorData2);
-  }
+    //polygon feature
+
+    if (map1Selected===true){
+
+      let imgData1= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
+      let extent1= map1.getView().calculateExtent(map1.getSize());
+      contourData1= getContours(imgData1, canvas1);
+      vectorData1=contourToPolygon(contourData1, canvas1.width, canvas1.height, extent1);
+      vectorFilePresent1=true;
+      addGeoJSONLayer(vectorData1);
   
+    }
+  
+    if (map2Selected===true){
+      let imgData2= canvasCtx2.getImageData(0,0,canvas2.width,canvas2.height);
+      let extent2= map2.getView().calculateExtent(map2.getSize());
+      contourData2= getContours(imgData2, canvas2);
+      vectorData2=contourToPolygon(contourData2, canvas2.width, canvas2.height, extent2);
+      vectorFilePresent2=true;
+      addGeoJSONLayer(vectorData2);
+    }
+    
+
+  }else if (featureDropDown.value==='3'){
+
+    //Line feature
+
+    if (map1Selected===true){
+      let imgData1= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
+      getCannyEdge(imgData1, canvas1,3,3);
+    }
+
+    if (map2Selected===true){
+      let imgData2= canvasCtx2.getImageData(0,0,canvas2.width,canvas2.height);
+      getCannyEdge(imgData2, canvas2,3,2);
+
+    }
+
+
+  }
+
+ 
   
 
 

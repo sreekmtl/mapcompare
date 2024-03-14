@@ -4,8 +4,7 @@
 .column {
     float: left;
     width: 30%;
-    padding: 10px;
-    height: 640px; /* Should be removed. Only for demonstration */
+    height: 680px; /* Should be removed. Only for demonstration */
   }
   
   /* Clear floats after the columns */

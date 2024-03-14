@@ -114,5 +114,21 @@ function watershed(imgData, canvas){
 
 }
 
+function erode(imgData, canvas, m, i){
 
-export {getContours, getCannyEdge, watershed};
+    let src= cv.matFromImageData(imgData)
+    console.log(src);
+
+    let dst = new cv.Mat();
+    let M = cv.Mat.ones(m, m, cv.CV_8U);
+    let anchor = new cv.Point(-1, -1);
+    // You can try more different parameters
+    cv.erode(src, dst, M, anchor, i, cv.BORDER_CONSTANT, cv.morphologyDefaultBorderValue());
+    cv.imshow(canvas, dst);
+    src.delete(); dst.delete(); M.delete();
+
+
+}
+
+
+export {getContours, getCannyEdge, watershed, erode};

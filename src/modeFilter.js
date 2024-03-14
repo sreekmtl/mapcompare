@@ -4,7 +4,7 @@ import {checkProcessable} from 'image-js/src/image/core/checkProcessable';
 import Image from 'image-js/src/image/Image';
 
 /**
- * Each pixel of the image becomes the median of the neighbor pixels.
+ * Each pixel of the image becomes the meode of the neighbor pixels.
  * @memberof Image
  * @instance
  * @param {Image} image
