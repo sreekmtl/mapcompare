@@ -136,6 +136,21 @@ function sortContourPixels(positionArray){
     return sortedArray;
 
    
+     //let img_2= Image.fromCanvas(canvas2);
+  //let m= modFilter(img_2, {channels:3, radius:2, border:'copy'});
+  
+  //let img_22= new ImageData(canvas2.width, canvas2.height);
+
+  //for (let i=0; i<m.data.length; i+=4){
+
+    //img_22.data[i]= m.data[i];
+    //img_22.data[i+1]= m.data[i+1];
+    //img_22.data[i+2]= m.data[i+2];
+    //img_22.data[i+3]= m.data[i+3];
+
+  //}
+
+  //canvasCtx2.putImageData(img_22,0,0);
    
 
 

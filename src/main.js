@@ -1,28 +1,23 @@
 import Map from 'ol/Map.js';
 import View from 'ol/View.js';
-import OSM from 'ol/source/OSM.JS';
-import BingMaps from 'ol/source/BingMaps.js';
 import TileLayer from 'ol/layer/Tile.js';
-import MapEvent from 'ol/MapEvent.js'
-import Keys from './keys.js';
 import '../styles/myStyles.css'
 import 'ol/ol.css';
 import { getContours, getCannyEdge, watershed, erode } from './cvOps.js';
-import { colorCompare } from './pixmatch.js';
 import { colorFromPixel, extractChannel, getChannels, imageCovariance } from './utils.js';
 import Image from 'image-js';
-import modFilter from './modeFilter.js';
 import { colorInRange } from './yiqRange.js';
 import { contourToPolygon } from './imageToPolygon.js';
 import VectorLayer from 'ol/layer/Vector.js';
 import VectorSource from 'ol/source/Vector.js';
 import GeoJSON from 'ol/format/GeoJSON.js';
 import { createChart } from './chart.js';
+import { junctionExtract } from './imageToLine.js';
+import Sources from './mapSources.js';
 
 
-const keys= new Keys();
-let bingMapKey= keys.getKeys().BingMapKey;
 
+let sources= new Sources();
 
 
 const canvas1= document.getElementById('imgCanvas1');
@@ -48,6 +43,8 @@ const imgCovBtn= document.getElementById('imageCov');
 const extentBox= document.getElementById('extentBox');
 const zoomLevelBox= document.getElementById('zoomLevel');
 const featureDropDown= document.getElementById('FeatureType');
+const mapdd1= document.getElementById('MapType1');
+const mapdd2= document.getElementById('MapType2');
 
 let map1Selected= false; //Whether user selected feature from map1 or not
 let map2Selected= false;
@@ -112,7 +109,7 @@ async function mapToImg(map,mapCanvas,canvasContext) {
   
 }
 
-function init(){
+function init(src1, src2){
 
   const view= new View({
     center: [8687373.06, 3544749.53],
@@ -122,7 +119,7 @@ function init(){
   
   map1=    new Map({
           layers: [
-            new TileLayer({source: new OSM()}),
+            new TileLayer({source: src1}),
           ],
           view:view,
           target: 'map1',
@@ -130,10 +127,7 @@ function init(){
       
   map2=    new Map({
           layers:[
-              new TileLayer({source:new BingMaps({
-                  key:bingMapKey,
-                  imagerySet:'RoadOnDemand'
-              })}),
+              new TileLayer({source: src2}),
           ],
           view:view,
           target:'map2',
@@ -244,7 +238,8 @@ processBtn.addEventListener('click',(e)=>{
 
     if (map1Selected===true){
       let imgData1= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
-      getCannyEdge(imgData1, canvas1,3,3);
+      let cannyData1= getCannyEdge(imgData1, canvas1,3,3);
+      junctionExtract(cannyData1.data, 300, 300, 20);
     }
 
     if (map2Selected===true){
@@ -255,26 +250,6 @@ processBtn.addEventListener('click',(e)=>{
 
 
   }
-
- 
-  
-
-
-  //let img_2= Image.fromCanvas(canvas2);
-  //let m= modFilter(img_2, {channels:3, radius:2, border:'copy'});
-  
-  //let img_22= new ImageData(canvas2.width, canvas2.height);
-
-  //for (let i=0; i<m.data.length; i+=4){
-
-    //img_22.data[i]= m.data[i];
-    //img_22.data[i+1]= m.data[i+1];
-    //img_22.data[i+2]= m.data[i+2];
-    //img_22.data[i+3]= m.data[i+3];
-
-  //}
-
-  //canvasCtx2.putImageData(img_22,0,0);
   
 
 });
@@ -319,9 +294,24 @@ imgCovBtn.addEventListener('click',(e)=>{
 
 });
 
+let sourceMap={
+  '1':sources.OSM_Standard,
+  '2':sources.Bing_RoadsOnDemand,
+  '3':sources.EsriXYZ,
+  '4':sources.ArcGIS_sample,
+}
 
+init(sourceMap['1'],sourceMap['2']);
 
-init();
+mapdd1.addEventListener('change',(c)=>{
+
+  //init(sourceMap[mapdd1.value], sourceMap[mapdd2.value]);
+});
+
+mapdd2.addEventListener('change', (c)=>{
+  //init(sourceMap[mapdd1.value], sourceMap[mapdd2.value]);
+});
+
 
 
 

@@ -203,20 +203,13 @@ let qa=[
     [71,8],
     [70,9]
 ];
-let cc= sortContourPixels(qa);
-console.log(cc);
-console.log(qa.length);
-console.log(cc.length);
+//let cc= sortContourPixels(qa);
+//console.log(cc);
+//console.log(qa.length);
+//console.log(cc.length);
 
-class jj{
-    constructor(a,b){
-        console.log(a,b);
-    }
-}
+let ss= [0,1,2,4];
+console.log(ss[-1]*2);
 
-let aaa= new jj(2,3);
-
-var cols= Array.from({length:50}, (value, i)=>i+1);
-console.log(cols);
-
-console.log(610/300);
+console.log(2045%300);
+console.log(2045/300);

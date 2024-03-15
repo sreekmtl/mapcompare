@@ -55,7 +55,9 @@ function getCannyEdge(imgData, canvas){
     cv.Canny(src, dst, 50, 100, 3, false);
     cv.imshow(canvas, dst);
     src.delete(); 
-    dst.delete();
+    //dst.delete();
+
+    return dst;
 
     
 }

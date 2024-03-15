@@ -114,23 +114,42 @@ function imageCovariance(imageData1, imageData2){
         }
     }
 
-    let N= cBand1.length;
-    let Xbar= cBand1.reduce((a,c)=>a+c)/N;
-    let Ybar= cBand2.reduce((a,c)=>a+c)/N;
-    let covData= new Array(N);
+    
+    //let Xbar= cBand1.reduce((a,c)=>a+c)/N;
+    //let Ybar= cBand2.reduce((a,c)=>a+c)/N;
+    let variables= [cBand1, cBand2];
+    let N= variables.length;
+    let covData= new Array(N*N);
+    
+    for (let i=0; i<N;i++){
+        for (let j=0; j<N;j++){
+            let coval= 0;
+            let X= variables[i];
+            let Y= variables[j];
+            let l= X.length;
 
-    for (let i=0; i<N; i++){
+            let Xbar= X.reduce((a,c)=>a+c)/l;
+            let Ybar= Y.reduce((a,c)=>a+c)/l;
 
-        covData[i]= ((cBand1[i]-Xbar)*(cBand2[i]-Ybar))/N;
+            for (let k=0; k<l;k++){
+
+                coval+= ((X[k]-Xbar)*(Y[k]-Ybar))/l;
+            }
+            covData.push(coval);
+        }
+
+        
     }
 
-    //let covImage= new ImageData(300, 300, );
+   
+
+    
 
     let min= Math.min(...covData);
     let max= Math.max(...covData);
     console.log(min, max, covData);
 
-    createChart(covData);
+    //createChart(covData);
  
 
     return 1;
