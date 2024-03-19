@@ -127,7 +127,9 @@ function erode(imgData, canvas, m, i){
     // You can try more different parameters
     cv.erode(src, dst, M, anchor, i, cv.BORDER_CONSTANT, cv.morphologyDefaultBorderValue());
     cv.imshow(canvas, dst);
-    src.delete(); dst.delete(); M.delete();
+    src.delete(); M.delete();
+
+    return dst;
 
 
 }

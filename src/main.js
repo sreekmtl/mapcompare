@@ -238,13 +238,18 @@ processBtn.addEventListener('click',(e)=>{
 
     if (map1Selected===true){
       let imgData1= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
-      let cannyData1= getCannyEdge(imgData1, canvas1,3,3);
-      junctionExtract(cannyData1.data, 300, 300, 20);
+      let erodeData1= erode(imgData1, canvas1,3,3);
+      let extent1= map1.getView().calculateExtent(map1.getSize());
+      //let erodeData1= getCannyEdge(imgData1, canvas1);
+      vectorData1= junctionExtract(erodeData1.data, 300, 300, extent1);
+      vectorFilePresent1=true;
+      addGeoJSONLayer(vectorData1);
+      console.log(vectorData1);
     }
 
     if (map2Selected===true){
       let imgData2= canvasCtx2.getImageData(0,0,canvas2.width,canvas2.height);
-      getCannyEdge(imgData2, canvas2,3,2);
+      //getCannyEdge(imgData2, canvas2,3,2);
 
     }
 
@@ -299,6 +304,7 @@ let sourceMap={
   '2':sources.Bing_RoadsOnDemand,
   '3':sources.EsriXYZ,
   '4':sources.ArcGIS_sample,
+  '5':sources.EsriMaps,
 }
 
 init(sourceMap['1'],sourceMap['2']);

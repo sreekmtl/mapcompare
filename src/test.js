@@ -211,5 +211,53 @@ let qa=[
 let ss= [0,1,2,4];
 console.log(ss[-1]*2);
 
-console.log(2045%300);
+console.log(2047%2);
 console.log(2045/300);
+
+function createCicrcularKernel(size){
+
+    let radius= size/2;
+    let kernel= [];
+    let c1 =Math.floor(radius);
+
+
+    for (let i=0; i<size; i++){
+        let inner_array=[];
+        for (let j=0; j<size; j++){
+            inner_array.push(0);
+        }
+        kernel.push(inner_array);
+    }
+
+    for (let i=0; i<size; i++){
+        for (let j=0; j<size; j++){
+
+            let a= c1-i;
+            let b= c1-j;
+            let c= Math.sqrt(Math.pow(a,2)+Math.pow(b,2));
+
+            let d= c1-1;
+            let e= Math.sqrt((Math.pow(d,2))+Math.pow(d,2));
+            let jpos;
+
+            if (c<=radius && (i===0 | i===size-1)){
+                //if ((i===0 | j===0) | (i===size-1 | j===size-1)){
+                kernel[i][j]=1;
+                //}
+            }else if(c<=radius){
+                kernel[i][j]=1;
+                jpos=j;
+                kernel[i][size-1-jpos]=1;
+                break;
+                
+            }
+        }
+    }
+
+for (let i=0;i<kernel.length;i++){
+    console.log(kernel[i].toString());
+}
+}
+
+
+createCicrcularKernel(19);

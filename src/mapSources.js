@@ -2,6 +2,14 @@ import {XYZ,OSM,TileArcGISRest,BingMaps,} from 'ol/source';
 import Keys from './keys';
 
 const basemapId = "arcgis/streets";
+const EsriLayers={
+  'World_Basemap_v2':'World_Basemap_v2',
+  'World_Topo_Map':'World_Topo_Map',
+  'World_Street_Map':'World_Street_Map',
+  'World_Hillshade':'Elevation/World_Hillshade',
+  'World_Ocean_Base': 'Ocean/World_Ocean_Base',
+  'World_Imagery': 'World_Imagery'
+  };
 
 
 class Sources{
@@ -31,6 +39,11 @@ class Sources{
             maxZoom:19,
             crossOrigin: 'Anonymous',
           });
+
+        this.EsriMaps= new XYZ({
+          url: 'https://services.arcgisonline.com/arcgis/rest/services/'+EsriLayers['World_Topo_Map']+'/MapServer/MapServer/tile/{z}/{y}/{x}',
+
+        });
         
     }
 
