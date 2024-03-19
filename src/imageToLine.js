@@ -1,3 +1,5 @@
+import { jDBSCAN } from "./jDBScan";
+
 
 export function junctionExtract(edgeData, imgW, imgH, extent){
 
@@ -45,6 +47,7 @@ export function junctionExtract(edgeData, imgW, imgH, extent){
     }
 
     console.log(points);
+    //console.log(cannyData);
     loop1:
     for (let i=0; i<points.length; i++){
 
@@ -55,7 +58,7 @@ export function junctionExtract(edgeData, imgW, imgH, extent){
             count+=1;
 
             loop2:
-            for (let j=3; j<=25; j+=2){
+            for (let j=9; j<=25; j+=2){
 
                 let imgWindow=[];
                 let kernelSize= j;
@@ -79,11 +82,13 @@ export function junctionExtract(edgeData, imgW, imgH, extent){
                         if (kernel[m][n]*imgWindow[(m*j)+n]===255){
                             intersection+=1;
                         }
-                        if (intersection>=16){
-                            intersections.push(i);
-                            break loop2;
-                        }
+                        
                     }
+                }
+
+                if (intersection>=12){
+                    intersections.push(i);
+                    break loop2;
                 }
 
 
@@ -96,6 +101,8 @@ export function junctionExtract(edgeData, imgW, imgH, extent){
     console.log(count);
     console.log(intersections);
 
+    let point_data=new Array(intersections.length);
+
     for (let i in intersections){
 
         let x= intersections[i]%imgW;
@@ -104,9 +111,20 @@ export function junctionExtract(edgeData, imgW, imgH, extent){
         let x1= extent[0]+ (x*pixelWidth);  
         let y1= extent[3]- (y*pixelHeight); 
 
-        let coordinates=[x1,y1];
+        point_data[i]={
+            x:x1, y:y1
+        }
 
+    }
 
+    let dbScanner= jDBSCAN().eps(5).minPts(1).distance('EUCLIDEAN').data(point_data);
+    let clusters= dbScanner();
+    let clusterCenters= dbScanner.getClusters();
+
+    for (let i=0; i<clusterCenters.length; i++){
+
+        let coordinates=[clusterCenters[i].x, clusterCenters[i].y]
+        
         junctions["features"].push(
             {
                 "type":"Feature",

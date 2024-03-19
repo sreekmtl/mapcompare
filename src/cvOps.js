@@ -53,7 +53,7 @@ function getCannyEdge(imgData, canvas){
     //cv.GaussianBlur(src, src, ksize, 0, 0, cv.BORDER_DEFAULT);
 
     cv.Canny(src, dst, 50, 100, 3, false);
-    cv.imshow(canvas, dst);
+    //cv.imshow(canvas, dst);
     src.delete(); 
     //dst.delete();
 

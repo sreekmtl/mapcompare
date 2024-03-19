@@ -240,7 +240,7 @@ processBtn.addEventListener('click',(e)=>{
       let imgData1= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
       let erodeData1= erode(imgData1, canvas1,3,3);
       let extent1= map1.getView().calculateExtent(map1.getSize());
-      //let erodeData1= getCannyEdge(imgData1, canvas1);
+      //let cannyData1= getCannyEdge(imgData1, canvas1);
       vectorData1= junctionExtract(erodeData1.data, 300, 300, extent1);
       vectorFilePresent1=true;
       addGeoJSONLayer(vectorData1);
