@@ -2,7 +2,7 @@
  * Utility functions
  */
 
-import { createChart } from "./chart";
+import { createChart } from "./results/chart";
 
 function getChannels(imgDataArray){
 

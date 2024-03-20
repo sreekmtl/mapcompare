@@ -11,9 +11,11 @@ import { contourToPolygon } from './spatialOperations/imageToPolygon.js';
 import VectorLayer from 'ol/layer/Vector.js';
 import VectorSource from 'ol/source/Vector.js';
 import GeoJSON from 'ol/format/GeoJSON.js';
-import { createChart } from './chart.js';
+import { createChart } from './results/chart.js';
 import { junctionExtract } from './spatialOperations/imageToLine.js';
 import Sources from './mapOperations/mapSources.js';
+import { mapToImg } from './mapOperations/mapToImg.js';
+import { clearChilds, lineProcesses } from './uiElements.js';
 
 
 
@@ -57,59 +59,6 @@ let contourData1, contourData2, vectorData1, vectorData2 ;
 
 let map1, map2;
 
-async function mapToImg(map,mapCanvas,canvasContext) {
-  map.once('rendercomplete', function () {
-    //const mapCanvas = document.getElementById('imgCanvas1');
-    const size = map.getSize();
-    mapCanvas.width = size[0];
-    mapCanvas.height = size[1];
-    const mapContext = canvasContext;
-    Array.prototype.forEach.call(
-      map.getViewport().querySelectorAll('.ol-layer canvas, canvas.ol-layer'),
-      function (canvas) {
-        if (canvas.width > 0) {
-          const opacity =
-            canvas.parentNode.style.opacity || canvas.style.opacity;
-          mapContext.globalAlpha = opacity === '' ? 1 : Number(opacity);
-          let matrix;
-          const transform = canvas.style.transform;
-          if (transform) {
-            // Get the transform parameters from the style's transform matrix
-            matrix = transform
-              .match(/^matrix\(([^\(]*)\)$/)[1]
-              .split(',')
-              .map(Number);
-          } else {
-            matrix = [
-              parseFloat(canvas.style.width) / canvas.width,
-              0,
-              0,
-              parseFloat(canvas.style.height) / canvas.height,
-              0,
-              0,
-            ];
-          }
-          // Apply the transform to the export map context
-          CanvasRenderingContext2D.prototype.setTransform.apply(
-            mapContext,
-            matrix
-          );
-          const backgroundColor = canvas.parentNode.style.backgroundColor;
-          if (backgroundColor) {
-            mapContext.fillStyle = backgroundColor;
-            mapContext.fillRect(0, 0, canvas.width, canvas.height);
-          }
-          mapContext.drawImage(canvas, 0, 0);
-        }
-      }
-    );
-    mapContext.globalAlpha = 1;
-    mapContext.setTransform(1, 0, 0, 1, 0, 0);
-    
-  });
-  map.renderSync();
-  
-}
 
 function init(src1, src2){
 
@@ -208,9 +157,7 @@ featureDropDown.addEventListener('change',(c)=>{
 
   if (featureDropDown.value==='1'){
 
-    while (inner.firstChild) {
-      inner.removeChild(inner.firstChild);
-    }
+    clearChilds(inner);
     processOptionsEnabled=false;
 
   }else if (featureDropDown.value==='2'){
@@ -219,12 +166,8 @@ featureDropDown.addEventListener('change',(c)=>{
 
   if (processOptionsEnabled===false){
     
-    let ki= document.createElement('p').textContent="Erosion Kernel Size";
-    const kernelInput= document.createElement('input');
-    let ii= document.createElement('p').textContent='No of Iterations';
-    const itInput= document.createElement('input');
-  
-    inner.append(ki,kernelInput,ii,itInput);
+    let el1=lineProcesses(inner,"map 1");
+    let el2= lineProcesses(inner, "map 2");
     processOptionsEnabled=true;
   }
   
@@ -270,12 +213,10 @@ processBtn.addEventListener('click',(e)=>{
       let imgData1= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
       let erodeCannyData= erodePlusCanny(imgData1,3,3);
       let extent1= map1.getView().calculateExtent(map1.getSize());
-      console.log(erodeCannyData);
       canvasCtx1.putImageData(erodeCannyData,0,0);
       vectorData1= junctionExtract(erodeCannyData.data, 300, 300, extent1);
       vectorFilePresent1=true;
       addGeoJSONLayer(vectorData1);
-      console.log(vectorData1);
     }
 
     if (map2Selected===true){

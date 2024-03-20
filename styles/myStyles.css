@@ -14,15 +14,31 @@
     clear: both;
   }
 
-.button {
-    background-color: #4CAF50; /* Green */
-    width: 50px;
-    height: 20px;
-    border: none;
-    color: white;
-    padding: 10px 16px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 12px;
-  }
+
+
+  p{
+    color: #000000;
+    font-family: monospace;
+    font-size: large;
+  
+}
+
+input[type="text"] {
+  width:300px;
+  color: #000000;
+  font-family: monospace;
+  font-size: large;
+}
+
+button{
+  font-family:monospace;
+  font-size: 12px;
+}
+
+label{
+  font-family:monospace;
+}
+
+select{
+  font-family:monospace;
+}
