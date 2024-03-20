@@ -1,4 +1,4 @@
-import { findMode } from './utils';
+import { findMode } from '../utils';
 import { validateArrayOfChannels } from 'image-js/src/util/channel';
 import {checkProcessable} from 'image-js/src/image/core/checkProcessable';
 import Image from 'image-js/src/image/Image';

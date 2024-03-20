@@ -1,10 +1,32 @@
-import { jDBSCAN } from "./jDBScan";
+import { jDBSCAN } from "../algorithms/jDBScan";
 
 
 export function junctionExtract(data, imgW, imgH, extent){
 
-    /**
-     * Take canny edge filtered data
+   
+    let points=[];
+    let roadPoints=[];
+    let edges=[];
+    let count=0;
+    let intersections=[];
+    let pixelWidth= (extent[2]-extent[0])/imgW;
+    let pixelHeight= (extent[3]-extent[1])/imgH;
+
+    
+
+    for (let i=0; i<data.length; i+=4){
+        
+        points.push(data[i]);
+        edges.push(data[i+1]);
+        
+
+    }
+
+
+     /**
+     * ______________________________________JUNCTION EXTRACTION_________________________________________________
+     * 
+     * Take canny edge filtered data + eroded data
      * Runs a kernel (depending on road size) over the image pixel by pixel
      * only the outer shell of the kernel is populated (with 1 and all others are 0)
      * multiply outer element with underlying image pixel element
@@ -17,40 +39,7 @@ export function junctionExtract(data, imgW, imgH, extent){
      * 8 intersections- junction of 4 roads
      * Like that....
      */
-    let points=[];
-    let roadPoints=[];
-    let edges=[];
-    let count=0;
-    let intersections=[];
-    let pixelWidth= (extent[2]-extent[0])/imgW;
-    let pixelHeight= (extent[3]-extent[1])/imgH;
 
-    let junctions= {    //geojson file for storing junction positions
-
-        "type":"FeatureCollection",
-        "name":"junctions",
-        "crs":{
-            "type": "name",
-            "properties": {
-              "name": "EPSG:3857"
-            }
-          }
-          ,
-        "features": [
-            
-        ]
-    }
-
-    for (let i=0; i<data.length; i+=4){
-        
-        points.push(data[i]);
-        edges.push(data[i+1]);
-        
-
-    }
-
-    console.log(points);
-    //console.log(cannyData);
     loop1:
     for (let i=0; i<points.length; i++){
 
@@ -102,15 +91,82 @@ export function junctionExtract(data, imgW, imgH, extent){
 
     }
 
+    /**
+     * ________________________________________LINE EXTRACTION________________________________________________________________
+     * 
+     * Takes the eroded data (junction points are removed)
+     * Takes a point>> Runs a window kernel to check adjacent pixel>> if present-appends to array
+     * Once appended point is removed
+     * Continues till all points are covered
+     * Once it completes, all points are converted to coordinates
+     * line geojson file is created
+     */
+
     for (let i=0; i<points.length;i++){
+        let lineArray=[];
         if(points[i]===255){
             
-            //Generate road (i think we can use our search window connection thing here)
+            let x= i%imgW;
+            let y= Math.floor(i/imgW);
+
+            let ker= createKernel([x,y], 5);
+
+            
         }
     }
 
-    console.log(count, roadPoints);
+    console.log(count);
     console.log(intersections);
+
+
+
+    /**
+     * Returning both generated junctions and line segments
+     */
+
+    let junctions= createJunctions(intersections,imgW,extent,pixelWidth,pixelHeight);
+
+    return junctions;
+
+}
+
+function createLines(){
+
+    let lines= { //geojson object for storing lines
+
+        "type":"FeatureCollection",
+        "name":"lines",
+        "crs":{
+            "type": "name",
+            "properties": {
+              "name": "EPSG:3857"
+            }
+          }
+          ,
+        "features": [
+            
+        ]
+    }
+
+}
+
+function createJunctions(intersections, imgW, extent, pixelWidth, pixelHeight){
+
+    let junctions= {    //geojson file for storing junction positions
+
+        "type":"FeatureCollection",
+        "name":"junctions",
+        "crs":{
+            "type": "name",
+            "properties": {
+              "name": "EPSG:3857"
+            }
+          }
+          ,
+        "features": [
+            
+        ]
+    }
 
     let point_data=new Array(intersections.length);
 
@@ -153,7 +209,19 @@ export function junctionExtract(data, imgW, imgH, extent){
 
 }
 
+function createKernel(k,size){
 
+    let pad= Math.floor(size/2);
+
+    let kernel = [];
+    for (let i = k[0] - pad; i <= k[0] + pad; i++) {
+        for (let j = k[1] - pad; j <= k[1] + pad; j++) {
+            kernel.push([i, j]);
+        }
+    }
+    return kernel;
+
+}
 
 function createSquareKernel(size){
 

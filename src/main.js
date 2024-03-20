@@ -3,17 +3,17 @@ import View from 'ol/View.js';
 import TileLayer from 'ol/layer/Tile.js';
 import '../styles/myStyles.css'
 import 'ol/ol.css';
-import { getContours, getCannyEdge, watershed, erode, erodePlusCanny } from './cvOps.js';
+import { getContours, getCannyEdge, watershed, erode, erodePlusCanny } from './imageProcessing/cvOps.js';
 import { colorFromPixel, extractChannel, getChannels, imageCovariance } from './utils.js';
 import Image from 'image-js';
-import { colorInRange } from './yiqRange.js';
-import { contourToPolygon } from './imageToPolygon.js';
+import { colorInRange } from './imageProcessing/yiqRange.js';
+import { contourToPolygon } from './spatialOperations/imageToPolygon.js';
 import VectorLayer from 'ol/layer/Vector.js';
 import VectorSource from 'ol/source/Vector.js';
 import GeoJSON from 'ol/format/GeoJSON.js';
 import { createChart } from './chart.js';
-import { junctionExtract } from './imageToLine.js';
-import Sources from './mapSources.js';
+import { junctionExtract } from './spatialOperations/imageToLine.js';
+import Sources from './mapOperations/mapSources.js';
 
 
 
@@ -45,12 +45,14 @@ const zoomLevelBox= document.getElementById('zoomLevel');
 const featureDropDown= document.getElementById('FeatureType');
 const mapdd1= document.getElementById('MapType1');
 const mapdd2= document.getElementById('MapType2');
+const inner= document.getElementById('processOptions');
 
 let map1Selected= false; //Whether user selected feature from map1 or not
 let map2Selected= false;
 let vectorFilePresent1= false;
 let vectorFilePresent2=false;
 let bothMapSelected=false;
+let processOptionsEnabled= false;
 let contourData1, contourData2, vectorData1, vectorData2 ;
 
 let map1, map2;
@@ -201,6 +203,35 @@ function download(file, text){
  */
 
 
+
+featureDropDown.addEventListener('change',(c)=>{
+
+  if (featureDropDown.value==='1'){
+
+    while (inner.firstChild) {
+      inner.removeChild(inner.firstChild);
+    }
+    processOptionsEnabled=false;
+
+  }else if (featureDropDown.value==='2'){
+  
+  }else if (featureDropDown.value==='3'){
+
+  if (processOptionsEnabled===false){
+    
+    let ki= document.createElement('p').textContent="Erosion Kernel Size";
+    const kernelInput= document.createElement('input');
+    let ii= document.createElement('p').textContent='No of Iterations';
+    const itInput= document.createElement('input');
+  
+    inner.append(ki,kernelInput,ii,itInput);
+    processOptionsEnabled=true;
+  }
+  
+  }
+
+});
+
 processBtn.addEventListener('click',(e)=>{
 
   if (featureDropDown.value==='1'){
@@ -235,7 +266,6 @@ processBtn.addEventListener('click',(e)=>{
   }else if (featureDropDown.value==='3'){
 
     //Line feature
-
     if (map1Selected===true){
       let imgData1= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
       let erodeCannyData= erodePlusCanny(imgData1,3,3);
