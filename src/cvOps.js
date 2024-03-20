@@ -116,7 +116,7 @@ function watershed(imgData, canvas){
 
 }
 
-function erode(imgData, canvas, m, i){
+function erode(imgData, m, i){
 
     let src= cv.matFromImageData(imgData)
     console.log(src);
@@ -126,7 +126,7 @@ function erode(imgData, canvas, m, i){
     let anchor = new cv.Point(-1, -1);
     // You can try more different parameters
     cv.erode(src, dst, M, anchor, i, cv.BORDER_CONSTANT, cv.morphologyDefaultBorderValue());
-    cv.imshow(canvas, dst);
+    //cv.imshow(canvas, dst);
     src.delete(); M.delete();
 
     return dst;
@@ -134,5 +134,25 @@ function erode(imgData, canvas, m, i){
 
 }
 
+function erodePlusCanny(imgData,m,i){
 
-export {getContours, getCannyEdge, watershed, erode};
+    let eroded= erode(imgData,m,i); //RGBA data
+    let edged= getCannyEdge(imgData); //Single band data
+    let combinedImageData= new Uint8ClampedArray(eroded.data.length);
+
+    for (let i=0, j=0; i<eroded.data.length, j<edged.data.length; i+=4, j++){
+
+        combinedImageData[i]=eroded.data[i];
+        combinedImageData[i+1]=edged.data[j];
+        combinedImageData[i+3]=255;
+    }
+
+    let combinedImage= new ImageData(combinedImageData,300,300);
+    return combinedImage;
+
+
+
+}
+
+
+export {getContours, getCannyEdge, watershed, erode, erodePlusCanny};

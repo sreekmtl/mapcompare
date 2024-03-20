@@ -1,7 +1,7 @@
 import { jDBSCAN } from "./jDBScan";
 
 
-export function junctionExtract(edgeData, imgW, imgH, extent){
+export function junctionExtract(data, imgW, imgH, extent){
 
     /**
      * Take canny edge filtered data
@@ -18,6 +18,8 @@ export function junctionExtract(edgeData, imgW, imgH, extent){
      * Like that....
      */
     let points=[];
+    let roadPoints=[];
+    let edges=[];
     let count=0;
     let intersections=[];
     let pixelWidth= (extent[2]-extent[0])/imgW;
@@ -39,9 +41,10 @@ export function junctionExtract(edgeData, imgW, imgH, extent){
         ]
     }
 
-    for (let i=0; i<edgeData.length; i+=4){
+    for (let i=0; i<data.length; i+=4){
         
-        points.push(edgeData[i]);
+        points.push(data[i]);
+        edges.push(data[i+1]);
         
 
     }
@@ -58,7 +61,7 @@ export function junctionExtract(edgeData, imgW, imgH, extent){
             count+=1;
 
             loop2:
-            for (let j=9; j<=25; j+=2){
+            for (let j=25; j<=31; j+=2){
 
                 let imgWindow=[];
                 let kernelSize= j;
@@ -72,7 +75,7 @@ export function junctionExtract(edgeData, imgW, imgH, extent){
                         p=x+k;
                         q=y+l;
                         let pos= (q*imgW+p);
-                        imgWindow.push(points[pos]);
+                        imgWindow.push(edges[pos]);
                     }
                 }
 
@@ -86,11 +89,12 @@ export function junctionExtract(edgeData, imgW, imgH, extent){
                     }
                 }
 
-                if (intersection>=12){
+                if (intersection>=8){
                     intersections.push(i);
+                    points[i]=0; //Remove intersected points from the eroded points now to keep only points representing roads in between
                     break loop2;
                 }
-
+  
 
             }
 
@@ -98,7 +102,14 @@ export function junctionExtract(edgeData, imgW, imgH, extent){
 
     }
 
-    console.log(count);
+    for (let i=0; i<points.length;i++){
+        if(points[i]===255){
+            
+            //Generate road (i think we can use our search window connection thing here)
+        }
+    }
+
+    console.log(count, roadPoints);
     console.log(intersections);
 
     let point_data=new Array(intersections.length);
@@ -117,7 +128,7 @@ export function junctionExtract(edgeData, imgW, imgH, extent){
 
     }
 
-    let dbScanner= jDBSCAN().eps(5).minPts(1).distance('EUCLIDEAN').data(point_data);
+    let dbScanner= jDBSCAN().eps(10).minPts(1).distance('EUCLIDEAN').data(point_data);
     let clusters= dbScanner();
     let clusterCenters= dbScanner.getClusters();
 

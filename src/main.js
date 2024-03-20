@@ -3,7 +3,7 @@ import View from 'ol/View.js';
 import TileLayer from 'ol/layer/Tile.js';
 import '../styles/myStyles.css'
 import 'ol/ol.css';
-import { getContours, getCannyEdge, watershed, erode } from './cvOps.js';
+import { getContours, getCannyEdge, watershed, erode, erodePlusCanny } from './cvOps.js';
 import { colorFromPixel, extractChannel, getChannels, imageCovariance } from './utils.js';
 import Image from 'image-js';
 import { colorInRange } from './yiqRange.js';
@@ -238,10 +238,11 @@ processBtn.addEventListener('click',(e)=>{
 
     if (map1Selected===true){
       let imgData1= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
-      let erodeData1= erode(imgData1, canvas1,3,3);
+      let erodeCannyData= erodePlusCanny(imgData1,3,3);
       let extent1= map1.getView().calculateExtent(map1.getSize());
-      //let cannyData1= getCannyEdge(imgData1, canvas1);
-      vectorData1= junctionExtract(erodeData1.data, 300, 300, extent1);
+      console.log(erodeCannyData);
+      canvasCtx1.putImageData(erodeCannyData,0,0);
+      vectorData1= junctionExtract(erodeCannyData.data, 300, 300, extent1);
       vectorFilePresent1=true;
       addGeoJSONLayer(vectorData1);
       console.log(vectorData1);
