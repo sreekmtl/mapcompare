@@ -9,18 +9,18 @@ export function junctionExtract(data, imgW, imgH, extent){
      * 
      * Take canny edge filtered data + eroded data
      * Runs a kernel (depending on road size) over the image pixel by pixel
+     * Kernel will follow the linear feature
      * only the outer shell of the kernel is populated (with 1 and all others are 0)
      * multiply outer element with underlying image pixel element
      * if same image pixel element is returning, it means the image element is intersecting with kernel.
+     * If it is intersecting with more (threshold) numbers of points, which means it is a JUNCTION
      * 
-     * BASED ON INTERSECTIONS:
+     * Since no algorithms are perfect, there will be many junctions bcos a width of eroded road
+     * So using DBSCAN algorithm, nearby junctions are clustered and replaced with one junction
      * 
-     * 4 intersection- Not a juntion
-     * 6 intersection- Juntion of 3 roads
-     * 8 intersections- junction of 4 roads
-     * Like that....
+     * So points which are not junctions are part of LINE SEGMENTS between these junctions
      * 
-     * ONCE THE JUNCTIONS ARE EXTRACTED:
+     *
      * 
      * 
      */
@@ -36,6 +36,7 @@ export function junctionExtract(data, imgW, imgH, extent){
     let lineArray=[]; //main array for storing all linear points
     let junctionArray=[]; //stores only points which qualifies as junctions from linearray
     let lineSegArray=[]; //stores only line segments from line array
+    let linParts=[];
 
     let edges=[];
     let count=0;
@@ -136,11 +137,18 @@ export function junctionExtract(data, imgW, imgH, extent){
             let x= lineArray[i][0];
             let y= lineArray[i][1];
             let actualPos= (y*imgW)+x;
+            let jf=false;
     
             if(isJunction([x,y])===true){
     
                 junctionArray.push([x,y]);
                 points[actualPos]=0;
+                jf=true;
+
+                if ((lineSegArray.length!=0) && (lineSegArray.length>=30)){
+                    linParts.push([...lineSegArray]);
+                    lineSegArray=[];
+                }
     
             }else{
     
@@ -208,6 +216,12 @@ export function junctionExtract(data, imgW, imgH, extent){
         ip=initializeSearch();
         if (ip===undefined){
             featureLeft=false;
+
+            if ((lineSegArray.length!=0) && (lineSegArray.length>=30)){
+                linParts.push([...lineSegArray]);
+                lineSegArray=[];
+            }
+
             break;
         }
         extractor(ip);
@@ -215,8 +229,8 @@ export function junctionExtract(data, imgW, imgH, extent){
     }
    
 
-    //console.log(lineArray,'linearray');
-    //console.log(junctionArray,'junctions');
+    console.log(linParts,'linearray');
+    console.log(junctionArray,'junctions');
     //console.log(lineSegArray,'lineseg');
 
     let residualImageData= new Uint8ClampedArray(data.length);

@@ -224,7 +224,7 @@ processBtn.addEventListener('click',(e)=>{
       let extent1= map1.getView().calculateExtent(map1.getSize());
       let redata=junctionExtract(erodeCannyData.data, 300, 300, extent1);
 
-      canvasCtx1.putImageData(redata[1],0,0);
+      canvasCtx1.putImageData(erodeCannyData,0,0);
       //console.log(vectorData1);
       vectorData1= redata[0];
       vectorFilePresent1=true;
