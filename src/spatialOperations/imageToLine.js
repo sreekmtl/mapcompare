@@ -8,6 +8,7 @@ export function junctionExtract(data, imgW, imgH, extent){
     let minSize= 25;
     let maxSize=31;
     let points=[];
+    let featuresLeft=true;
     
     let lineArray=[]; //main array for storing all linear points
     let junctionArray=[]; //stores only points which qualifies as junctions from linearray
@@ -187,10 +188,7 @@ export function junctionExtract(data, imgW, imgH, extent){
 
     }
 
-    for (let z=0; z<count;z++){
-
-
-    }
+   
 
     console.log(lineArray,'linearray');
     console.log(junctionArray,'junctions');
