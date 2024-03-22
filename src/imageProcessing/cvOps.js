@@ -28,7 +28,10 @@ function getContours(imgData,canvas){
     cData= dst;
     //console.log(contourColors, 'contourColors');
     //console.log(cData.data, 'contourData');
-    cv.imshow(canvas,dst);
+    if (canvas){
+        cv.imshow(canvas,dst);
+    }
+    
     src.delete();
     //dst.delete();
 

@@ -125,7 +125,7 @@ function contourToPolygon(contourData, width, height, extent){
 }
 
 
-function sortContourPixels(positionArray){
+export function sortContourPixels(positionArray){
 
     /**
      * Sort points in location array such that

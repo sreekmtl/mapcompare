@@ -16,6 +16,8 @@ import { junctionExtract } from './spatialOperations/imageToLine.js';
 import Sources from './mapOperations/mapSources.js';
 import { mapToImg } from './mapOperations/mapToImg.js';
 import { clearChilds, lineProcesses } from './uiElements.js';
+import { growRegion } from './algorithms/regionGrowing.js';
+
 
 
 
@@ -84,6 +86,8 @@ function init(src1, src2){
           target:'map2',
       
       });
+
+  
   
   extentBox.textContent="Extent: "+map1.getView().calculateExtent(map1.getSize());
   zoomLevelBox.textContent="Zoom Level: "+map1.getView().getZoom();
@@ -97,13 +101,18 @@ function init(src1, src2){
   map2.on('moveend',(e)=>{
     mapToImg(map2, canvas2, canvasCtx2);
   });
-  
+ let coord; 
   map1.on('click',(e)=>{
     let imgData= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
-    //console.log(colorFromPixel(e.pixel, imgData.data, 300, 300));
+    console.log(colorFromPixel(e.pixel, imgData.data, 300, 300));
     let diffImg= colorInRange(imgData, colorFromPixel(e.pixel, imgData.data, 300, 300), 0);
     canvasCtx1.putImageData(diffImg,0,0);
     map1Selected=true;
+    //let op= growRegion(imgData, {delta:20,pixel:e.pixel});
+    //let opimg= new ImageData(op.data,300,300);
+   //canvasCtx1.putImageData(opimg,0,0);
+   //console.log({delta:20,pixel:e.pixel});
+  
     
   });
 
@@ -213,8 +222,11 @@ processBtn.addEventListener('click',(e)=>{
       let imgData1= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
       let erodeCannyData= erodePlusCanny(imgData1,3,3);
       let extent1= map1.getView().calculateExtent(map1.getSize());
-      canvasCtx1.putImageData(erodeCannyData,0,0);
-      vectorData1= junctionExtract(erodeCannyData.data, 300, 300, extent1);
+      let vectorData1=junctionExtract(erodeCannyData.data, 300, 300, extent1);
+
+      //canvasCtx1.putImageData(redata[1],0,0);
+      console.log(vectorData1);
+      //vectorData1= redata[0];
       vectorFilePresent1=true;
       addGeoJSONLayer(vectorData1);
     }
