@@ -222,11 +222,11 @@ processBtn.addEventListener('click',(e)=>{
       let imgData1= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
       let erodeCannyData= erodePlusCanny(imgData1,3,3);
       let extent1= map1.getView().calculateExtent(map1.getSize());
-      let vectorData1=junctionExtract(erodeCannyData.data, 300, 300, extent1);
+      let redata=junctionExtract(erodeCannyData.data, 300, 300, extent1);
 
-      //canvasCtx1.putImageData(redata[1],0,0);
-      console.log(vectorData1);
-      //vectorData1= redata[0];
+      canvasCtx1.putImageData(redata[1],0,0);
+      //console.log(vectorData1);
+      vectorData1= redata[0];
       vectorFilePresent1=true;
       addGeoJSONLayer(vectorData1);
     }
