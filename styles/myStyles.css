@@ -5,29 +5,42 @@
     float: left;
     width: 30%;
     height: 680px; /* Should be removed. Only for demonstration */
-  }
+}
   
   /* Clear floats after the columns */
   .row:after {
     content: "";
     display: table;
     clear: both;
-  }
+}
 
 
 
-  p{
+p{
+    color: #000000;
+    font-family: monospace;
+    font-size: medium;
+    padding-left: 10px;
+  
+}
+
+h3{
+
     color: #000000;
     font-family: monospace;
     font-size: large;
-  
+    font-weight: bold;
+    padding-left: 10px;
+
 }
+
 
 input[type="text"] {
   width:300px;
   color: #000000;
   font-family: monospace;
   font-size: large;
+  padding-left: 20px;
 }
 
 button{
@@ -41,4 +54,8 @@ label{
 
 select{
   font-family:monospace;
+}
+
+.article{
+  color: white;
 }

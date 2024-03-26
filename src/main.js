@@ -17,12 +17,13 @@ import Sources from './mapOperations/mapSources.js';
 import { mapToImg } from './mapOperations/mapToImg.js';
 import { clearChilds, lineProcesses } from './uiElements.js';
 import { growRegion } from './algorithms/regionGrowing.js';
+import Style from 'ol/style/Style.js';
+import Icon from 'ol/style/Icon.js';
 
 
 
 
 let sources= new Sources();
-
 
 const canvas1= document.getElementById('imgCanvas1');
 const canvas2= document.getElementById('imgCanvas2');
@@ -41,9 +42,12 @@ var mCtx2= mCanvas2.getContext('2d');
 var img1= new Image();
 var img2= new Image();
 
-const processBtn= document.getElementById('mapToCanvasBtn');
+const imgProcessBtn= document.getElementById('processImgBtn');
+const imgVectorizeBtn= document.getElementById('vectorizeBtn');
+const compareBtn= document.getElementById('compareBtn')
 const downloadBtn= document.getElementById('downloadVector');
 const imgCovBtn= document.getElementById('imageCov');
+
 const extentBox= document.getElementById('extentBox');
 const zoomLevelBox= document.getElementById('zoomLevel');
 const featureDropDown= document.getElementById('FeatureType');
@@ -53,11 +57,14 @@ const inner= document.getElementById('processOptions');
 
 let map1Selected= false; //Whether user selected feature from map1 or not
 let map2Selected= false;
+let imgProcessed1= false;
+let imgProcessed2= false;
 let vectorFilePresent1= false;
 let vectorFilePresent2=false;
 let bothMapSelected=false;
 let processOptionsEnabled= false;
-let contourData1, contourData2, vectorData1, vectorData2 ;
+let contourData1, contourData2, erodeCannyData1, erodeCannyData2, vectorData1, vectorData2 ;
+let lp;
 
 let map1, map2;
 
@@ -94,12 +101,27 @@ function init(src1, src2){
   
   map1.on('moveend',(e)=>{
     mapToImg(map1, canvas1, canvasCtx1);
+    
+    if (vectorFilePresent1===true){
+      contourData1=undefined;
+      vectorData1=undefined;
+      vectorFilePresent1=false;
+      
+
+    }
+
     extentBox.textContent="Extent: "+map1.getView().calculateExtent(map1.getSize());
     zoomLevelBox.textContent="Zoom Level: "+map1.getView().getZoom();
   });
   
   map2.on('moveend',(e)=>{
     mapToImg(map2, canvas2, canvasCtx2);
+    
+    if (vectorFilePresent2===true){
+      contourData2=undefined;
+      vectorData2=undefined;
+      vectorFilePresent2=false;
+    }
   });
  let coord; 
   map1.on('click',(e)=>{
@@ -137,9 +159,18 @@ function addGeoJSONLayer(data){
       source:vectorSource,
     });
 
-    map1.addLayer(vectorLayer);
-  
+  if (data.name==='junctions'){
+    vectorLayer.setStyle(new Style({
+      image: new Icon({
+        src: 'https://maps.google.com/mapfiles/kml/paddle/red-blank.png',
+        anchor: [0.5, 1],
+        scale: 0.5
+      })
+    }));
+  }
 
+  map1.addLayer(vectorLayer);
+  
 }
 
 function download(file, text){
@@ -175,8 +206,8 @@ featureDropDown.addEventListener('change',(c)=>{
 
   if (processOptionsEnabled===false){
     
-    let el1=lineProcesses(inner,"map 1");
-    let el2= lineProcesses(inner, "map 2");
+    lp=lineProcesses(inner);
+    console.log(lp, 'lp');
     processOptionsEnabled=true;
   }
   
@@ -184,7 +215,7 @@ featureDropDown.addEventListener('change',(c)=>{
 
 });
 
-processBtn.addEventListener('click',(e)=>{
+imgProcessBtn.addEventListener('click',(e)=>{
 
   if (featureDropDown.value==='1'){
 
@@ -197,21 +228,15 @@ processBtn.addEventListener('click',(e)=>{
     if (map1Selected===true){
 
       let imgData1= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
-      let extent1= map1.getView().calculateExtent(map1.getSize());
       contourData1= getContours(imgData1, canvas1);
-      vectorData1=contourToPolygon(contourData1, canvas1.width, canvas1.height, extent1);
-      vectorFilePresent1=true;
-      addGeoJSONLayer(vectorData1);
+      imgProcessed1=true;
   
     }
   
     if (map2Selected===true){
       let imgData2= canvasCtx2.getImageData(0,0,canvas2.width,canvas2.height);
-      let extent2= map2.getView().calculateExtent(map2.getSize());
       contourData2= getContours(imgData2, canvas2);
-      vectorData2=contourToPolygon(contourData2, canvas2.width, canvas2.height, extent2);
-      vectorFilePresent2=true;
-      addGeoJSONLayer(vectorData2);
+      imgProcessed2=true;
     }
     
 
@@ -220,20 +245,16 @@ processBtn.addEventListener('click',(e)=>{
     //Line feature
     if (map1Selected===true){
       let imgData1= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
-      let erodeCannyData= erodePlusCanny(imgData1,3,3);
-      let extent1= map1.getView().calculateExtent(map1.getSize());
-      let redata=junctionExtract(erodeCannyData.data, 300, 300, extent1);
-
-      canvasCtx1.putImageData(erodeCannyData,0,0);
-      //console.log(vectorData1);
-      vectorData1= redata[0];
-      vectorFilePresent1=true;
-      addGeoJSONLayer(vectorData1);
+      erodeCannyData1= erodePlusCanny(imgData1,parseInt(lp[0]),parseInt(lp[1]));
+      console.log(lp);
+      imgProcessed1=true;
+      canvasCtx1.putImageData(erodeCannyData1,0,0);
+      
     }
 
     if (map2Selected===true){
       let imgData2= canvasCtx2.getImageData(0,0,canvas2.width,canvas2.height);
-      //getCannyEdge(imgData2, canvas2,3,2);
+      
 
     }
 
@@ -242,6 +263,58 @@ processBtn.addEventListener('click',(e)=>{
   
 
 });
+
+imgVectorizeBtn.addEventListener('click', (e)=>{
+
+  if (featureDropDown.value==='2'){
+
+    if (imgProcessed1===true){
+      let extent1= map1.getView().calculateExtent(map1.getSize());
+      vectorData1=contourToPolygon(contourData1, canvas1.width, canvas1.height, extent1);
+      vectorFilePresent1=true;
+      addGeoJSONLayer(vectorData1);
+      imgProcessed1=false;
+      console.log(map1.getLayers());
+    }else {
+      alert('Process image from map1 before vectorizing');
+    }
+
+    if(imgProcessed2===true){
+      let extent2= map2.getView().calculateExtent(map2.getSize());
+      vectorData2=contourToPolygon(contourData2, canvas2.width, canvas2.height, extent2);
+      vectorFilePresent2=true;
+      addGeoJSONLayer(vectorData2);
+      imgProcessed2=false;
+
+    }
+
+  }else if (featureDropDown.value==='3'){
+
+    if (imgProcessed1===true){
+      let extent1= map1.getView().calculateExtent(map1.getSize());
+      let redata=junctionExtract(erodeCannyData1.data, 300, 300, extent1);
+      vectorData1= redata[0];
+      vectorFilePresent1=true;
+      addGeoJSONLayer(vectorData1);
+      addGeoJSONLayer(redata[1]);
+      imgProcessed1=false;
+      clearChilds(inner);
+      processOptionsEnabled=false;
+
+    }else {
+      alert('Process image from map1 before vectorizing');
+    }
+
+    if (imgProcessed2===true){
+
+
+
+    }
+
+  }
+})
+
+
 
 downloadBtn.addEventListener('click',(e)=>{
 

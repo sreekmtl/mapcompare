@@ -236,11 +236,79 @@ function lineContourOperations(contourData,imgW,extent,pixelWidth,pixelHeight,li
 
 }
 
-function createLines(line, coordinates){
+function createLine(lineParts, imgW, extent, pixelWidth, pixelHeight){
 
-    
-    
+    let lineSegs= {    //geojson file for storing junction positions
 
+        "type":"FeatureCollection",
+        "name":"lines",
+        "crs":{
+            "type": "name",
+            "properties": {
+              "name": "EPSG:3857"
+            }
+          }
+          ,
+        "features": [
+            
+        ]
+    }
+
+
+
+    //Take the line parts and apply dbscan (at pixel position level)
+    for (let i=0; i<lineParts.length; i++){
+
+        let point_data=[];
+
+        for (let j=0; j<lineParts[i].length; j++){
+
+            let x= lineParts[i][j][0];
+            let y= lineParts[i][j][1];
+
+            //let x1= extent[0]+ (x*pixelWidth);  
+            //let y1= extent[3]- (y*pixelHeight); 
+
+            point_data.push(
+                {x:x, y:y}
+            );
+
+        }
+
+        let dbScanner= jDBSCAN().eps(10).minPts(5).distance('EUCLIDEAN').data(point_data);
+        let clusters= dbScanner();
+        let clusterCenters= dbScanner.getClusters();
+        console.log(clusterCenters);
+
+        for (let k=0; k<clusterCenters.length; k++){
+
+            let cc= clusterCenters[k];
+
+            let x1= extent[0]+ (cc.x*pixelWidth);  
+            let y1= extent[3]- (cc.y*pixelHeight); 
+
+            let coordinates=[x1,y1];
+
+            lineSegs["features"].push(
+                {
+                    "type":"Feature",
+                    "geometry":{
+                        "type":"Point",
+                        "coordinates":coordinates
+                    },
+                    "proprties":{
+                        "prop":'',
+                    }
+                },)
+
+        }
+
+        
+    }
+
+
+
+    return lineSegs;
 }
 
 function createJunctions(intersections, imgW, extent, pixelWidth, pixelHeight){

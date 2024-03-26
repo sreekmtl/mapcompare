@@ -229,30 +229,13 @@ export function junctionExtract(data, imgW, imgH, extent){
     }
    
 
-    console.log(linParts,'linearray');
-    console.log(junctionArray,'junctions');
-    //console.log(lineSegArray,'lineseg');
-
-    let residualImageData= new Uint8ClampedArray(data.length);
-
-    for (let i=0, j=0; i<residualImageData.length; i+=4,j++){
-
-        residualImageData[i]=points[j];
-        residualImageData[i+1]=0;
-        residualImageData[i+2]=0;
-        residualImageData[i+3]=255;
-    }
-
-    let residualImage= new ImageData(residualImageData, imgW, imgH);
-
-
+    let lineSegments= createLine(linParts, imgW, extent, pixelWidth, pixelHeight);
     let junction= createJunctions(junctionArray,imgW,extent,pixelWidth,pixelHeight);
+    //console.log(junctionArray,'junctions');
+    //console.log(lineSegments,'lineseg');
 
-    return [junction,residualImage];
+    return [junction,lineSegments];
 
-
-
-    
 
 }
 
@@ -293,6 +276,8 @@ function createJunctions(intersections, imgW, extent, pixelWidth, pixelHeight){
 
     }
 
+    //Taking the junction and applying dbscan (at coordinate level)
+
     let dbScanner= jDBSCAN().eps(10).minPts(1).distance('EUCLIDEAN').data(point_data);
     let clusters= dbScanner();
     let clusterCenters= dbScanner.getClusters();
@@ -316,6 +301,82 @@ function createJunctions(intersections, imgW, extent, pixelWidth, pixelHeight){
 
     return junctions;
 
+}
+
+function createLine(lineParts, imgW, extent, pixelWidth, pixelHeight){
+
+    console.log(lineParts);
+
+    let lineSegs= {    //geojson file for storing junction positions
+
+        "type":"FeatureCollection",
+        "name":"lines",
+        "crs":{
+            "type": "name",
+            "properties": {
+              "name": "EPSG:3857"
+            }
+          }
+          ,
+        "features": [
+            
+        ]
+    }
+
+
+
+    //Take the line parts and apply dbscan (at pixel position level)
+    for (let i=0; i<lineParts.length; i++){
+
+        let point_data=[];
+
+        for (let j=0; j<lineParts[i].length; j++){
+
+            let x= lineParts[i][j][0];
+            let y= lineParts[i][j][1];
+
+            //let x1= extent[0]+ (x*pixelWidth);  
+            //let y1= extent[3]- (y*pixelHeight); 
+
+            point_data.push(
+                {x:x, y:y}
+            );
+
+        }
+
+        let dbScanner= jDBSCAN().eps(5).minPts(5).distance('EUCLIDEAN').data(point_data);
+        let clusters= dbScanner();
+        let clusterCenters= dbScanner.getClusters();
+
+        for (let k=0; k<clusterCenters.length; k++){
+
+            let cc= clusterCenters[k];
+
+            let x1= extent[0]+ (cc.x*pixelWidth);  
+            let y1= extent[3]- (cc.y*pixelHeight); 
+
+            let coordinates=[x1,y1];
+
+            lineSegs["features"].push(
+                {
+                    "type":"Feature",
+                    "geometry":{
+                        "type":"Point",
+                        "coordinates":coordinates
+                    },
+                    "proprties":{
+                        "prop":'',
+                    }
+                },)
+
+        }
+
+        
+    }
+
+
+
+    return lineSegs;
 }
 
 function createKernel(k,size){
