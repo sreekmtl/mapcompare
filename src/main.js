@@ -19,6 +19,7 @@ import { clearChilds, lineProcesses } from './uiElements.js';
 import { growRegion } from './algorithms/regionGrowing.js';
 import Style from 'ol/style/Style.js';
 import Icon from 'ol/style/Icon.js';
+import { junctionExtract1 } from './dumpyard.js';
 
 
 
@@ -292,11 +293,12 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
 
     if (imgProcessed1===true){
       let extent1= map1.getView().calculateExtent(map1.getSize());
-      let redata=junctionExtract(erodeCannyData1.data, 300, 300, extent1);
-      vectorData1= redata[0];
+      let redata=junctionExtract1(erodeCannyData1.data, 300, 300, extent1);
+      vectorData1= redata[1];
       vectorFilePresent1=true;
       addGeoJSONLayer(vectorData1);
-      addGeoJSONLayer(redata[1]);
+      addGeoJSONLayer(redata[0]);
+      canvasCtx1.putImageData(redata[2],0,0);
       imgProcessed1=false;
       clearChilds(inner);
       processOptionsEnabled=false;

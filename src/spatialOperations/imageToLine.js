@@ -305,7 +305,7 @@ function createJunctions(intersections, imgW, extent, pixelWidth, pixelHeight){
 
 function createLine(lineParts, imgW, extent, pixelWidth, pixelHeight){
 
-    console.log(lineParts);
+    console.log(lineParts.length);
 
     let lineSegs= {    //geojson file for storing junction positions
 
@@ -323,12 +323,12 @@ function createLine(lineParts, imgW, extent, pixelWidth, pixelHeight){
         ]
     }
 
-
+    let linepoint_data=[];
 
     //Take the line parts and apply dbscan (at pixel position level)
     for (let i=0; i<lineParts.length; i++){
 
-        let point_data=[];
+        
 
         for (let j=0; j<lineParts[i].length; j++){
 
@@ -338,43 +338,44 @@ function createLine(lineParts, imgW, extent, pixelWidth, pixelHeight){
             //let x1= extent[0]+ (x*pixelWidth);  
             //let y1= extent[3]- (y*pixelHeight); 
 
-            point_data.push(
-                {x:x, y:y}
-            );
+            //let coordinate= [x1,y1];
+            //coordinateArray.push(coordinate);
+
+            linepoint_data.push({
+                x:x, y:y
+            })
 
         }
-
-        let dbScanner= jDBSCAN().eps(5).minPts(5).distance('EUCLIDEAN').data(point_data);
-        let clusters= dbScanner();
-        let clusterCenters= dbScanner.getClusters();
-
-        for (let k=0; k<clusterCenters.length; k++){
-
-            let cc= clusterCenters[k];
-
-            let x1= extent[0]+ (cc.x*pixelWidth);  
-            let y1= extent[3]- (cc.y*pixelHeight); 
-
-            let coordinates=[x1,y1];
-
-            lineSegs["features"].push(
-                {
-                    "type":"Feature",
-                    "geometry":{
-                        "type":"Point",
-                        "coordinates":coordinates
-                    },
-                    "proprties":{
-                        "prop":'',
-                    }
-                },)
-
-        }
-
         
     }
 
+    let dbScanner= jDBSCAN().eps(1).minPts(1).distance('EUCLIDEAN').data(linepoint_data);
+    let clusters= dbScanner();
+    let clusterCenters= dbScanner.getClusters();
 
+
+    console.log(clusters, linepoint_data, 'cc2');
+
+    for (let i=0; i<clusterCenters.length; i++){
+
+        let x1= extent[0]+ (clusterCenters[i].x*pixelWidth);  
+        let y1= extent[3]- (clusterCenters[i].y*pixelHeight); 
+        let coordinates=[x1,y1];
+
+        
+        lineSegs["features"].push(
+            {
+                "type":"Feature",
+                "geometry":{
+                    "type":"Point",
+                    "coordinates":coordinates
+                },
+                "proprties":{
+                    "prop":'',
+                }
+            },)
+
+    }
 
     return lineSegs;
 }

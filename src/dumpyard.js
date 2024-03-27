@@ -1,16 +1,18 @@
-import { jDBSCAN } from "../algorithms/jDBScan";
-import { next4Edges } from "../algorithms/regionGrowing";
-import { getContours } from "../imageProcessing/cvOps";
-import { sortContourPixels } from "./imageToPolygon";
+import { jDBSCAN } from "./algorithms/jDBScan";
 
 
-export function junctionExtract(data, imgW, imgH, extent){
+export function junctionExtract1(data, imgW, imgH, extent){
 
    
     let points=[];
+    let featureLeft=true;
+    let lineArray=[];
+    let lineParts=[];
     let roadSegs=[];
+    let checker1=0;
+    let checker2=0;
+    let ip;
     let edges=[];
-    let count=0;
     let intersections=[];
     let pixelWidth= (extent[2]-extent[0])/imgW;
     let pixelHeight= (extent[3]-extent[1])/imgH;
@@ -52,7 +54,7 @@ export function junctionExtract(data, imgW, imgH, extent){
             let x= (i%imgW);
             let y= Math.floor((i/imgW));
             
-            count+=1;
+           
 
             loop2:
             for (let j=25; j<=31; j+=2){
@@ -96,34 +98,6 @@ export function junctionExtract(data, imgW, imgH, extent){
 
     }
 
-    /**
-     * ________________________________________LINE EXTRACTION________________________________________________________________
-     * 
-     * Takes the eroded data (junction points are removed)
-     * Takes a point>> Runs a window kernel to check adjacent pixel>> if present-appends to array
-     * Once appended point is removed
-     * Continues till all points are covered
-     * Once it completes, all points are converted to coordinates
-     * line geojson file is created
-     */
-
-    let line= { //geojson object for storing lines
-
-        "type":"FeatureCollection",
-        "name":"lines",
-        "crs":{
-            "type": "name",
-            "properties": {
-              "name": "EPSG:3857"
-            }
-          }
-          ,
-        "features": [
-            
-        ]
-    }
-
-
     let residualImageData= new Uint8ClampedArray(data.length);
 
     for (let i=0, j=0; i<residualImageData.length; i+=4,j++){
@@ -136,180 +110,142 @@ export function junctionExtract(data, imgW, imgH, extent){
 
     let residualImage= new ImageData(residualImageData, imgW, imgH);
 
-    let contourData= getContours(residualImage);
+    /**
+     * ________________________________________LINE EXTRACTION________________________________________________________________
+     * 
+     * Takes the eroded data (junction points are removed)
+     * Takes a point>> Runs a window kernel to check adjacent pixel>> if present-appends to array
+     * Once appended point is removed
+     * Continues till all points are covered
+     * Once it completes, all points are converted to coordinates
+     * line geojson file is created
+     */
 
-    //let result=lineContourOperations(contourData,imgW,extent,pixelWidth,pixelHeight,line);
+    let count=0;
+    for (let i=0; i<points.length;i++){ 
+        if (points[i]===255){
+            count+=1;
+        }
+    }
+
+    function initializeSearch(){
+        let pnt;
+        for (let i=0; i<points.length; i++){
+            if (points[i]===255){
+                let x= (i%imgW);
+                let y= Math.floor((i/imgW));
+                pnt=[x,y];
+                break;
+            }
+        }
+        return pnt;
+
+    }
+
+    function extractor(ip){
+        
+        lineArray.push(ip);
+        console.log(ip,'ip');
+
+        for (let i=0; i<count; i++){
+
+            if (lineArray[i]===undefined){
+                break;
+            }
+    
+            let x= lineArray[i][0];
+            let y= lineArray[i][1];
+            let actualPos= (y*imgW)+x;
+            let jf=false;
+    
+            let adjacentPoints= createKernel([x,y], 3); 
+            let adjOK=[];
+    
+            for (let j=0; j<adjacentPoints.length;j++){
+                let pos_1;
+                let x_1= adjacentPoints[j][0];
+                let y_1= adjacentPoints[j][1];
+    
+                if((x_1>=0) && (y_1>=0)){
+                    pos_1= (y_1*imgW)+x_1;
+                }
+    
+                if (points[pos_1]===255){
+                    adjOK.push([x_1,y_1]); //adjacent points with 255
+                    points[actualPos]=0;
+                }
+    
+            }
+    
+            //so there will be multiple adjacent points. We add these to lineArray
+            //console.log(adjOK,'adjok');
+            
+            for (let k=0; k<adjOK.length;k++){
+    
+                let isThere=false;
+    
+                for (let l=0; l<lineArray.length; l++){
+    
+                    if ((adjOK[k][0]===lineArray[l][0]) && (adjOK[k][1]===lineArray[l][1])){
+                        isThere=true;
+                        break;
+                    }else{
+                        isThere=false;
+                    }
+                }
+    
+                if (isThere===false){
+                    lineArray.push(adjOK[k]);
+                }
+    
+             
+            }
+    
+        }
+
+        if (lineArray.length>=30){
+            lineParts.push(lineArray);
+            checker1+=1;
+            lineArray=[];
+        }else {
+            lineArray=[];
+        }
+
+        
+    
+    }
+
+    while (featureLeft){
+        ip=initializeSearch();
+        if (ip===undefined){
+            featureLeft=false;
+
+            //if ((lineArray.length!=0) && (lineArray.length>=30)){
+                //lineParts.push(lineArray);
+                //lineArray=[];
+           // }
+
+            break;
+        }
+        extractor(ip);
+        
+    }
+
+   
     let result=1;
     /**
      * Returning both generated junctions and line segments
      */
 
     let junctions= createJunctions(intersections,imgW,extent,pixelWidth,pixelHeight);
+    let lineSegs= createLines(lineParts,imgW,extent,pixelWidth,pixelHeight);
+    console.log(checker1, lineSegs,'jjffj');
 
-    return [junctions,result];
-
-}
-
-function lineContourOperations(contourData,imgW,extent,pixelWidth,pixelHeight,line){
-
-    let contours= contourData.contour;
-    let colors= contourData.color;
-    let featurePixel= {}; //Object for storing array of pixel's position where each inner array contain pixel position of a single polygon
-
-    for (let i=0; i<contours.length; i+=3){  //Alpha channel is not considered here
-
-        let r= contours[i];
-        let g= contours[i+1];
-        let b= contours[i+2];
-
-        let rgbMap= [r,g,b];
-
-        if (!((r===0) && (g===0) && (b===0))){
-
-            if (rgbMap.toString() in featurePixel){
-                featurePixel[rgbMap.toString()].push(i/3);
-
-            }else {
-
-                featurePixel[rgbMap.toString()]=[i/3];
-            }
-
-        }
-
-    }
-
-    console.log(Object.keys(featurePixel).length);
-
-    for (const pixPos in featurePixel){
-        let tempArr= [];
-
-        for (let j=0; j<featurePixel[pixPos].length; j++){
-
-            //converting contour positions to x-y based from UInt8Array
-            let x= (featurePixel[pixPos][j]%imgW);
-            let y= Math.floor((featurePixel[pixPos][j]/imgW));
-
-            tempArr.push([x,y]);
-
-        }
-
-        if(tempArr.length<=4){ //if length of contours is less than 4, don't consider
-            continue;
-        }
-        
-        let sortedContours= sortContourPixels(tempArr);
-        let coordinates=[];
-
-        for (let i=0; i<sortedContours.length;i++){
-            let x1= sortedContours[i][0];
-            let y1= sortedContours[i][1];
-
-            //converting x-y based pixel positions into Easting and Northing (EPSG:3857)
-            x1= extent[0]+ (x1*pixelWidth);  
-            y1= extent[3]- (y1*pixelHeight); 
-
-            coordinates.push([x1,y1]);
-
-
-        }
-
-        line["features"].push(
-            {
-                "type":"Feature",
-                "geometry":{
-                    "type":"Polygon",
-                    "coordinates":[coordinates]
-                },
-                "proprties":{
-                    "prop":'',
-                }
-            },)
-        
-
-
-    }
-
-    
-
-    return line;
-    
+    return [junctions,lineSegs,residualImage];
 
 }
 
-function createLine(lineParts, imgW, extent, pixelWidth, pixelHeight){
 
-    let lineSegs= {    //geojson file for storing junction positions
-
-        "type":"FeatureCollection",
-        "name":"lines",
-        "crs":{
-            "type": "name",
-            "properties": {
-              "name": "EPSG:3857"
-            }
-          }
-          ,
-        "features": [
-            
-        ]
-    }
-
-
-
-    //Take the line parts and apply dbscan (at pixel position level)
-    for (let i=0; i<lineParts.length; i++){
-
-        let point_data=[];
-
-        for (let j=0; j<lineParts[i].length; j++){
-
-            let x= lineParts[i][j][0];
-            let y= lineParts[i][j][1];
-
-            //let x1= extent[0]+ (x*pixelWidth);  
-            //let y1= extent[3]- (y*pixelHeight); 
-
-            point_data.push(
-                {x:x, y:y}
-            );
-
-        }
-
-        let dbScanner= jDBSCAN().eps(10).minPts(5).distance('EUCLIDEAN').data(point_data);
-        let clusters= dbScanner();
-        let clusterCenters= dbScanner.getClusters();
-        console.log(clusterCenters);
-
-        for (let k=0; k<clusterCenters.length; k++){
-
-            let cc= clusterCenters[k];
-
-            let x1= extent[0]+ (cc.x*pixelWidth);  
-            let y1= extent[3]- (cc.y*pixelHeight); 
-
-            let coordinates=[x1,y1];
-
-            lineSegs["features"].push(
-                {
-                    "type":"Feature",
-                    "geometry":{
-                        "type":"Point",
-                        "coordinates":coordinates
-                    },
-                    "proprties":{
-                        "prop":'',
-                    }
-                },)
-
-        }
-
-        
-    }
-
-
-
-    return lineSegs;
-}
 
 function createJunctions(intersections, imgW, extent, pixelWidth, pixelHeight){
 
@@ -368,6 +304,58 @@ function createJunctions(intersections, imgW, extent, pixelWidth, pixelHeight){
 
     return junctions;
 
+}
+
+function createLines(lineParts, imgW, extent, pixelWidth, pixelHeight){
+
+    let lineSegs= {    //geojson file for storing junction positions
+
+        "type":"FeatureCollection",
+        "name":"lines",
+        "crs":{
+            "type": "name",
+            "properties": {
+              "name": "EPSG:3857"
+            }
+          }
+          ,
+        "features": [
+            
+        ]
+    }
+
+    for (let i=0; i<lineParts.length; i++){
+        //console.log(lineParts[i]);
+
+        let coordinateArray=[];
+
+        for (let j=0; j<lineParts[i].length;j++){
+
+            let x= lineParts[i][j][0];
+            let y= lineParts[i][j][1];
+
+            let x1= extent[0]+ (x*pixelWidth);  
+            let y1= extent[3]- (y*pixelHeight); 
+
+            let coordinate= [x1,y1];
+            coordinateArray.push(coordinate);
+
+        }
+
+        lineSegs["features"].push(
+            {
+                "type":"Feature",
+                "geometry":{
+                    "type":"LineString",
+                    "coordinates":coordinateArray
+                },
+                "proprties":{
+                    "prop":'',
+                }
+            },)
+    }
+
+    return lineSegs;
 }
 
 function createKernel(k,size){
