@@ -323,58 +323,39 @@ function createLine(lineParts, imgW, extent, pixelWidth, pixelHeight){
         ]
     }
 
-    let linepoint_data=[];
+    
 
     //Take the line parts and apply dbscan (at pixel position level)
     for (let i=0; i<lineParts.length; i++){
 
-        
+        //let coordinateArray=[];
 
         for (let j=0; j<lineParts[i].length; j++){
 
             let x= lineParts[i][j][0];
             let y= lineParts[i][j][1];
 
-            //let x1= extent[0]+ (x*pixelWidth);  
-            //let y1= extent[3]- (y*pixelHeight); 
+            let x1= extent[0]+ (x*pixelWidth);  
+            let y1= extent[3]- (y*pixelHeight); 
 
-            //let coordinate= [x1,y1];
+            let coordinate= [x1,y1];
             //coordinateArray.push(coordinate);
+            lineSegs["features"].push(
+                {
+                    "type":"Feature",
+                    "geometry":{
+                        "type":"Point",
+                        "coordinates":coordinate
+                    },
+                    "proprties":{
+                        "prop":'',
+                    }
+                },)
 
-            linepoint_data.push({
-                x:x, y:y
-            })
 
         }
-        
-    }
-
-    let dbScanner= jDBSCAN().eps(1).minPts(1).distance('EUCLIDEAN').data(linepoint_data);
-    let clusters= dbScanner();
-    let clusterCenters= dbScanner.getClusters();
-
-
-    console.log(clusters, linepoint_data, 'cc2');
-
-    for (let i=0; i<clusterCenters.length; i++){
-
-        let x1= extent[0]+ (clusterCenters[i].x*pixelWidth);  
-        let y1= extent[3]- (clusterCenters[i].y*pixelHeight); 
-        let coordinates=[x1,y1];
 
         
-        lineSegs["features"].push(
-            {
-                "type":"Feature",
-                "geometry":{
-                    "type":"Point",
-                    "coordinates":coordinates
-                },
-                "proprties":{
-                    "prop":'',
-                }
-            },)
-
     }
 
     return lineSegs;

@@ -8,18 +8,14 @@ import { colorFromPixel, extractChannel, getChannels, imageCovariance } from './
 import Image from 'image-js';
 import { colorInRange } from './imageProcessing/yiqRange.js';
 import { contourToPolygon } from './spatialOperations/imageToPolygon.js';
-import VectorLayer from 'ol/layer/Vector.js';
-import VectorSource from 'ol/source/Vector.js';
-import GeoJSON from 'ol/format/GeoJSON.js';
 import { createChart } from './results/chart.js';
 import { junctionExtract } from './spatialOperations/imageToLine.js';
 import Sources from './mapOperations/mapSources.js';
 import { mapToImg } from './mapOperations/mapToImg.js';
 import { clearChilds, lineProcesses } from './uiElements.js';
 import { growRegion } from './algorithms/regionGrowing.js';
-import Style from 'ol/style/Style.js';
-import Icon from 'ol/style/Icon.js';
 import { junctionExtract1 } from './dumpyard.js';
+import { addGeoJSONLayer } from './mapOperations/vectorLyrSrc.js';
 
 
 
@@ -150,29 +146,7 @@ function init(src1, src2){
 
 }
 
-function addGeoJSONLayer(data){
 
-    const vectorSource= new VectorSource({
-      features:new GeoJSON({dataProjection:'EPSG:3857'}).readFeatures(data),
-    });
-
-  const vectorLayer= new VectorLayer({
-      source:vectorSource,
-    });
-
-  if (data.name==='junctions'){
-    vectorLayer.setStyle(new Style({
-      image: new Icon({
-        src: 'https://maps.google.com/mapfiles/kml/paddle/red-blank.png',
-        anchor: [0.5, 1],
-        scale: 0.5
-      })
-    }));
-  }
-
-  map1.addLayer(vectorLayer);
-  
-}
 
 function download(file, text){
   var element = document.createElement('a');
@@ -273,7 +247,8 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
       let extent1= map1.getView().calculateExtent(map1.getSize());
       vectorData1=contourToPolygon(contourData1, canvas1.width, canvas1.height, extent1);
       vectorFilePresent1=true;
-      addGeoJSONLayer(vectorData1);
+      let lyr= addGeoJSONLayer(vectorData1);
+      map1.addLayer(lyr);
       imgProcessed1=false;
       console.log(map1.getLayers());
     }else {
@@ -284,7 +259,8 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
       let extent2= map2.getView().calculateExtent(map2.getSize());
       vectorData2=contourToPolygon(contourData2, canvas2.width, canvas2.height, extent2);
       vectorFilePresent2=true;
-      addGeoJSONLayer(vectorData2);
+      let lyr= addGeoJSONLayer(vectorData2);
+      map1.addLayer(lyr);
       imgProcessed2=false;
 
     }
@@ -294,10 +270,11 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
     if (imgProcessed1===true){
       let extent1= map1.getView().calculateExtent(map1.getSize());
       let redata=junctionExtract1(erodeCannyData1.data, 300, 300, extent1);
-      vectorData1= redata[1];
+      vectorData1= redata[0];
       vectorFilePresent1=true;
-      addGeoJSONLayer(vectorData1);
-      addGeoJSONLayer(redata[0]);
+      //addGeoJSONLayer(vectorData1);
+      let lyr= addGeoJSONLayer(redata[1]);
+      map1.addLayer(lyr);
       canvasCtx1.putImageData(redata[2],0,0);
       imgProcessed1=false;
       clearChilds(inner);

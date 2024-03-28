@@ -202,6 +202,7 @@ export function junctionExtract1(data, imgW, imgH, extent){
             }
     
         }
+        console.log(lineArray, 'la');
 
         if (lineArray.length>=30){
             lineParts.push(lineArray);
@@ -329,7 +330,7 @@ function createLines(lineParts, imgW, extent, pixelWidth, pixelHeight){
 
         let coordinateArray=[];
 
-        for (let j=0; j<lineParts[i].length;j++){
+        for (let j=0; j<lineParts[i].length;j+=3){
 
             let x= lineParts[i][j][0];
             let y= lineParts[i][j][1];

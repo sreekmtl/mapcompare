@@ -49,7 +49,7 @@ function contourToPolygon(contourData, width, height, extent){
     let geoJSON= {
 
         "type":"FeatureCollection",
-        "name":"selectedFeatures",
+        "name":"polygonFeatures",
         "crs":{
             "type": "name",
             "properties": {
