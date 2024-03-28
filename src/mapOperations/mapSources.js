@@ -1,4 +1,4 @@
-import {XYZ,OSM,TileArcGISRest,BingMaps,} from 'ol/source';
+import {XYZ,OSM,TileArcGISRest,BingMaps} from 'ol/source';
 import Keys from './keys';
 
 const basemapId = "arcgis/streets";

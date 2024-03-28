@@ -17,15 +17,12 @@ export function addGeoJSONLayer(data){
 
     let vectorLayer= new VectorLayer();
 
-    if (data.name==='lines'){
+    if (data.name==='lines'){ //using douglas peuker algorithm to simplify line features
+
 
         let ft=[];
         vectorSource.forEachFeature((f)=>{
-        let gm= f.getGeometry();
-        console.log(gm.getFlatCoordinates().length, 'bfor');
-        let gm1= gm.simplify(3);
-        console.log(gm1.getFlatCoordinates().length, 'after');
-
+        let gm1= f.getGeometry().simplify(3); 
         let feature= new Feature({
             geometry:gm1,
         });
@@ -39,11 +36,12 @@ export function addGeoJSONLayer(data){
         vectorLayer.setSource(simplifiedVectorSource);
 
 
-    }else {
+    }else { //if it is not line, dont simplify
+
         vectorLayer.setSource(vectorSource);
     }
 
-  if (data.name==='junctions'){
+  if (data.name==='junctions'){ // use special icons for junctions
     vectorLayer.setStyle(new Style({
       image: new Icon({
         src: 'https://maps.google.com/mapfiles/kml/paddle/red-blank.png',

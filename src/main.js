@@ -181,8 +181,7 @@ featureDropDown.addEventListener('change',(c)=>{
 
   if (processOptionsEnabled===false){
     
-    lp=lineProcesses(inner);
-    console.log(lp, 'lp');
+    lineProcesses(inner);
     processOptionsEnabled=true;
   }
   
@@ -220,8 +219,7 @@ imgProcessBtn.addEventListener('click',(e)=>{
     //Line feature
     if (map1Selected===true){
       let imgData1= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
-      erodeCannyData1= erodePlusCanny(imgData1,parseInt(lp[0]),parseInt(lp[1]));
-      console.log(lp);
+      erodeCannyData1= erodePlusCanny(imgData1,3,3);
       imgProcessed1=true;
       canvasCtx1.putImageData(erodeCannyData1,0,0);
       
