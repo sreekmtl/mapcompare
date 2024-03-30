@@ -9,6 +9,8 @@ import Icon from 'ol/style/Icon.js';
  * Deals with all vector layers created during run time
  */
 
+let featureCount=0; //Variable for storing feature count
+
 export function addGeoJSONLayer(data){
 
     const vectorSource= new VectorSource({
@@ -34,10 +36,11 @@ export function addGeoJSONLayer(data){
         });
 
         vectorLayer.setSource(simplifiedVectorSource);
-
+        featureCount=ft.length;
 
     }else { //if it is not line, dont simplify
 
+        featureCount= data['features'].length;
         vectorLayer.setSource(vectorSource);
     }
 
@@ -52,6 +55,9 @@ export function addGeoJSONLayer(data){
 
   }
 
+  
+
   return vectorLayer;
   
 }
+

@@ -121,9 +121,6 @@ function watershed(imgData, canvas){
 
 function erode(imgData,m,i){
 
-    //let m= parseInt(sessionStorage.getItem('ER_KER_SIZ_1'));
-    //let i= parseInt(sessionStorage.getItem('ER_ITER_1'))
-
     let src= cv.matFromImageData(imgData)
     console.log(src);
 

@@ -12,7 +12,7 @@ import { createChart } from './results/chart.js';
 import { junctionExtract } from './spatialOperations/imageToLine.js';
 import Sources from './mapOperations/mapSources.js';
 import { mapToImg } from './mapOperations/mapToImg.js';
-import { clearChilds, lineProcesses } from './uiElements.js';
+import { clearChilds, lineProcesses, polygonProcesses } from './uiElements.js';
 import { growRegion } from './algorithms/regionGrowing.js';
 import { junctionExtract1 } from './dumpyard.js';
 import { addGeoJSONLayer } from './mapOperations/vectorLyrSrc.js';
@@ -171,20 +171,13 @@ function download(file, text){
 featureDropDown.addEventListener('change',(c)=>{
 
   if (featureDropDown.value==='1'){
-
     clearChilds(inner);
-    processOptionsEnabled=false;
-
-  }else if (featureDropDown.value==='2'){
-  
-  }else if (featureDropDown.value==='3'){
-
-  if (processOptionsEnabled===false){
-    
+  }else if (featureDropDown.value==='2'){ 
+    clearChilds(inner);
+    polygonProcesses(inner);
+  }else if (featureDropDown.value==='3'){ 
+    clearChilds(inner);
     lineProcesses(inner);
-    processOptionsEnabled=true;
-  }
-  
   }
 
 });
@@ -218,8 +211,12 @@ imgProcessBtn.addEventListener('click',(e)=>{
 
     //Line feature
     if (map1Selected===true){
+
+      let param1= parseInt(sessionStorage.getItem('ER_KER_SIZ_1'));
+      let param2= parseInt(sessionStorage.getItem('ER_ITER_1'));
+
       let imgData1= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
-      erodeCannyData1= erodePlusCanny(imgData1,3,3);
+      erodeCannyData1= erodePlusCanny(imgData1,param1, param2);
       imgProcessed1=true;
       canvasCtx1.putImageData(erodeCannyData1,0,0);
       
@@ -270,13 +267,14 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
       let redata=junctionExtract1(erodeCannyData1.data, 300, 300, extent1);
       vectorData1= redata[0];
       vectorFilePresent1=true;
-      //addGeoJSONLayer(vectorData1);
+      let jn= addGeoJSONLayer(vectorData1);
       let lyr= addGeoJSONLayer(redata[1]);
+      map1.addLayer(jn);
       map1.addLayer(lyr);
       canvasCtx1.putImageData(redata[2],0,0);
       imgProcessed1=false;
       clearChilds(inner);
-      processOptionsEnabled=false;
+     
 
     }else {
       alert('Process image from map1 before vectorizing');

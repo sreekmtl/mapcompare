@@ -25,7 +25,7 @@ export function getRequestUrl(
   resolution,
   pixelRatio,
   projection,
-  params
+  params,
 ) {
   // ArcGIS Server only wants the numeric portion of the projection ID.
   // (if there is no numeric portion the entire projection code must
@@ -47,15 +47,12 @@ export function getRequestUrl(
   params['BBOXSR'] = srid;
   params['IMAGESR'] = srid;
   params['DPI'] = Math.round(
-    params['DPI'] ? params['DPI'] * pixelRatio : 90 * pixelRatio
+    params['DPI'] ? params['DPI'] * pixelRatio : 90 * pixelRatio,
   );
 
   const modifiedUrl = baseUrl
     .replace(/MapServer\/?$/, 'MapServer/export')
     .replace(/ImageServer\/?$/, 'ImageServer/exportImage');
-  if (modifiedUrl == baseUrl) {
-    throw new Error('`options.featureTypes` should be an Array');
-  }
   return appendParams(modifiedUrl, params);
 }
 
@@ -113,7 +110,7 @@ export function createLoader(options) {
       resolution,
       pixelRatio,
       projection,
-      params
+      params,
     );
 
     const image = new Image();
