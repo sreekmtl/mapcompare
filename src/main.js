@@ -16,7 +16,7 @@ import { clearChilds, lineProcesses, polygonProcesses } from './uiElements.js';
 import { growRegion } from './algorithms/regionGrowing.js';
 import { junctionExtract1 } from './dumpyard.js';
 import { addGeoJSONLayer } from './mapOperations/vectorLyrSrc.js';
-
+import { apply } from 'ol-mapbox-style';
 
 
 
@@ -91,7 +91,8 @@ function init(src1, src2){
       
       });
 
-  
+  //let url=`https://basemapstyles-api.arcgis.com/arcgis/rest/services/styles/v2/styles/arcgis/streets?token=AAPK3890bdd7605a4e3d9adb68f5790780eczWSlc-Uyepn0n8XMnNwNaiymNVrEy4ihJruVsf2PVK_lD086faryQVtQkssjkq84`
+  //apply(map2, url)
   
   extentBox.textContent="Extent: "+map1.getView().calculateExtent(map1.getSize());
   zoomLevelBox.textContent="Zoom Level: "+map1.getView().getZoom();

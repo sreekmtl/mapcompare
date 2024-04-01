@@ -53,7 +53,7 @@ function extractChannel(imgDataArray, channelName){
 function colorFromPixel(pixPos, imgDataArray, width, height){
 
     let rgbArray= getChannels(imgDataArray);
-    let pos= (pixPos[1]*width)+pixPos[0];
+    let pos= (Math.floor(pixPos[1])*width)+Math.floor(pixPos[0]);
     let colorRGB= rgbArray[pos];
 
     return colorRGB;

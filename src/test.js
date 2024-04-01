@@ -1,3 +1,4 @@
+import { prototype } from "events";
 
 
 count={};
@@ -262,8 +263,3 @@ for (let i=0;i<kernel.length;i++){
 
 //createCicrcularKernel(19);
 
-let ret= [1,2,3,4,5,6,7,8,9,10];
-
-let tt=[];
-tt.push([...ret]);
-console.log(tt);
