@@ -8,10 +8,10 @@ function getContours(imgData,canvas){
     let contourColors= [];
 
     let src= cv.matFromImageData(imgData)
-    console.log(src);
+    //console.log(src);
 
     let dst= cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
-    console.log(dst);
+    //console.log(dst);
     
     cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
     cv.threshold(src, src, 0, 255, cv.THRESH_BINARY);
@@ -43,7 +43,7 @@ function getContours(imgData,canvas){
 function getCannyEdge(imgData, canvas){
 
     let src= cv.matFromImageData(imgData)
-    console.log(src);
+    //console.log(src);
 
     
     let dst= cv.Mat.zeros(src.rows, src.cols, cv.CV_8UC3);
@@ -122,7 +122,7 @@ function watershed(imgData, canvas){
 function erode(imgData,m,i){
 
     let src= cv.matFromImageData(imgData)
-    console.log(src);
+    //console.log(src);
 
     let dst = new cv.Mat();
     let M = cv.Mat.ones(m, m, cv.CV_8U);

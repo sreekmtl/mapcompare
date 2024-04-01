@@ -56,7 +56,16 @@ function growRegion(inputs, data) {
       totalCount.push(newedge);
       edge = newedge;
     }
-    console.log(totalCount);
+    for (let i=0; i<outputData.length;i+=4){
+      if ((outputData[i]===255 && outputData[i+1]===0 && outputData[i+2]===0 && outputData[i+3]===255)){
+        continue;
+      }else{
+        outputData[i]=0;
+        outputData[i+1]=0;
+        outputData[i+2]=0;
+        outputData[i+3]=255;
+      }
+    }
     return {data: outputData, width: width, height: height};
   }
   

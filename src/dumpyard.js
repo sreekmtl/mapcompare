@@ -145,7 +145,7 @@ export function junctionExtract1(data, imgW, imgH, extent){
     function extractor(ip){
         
         lineArray.push(ip);
-        console.log(ip,'ip');
+        //console.log(ip,'ip');
 
         for (let i=0; i<count; i++){
 
@@ -202,7 +202,7 @@ export function junctionExtract1(data, imgW, imgH, extent){
             }
     
         }
-        console.log(lineArray, 'la');
+        //console.log(lineArray, 'la');
 
         if (lineArray.length>=30){
             lineParts.push(lineArray);
@@ -240,7 +240,7 @@ export function junctionExtract1(data, imgW, imgH, extent){
 
     let junctions= createJunctions(intersections,imgW,extent,pixelWidth,pixelHeight);
     let lineSegs= createLines(lineParts,imgW,extent,pixelWidth,pixelHeight);
-    console.log(checker1, lineSegs,'jjffj');
+    //console.log(checker1, lineSegs,'jjffj');
 
     return [junctions,lineSegs,residualImage];
 

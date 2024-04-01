@@ -1,4 +1,4 @@
-import { prototype } from "events";
+
 
 
 count={};
@@ -263,3 +263,7 @@ for (let i=0;i<kernel.length;i++){
 
 //createCicrcularKernel(19);
 
+let ao,bo,co;
+ao,bo,co=2;
+
+console.log(ao,bo,co);

@@ -16,7 +16,7 @@ import { clearChilds, lineProcesses, polygonProcesses } from './uiElements.js';
 import { growRegion } from './algorithms/regionGrowing.js';
 import { junctionExtract1 } from './dumpyard.js';
 import { addGeoJSONLayer } from './mapOperations/vectorLyrSrc.js';
-import { apply } from 'ol-mapbox-style';
+
 
 
 
@@ -48,6 +48,7 @@ const imgCovBtn= document.getElementById('imageCov');
 const extentBox= document.getElementById('extentBox');
 const zoomLevelBox= document.getElementById('zoomLevel');
 const featureDropDown= document.getElementById('FeatureType');
+const selectionDropDown= document.getElementById('SelectionType');
 const mapdd1= document.getElementById('MapType1');
 const mapdd2= document.getElementById('MapType2');
 const inner= document.getElementById('processOptions');
@@ -58,8 +59,9 @@ let imgProcessed1= false;
 let imgProcessed2= false;
 let vectorFilePresent1= false;
 let vectorFilePresent2=false;
-let bothMapSelected=false;
-let processOptionsEnabled= false;
+let selectionAlgorithm= 'YIQ';
+
+
 let contourData1, contourData2, erodeCannyData1, erodeCannyData2, vectorData1, vectorData2 ;
 let lp;
 
@@ -67,6 +69,31 @@ let map1, map2;
 
 
 function init(src1, src2){
+
+  featureDropDown.addEventListener('change',(c)=>{
+
+    if (featureDropDown.value==='1'){
+      clearChilds(inner);
+    }else if (featureDropDown.value==='2'){ 
+      clearChilds(inner);
+      polygonProcesses(inner);
+    }else if (featureDropDown.value==='3'){ 
+      clearChilds(inner);
+      lineProcesses(inner);
+    }
+  
+  });
+
+  selectionDropDown.addEventListener('change', (c)=>{
+
+    if (selectionDropDown.value==='1'){
+      selectionAlgorithm='YIQ';
+    }else if (selectionDropDown.value==='2'){
+      selectionAlgorithm='RG';
+    }
+
+  });
+  
 
   const view= new View({
     center: [8687373.06, 3544749.53],
@@ -124,23 +151,32 @@ function init(src1, src2){
  let coord; 
   map1.on('click',(e)=>{
     let imgData= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
-    console.log(colorFromPixel(e.pixel, imgData.data, 300, 300));
-    let diffImg= colorInRange(imgData, colorFromPixel(e.pixel, imgData.data, 300, 300), 0);
-    canvasCtx1.putImageData(diffImg,0,0);
+    let diffImg;
+    if (selectionAlgorithm==='YIQ'){
+      diffImg= colorInRange(imgData, colorFromPixel(e.pixel, imgData.data, 300, 300), 0);
+      canvasCtx1.putImageData(diffImg,0,0);
+    }else if (selectionAlgorithm==='RG'){
+      let op= growRegion(imgData, {delta:20,pixel:e.pixel});
+      diffImg= new ImageData(op.data,300,300);
+      canvasCtx1.putImageData(diffImg,0,0);
+    }
+    
     map1Selected=true;
-    //let op= growRegion(imgData, {delta:20,pixel:e.pixel});
-    //let opimg= new ImageData(op.data,300,300);
-   //canvasCtx1.putImageData(opimg,0,0);
-   //console.log({delta:20,pixel:e.pixel});
-  
     
   });
 
   map2.on('click',(e)=>{
     let imgData= canvasCtx2.getImageData(0,0,canvas2.width,canvas2.height);
-    //console.log(colorFromPixel(e.pixel, imgData.data, 300, 300));
-    let diffImg= colorInRange(imgData, colorFromPixel(e.pixel, imgData.data, 300, 300), 0);
-    canvasCtx2.putImageData(diffImg,0,0);
+    let diffImg;
+    if (selectionAlgorithm==='YIQ'){
+      diffImg= colorInRange(imgData, colorFromPixel(e.pixel, imgData.data, 300, 300), 0);
+      canvasCtx2.putImageData(diffImg,0,0);
+    }else if (selectionAlgorithm==='RG'){
+      let op= growRegion(imgData, {delta:20,pixel:e.pixel});
+      diffImg= new ImageData(op.data,300,300);
+      canvasCtx2.putImageData(diffImg,0,0);
+    }
+    
     map2Selected=true;
   })
   
@@ -167,21 +203,6 @@ function download(file, text){
  * This includes button, slider events etc.
  */
 
-
-
-featureDropDown.addEventListener('change',(c)=>{
-
-  if (featureDropDown.value==='1'){
-    clearChilds(inner);
-  }else if (featureDropDown.value==='2'){ 
-    clearChilds(inner);
-    polygonProcesses(inner);
-  }else if (featureDropDown.value==='3'){ 
-    clearChilds(inner);
-    lineProcesses(inner);
-  }
-
-});
 
 imgProcessBtn.addEventListener('click',(e)=>{
 
@@ -224,7 +245,13 @@ imgProcessBtn.addEventListener('click',(e)=>{
     }
 
     if (map2Selected===true){
+      let param1= parseInt(sessionStorage.getItem('ER_KER_SIZ_2'));
+      let param2= parseInt(sessionStorage.getItem('ER_ITER_2'));
+
       let imgData2= canvasCtx2.getImageData(0,0,canvas2.width,canvas2.height);
+      erodeCannyData2= erodePlusCanny(imgData2,param1, param2);
+      imgProcessed2=true;
+      canvasCtx2.putImageData(erodeCannyData2,0,0);
       
 
     }
@@ -283,8 +310,20 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
 
     if (imgProcessed2===true){
 
+      let extent2= map2.getView().calculateExtent(map2.getSize());
+      let redata=junctionExtract1(erodeCannyData2.data, 300, 300, extent2);
+      vectorData2= redata[0];
+      vectorFilePresent2=true;
+      let jn= addGeoJSONLayer(vectorData2);
+      let lyr= addGeoJSONLayer(redata[1]);
+      map2.addLayer(jn);
+      map2.addLayer(lyr);
+      canvasCtx2.putImageData(redata[2],0,0);
+      imgProcessed2=false;
+      clearChilds(inner);
 
-
+    }else {
+      alert('Process image from map1 before vectorizing');
     }
 
   }
@@ -332,12 +371,17 @@ imgCovBtn.addEventListener('click',(e)=>{
 
 });
 
+compareBtn.addEventListener('click', (e)=>{
+  
+})
+
 let sourceMap={
   '1':sources.OSM_Standard,
   '2':sources.Bing_RoadsOnDemand,
   '3':sources.EsriXYZ,
   '4':sources.ArcGIS_sample,
   '5':sources.EsriMaps,
+  '6':sources.ESALULC,
 }
 
 init(sourceMap['1'],sourceMap['2']);

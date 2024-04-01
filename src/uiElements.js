@@ -95,7 +95,26 @@ function clearChilds(root){
       }
 }
 
-function polygonResults(){
+function createResults(txt, param){
+
+    let RSLT= document.createElement('p');
+    RSLT.textContent= txt + param;
+    RSLT.className='p';
+
+}
+
+function showResults(root){
+
+let RESULT_DIV= document.createElement('DIV');
+RESULT_DIV.style.width='300px';
+DIV1.style.background="white";
+
+let RESULT_TITLE_1= document.createElement('h3');
+RESULT_TITLE_1.textContent='Results for Map-1';
+
+let RESULT_TITLE_2= document.createElement('h3');
+RESULT_TITLE_2.textContent='Results for Map-2';
+
 
 
 }

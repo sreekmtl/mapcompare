@@ -1,5 +1,19 @@
-import {XYZ,OSM,TileArcGISRest,BingMaps} from 'ol/source';
+import {XYZ,OSM,TileArcGISRest,BingMaps, WMTS} from 'ol/source';
 import Keys from './keys';
+import WMTSTileGrid from 'ol/tilegrid/WMTS';
+import {getTopLeft, getWidth} from 'ol/extent.js';
+import {get as getProjection} from 'ol/proj.js';
+
+const projection = getProjection('EPSG:3857');
+const projectionExtent = projection.getExtent();
+const size = getWidth(projectionExtent) / 256;
+const resolutions = new Array(19);
+const matrixIds = new Array(19);
+for (let z = 0; z < 19; ++z) {
+  // generate resolutions and matrixIds arrays for this WMTS
+  resolutions[z] = size / Math.pow(2, z);
+  matrixIds[z] = z;
+}
 
 const basemapId = "arcgis/streets";
 const EsriLayers={
@@ -44,6 +58,26 @@ class Sources{
           url: 'https://services.arcgisonline.com/arcgis/rest/services/'+EsriLayers['World_Topo_Map']+'/MapServer/MapServer/tile/{z}/{y}/{x}',
 
         });
+
+        this.ESALULC= new WMTS({
+          url: 'https://services.terrascope.be/wmts/v2',
+          layer: 'WORLDCOVER_2020_MAP',
+          matrixSet: 'EPSG:3857',
+          format: 'image/png',
+          projection: projection,
+          tileGrid: new WMTSTileGrid({
+            origin: getTopLeft(projectionExtent),
+            resolutions: resolutions,
+            matrixIds: matrixIds,
+          }),
+          
+        });
+
+        this.BhuvanLULC= new WMTS({
+          url:'https://bhuvan-vec2.nrsc.gov.in/bhuvan/gwc/service/wmts/',
+          version:'1.0.0',
+          format:"image/png",
+        })
         
     }
 
