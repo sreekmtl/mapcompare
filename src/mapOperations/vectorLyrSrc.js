@@ -4,13 +4,18 @@ import VectorSource from "ol/source/Vector";
 import GeoJSON from 'ol/format/GeoJSON.js';
 import Style from 'ol/style/Style.js';
 import Icon from 'ol/style/Icon.js';
-//import jsts from "jsts";
+//import OL3Parser from "jsts/org/locationtech/jts/io/OL3Parser";
+//import BufferBuilder from 'jsts/org/locationtech/jts/operation/buffer/BufferBuilder'
+
+
+//let bufferBuilder= new BufferBuilder();
 
 /**
  * Deals with all vector layers created during run time
  */
 
 let featureCount=0; //Variable for storing feature count
+
 
 export function createVectorLayer(data){
 
@@ -62,7 +67,7 @@ export function createVectorLayer(data){
   
 }
 
-/** 
+
 
 export function snapLineToPoint(linesData, pointsData){
 
@@ -79,13 +84,13 @@ export function snapLineToPoint(linesData, pointsData){
   lineSource.forEachFeature((f)=>{
 
     let geom= f.getGeometry();
-    let jstsgeom= jsts.io.OL3Parser(geom);
-    console.log(jstsgeom);
+    //let jstsGeom= new OL3Parser().convertFromLineString(geom);
+    //let buffered= new BufferBuilder().buffer(geom, 50);
 
   });
   
 
 
 }
-*/
+
 

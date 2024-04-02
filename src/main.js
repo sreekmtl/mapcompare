@@ -299,6 +299,7 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
       let lyr= createVectorLayer(redata[1]);
       map1.addLayer(jn);
       map1.addLayer(lyr);
+      snapLineToPoint(redata[0],redata[1]);
       canvasCtx1.putImageData(redata[2],0,0);
       imgProcessed1=false;
       clearChilds(inner);
@@ -318,7 +319,7 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
       let lyr= createVectorLayer(redata[1]);
       map2.addLayer(jn);
       map2.addLayer(lyr);
-      //snapLineToPoint(redata[0],redata[1]);
+      snapLineToPoint(redata[0],redata[1]);
       canvasCtx2.putImageData(redata[2],0,0);
       imgProcessed2=false;
       clearChilds(inner);
