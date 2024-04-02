@@ -63,8 +63,9 @@ function contourToPolygon(contourData, width, height, extent){
     }
 
    
-
+    let f_id=0;
     for (const pixPos in featurePixel){
+        f_id++;
         let tempArr= [];
 
         for (let j=0; j<featurePixel[pixPos].length; j++){
@@ -104,9 +105,7 @@ function contourToPolygon(contourData, width, height, extent){
                     "type":"Polygon",
                     "coordinates":[coordinates]
                 },
-                "proprties":{
-                    "prop":'',
-                }
+                "id":f_id,
             },)
         
         //addGeoJSONLayer(geoJSON);

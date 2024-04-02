@@ -4,6 +4,7 @@ import VectorSource from "ol/source/Vector";
 import GeoJSON from 'ol/format/GeoJSON.js';
 import Style from 'ol/style/Style.js';
 import Icon from 'ol/style/Icon.js';
+//import jsts from "jsts";
 
 /**
  * Deals with all vector layers created during run time
@@ -11,7 +12,7 @@ import Icon from 'ol/style/Icon.js';
 
 let featureCount=0; //Variable for storing feature count
 
-export function addGeoJSONLayer(data){
+export function createVectorLayer(data){
 
     const vectorSource= new VectorSource({
       features:new GeoJSON({dataProjection:'EPSG:3857'}).readFeatures(data),
@@ -60,4 +61,31 @@ export function addGeoJSONLayer(data){
   return vectorLayer;
   
 }
+
+/** 
+
+export function snapLineToPoint(linesData, pointsData){
+
+  //Used to combine lines and junctions
+
+  const lineSource= new VectorSource({
+    features:new GeoJSON({dataProjection:'EPSG:3857'}).readFeatures(linesData),
+  });
+
+  const pointSource= new VectorSource({
+    features: new GeoJSON({dataProjection:'EPSG:3857'}).readFeatures(pointsData),
+  });
+
+  lineSource.forEachFeature((f)=>{
+
+    let geom= f.getGeometry();
+    let jstsgeom= jsts.io.OL3Parser(geom);
+    console.log(jstsgeom);
+
+  });
+  
+
+
+}
+*/
 

@@ -15,7 +15,7 @@ import { mapToImg } from './mapOperations/mapToImg.js';
 import { clearChilds, lineProcesses, polygonProcesses } from './uiElements.js';
 import { growRegion } from './algorithms/regionGrowing.js';
 import { junctionExtract1 } from './dumpyard.js';
-import { addGeoJSONLayer } from './mapOperations/vectorLyrSrc.js';
+import { createVectorLayer, snapLineToPoint } from './mapOperations/vectorLyrSrc.js';
 
 
 
@@ -270,7 +270,7 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
       let extent1= map1.getView().calculateExtent(map1.getSize());
       vectorData1=contourToPolygon(contourData1, canvas1.width, canvas1.height, extent1);
       vectorFilePresent1=true;
-      let lyr= addGeoJSONLayer(vectorData1);
+      let lyr= createVectorLayer(vectorData1);
       map1.addLayer(lyr);
       imgProcessed1=false;
       console.log(map1.getLayers());
@@ -282,7 +282,7 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
       let extent2= map2.getView().calculateExtent(map2.getSize());
       vectorData2=contourToPolygon(contourData2, canvas2.width, canvas2.height, extent2);
       vectorFilePresent2=true;
-      let lyr= addGeoJSONLayer(vectorData2);
+      let lyr= createVectorLayer(vectorData2);
       map1.addLayer(lyr);
       imgProcessed2=false;
 
@@ -295,8 +295,8 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
       let redata=junctionExtract1(erodeCannyData1.data, 300, 300, extent1);
       vectorData1= redata[0];
       vectorFilePresent1=true;
-      let jn= addGeoJSONLayer(vectorData1);
-      let lyr= addGeoJSONLayer(redata[1]);
+      let jn= createVectorLayer(vectorData1);
+      let lyr= createVectorLayer(redata[1]);
       map1.addLayer(jn);
       map1.addLayer(lyr);
       canvasCtx1.putImageData(redata[2],0,0);
@@ -314,10 +314,11 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
       let redata=junctionExtract1(erodeCannyData2.data, 300, 300, extent2);
       vectorData2= redata[0];
       vectorFilePresent2=true;
-      let jn= addGeoJSONLayer(vectorData2);
-      let lyr= addGeoJSONLayer(redata[1]);
+      let jn = createVectorLayer(vectorData2);
+      let lyr= createVectorLayer(redata[1]);
       map2.addLayer(jn);
       map2.addLayer(lyr);
+      //snapLineToPoint(redata[0],redata[1]);
       canvasCtx2.putImageData(redata[2],0,0);
       imgProcessed2=false;
       clearChilds(inner);

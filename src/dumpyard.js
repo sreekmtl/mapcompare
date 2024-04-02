@@ -286,7 +286,9 @@ function createJunctions(intersections, imgW, extent, pixelWidth, pixelHeight){
     let clusters= dbScanner();
     let clusterCenters= dbScanner.getClusters();
 
+    let f_id=0;
     for (let i=0; i<clusterCenters.length; i++){
+        f_id++;
 
         let coordinates=[clusterCenters[i].x, clusterCenters[i].y]
         
@@ -297,9 +299,7 @@ function createJunctions(intersections, imgW, extent, pixelWidth, pixelHeight){
                     "type":"Point",
                     "coordinates":coordinates
                 },
-                "proprties":{
-                    "prop":'',
-                }
+                "id":f_id,
             },)
     }
 
@@ -324,9 +324,9 @@ function createLines(lineParts, imgW, extent, pixelWidth, pixelHeight){
             
         ]
     }
-
+    let f_id=0;
     for (let i=0; i<lineParts.length; i++){
-        //console.log(lineParts[i]);
+        f_id++;
 
         let coordinateArray=[];
 
@@ -350,9 +350,7 @@ function createLines(lineParts, imgW, extent, pixelWidth, pixelHeight){
                     "type":"LineString",
                     "coordinates":coordinateArray
                 },
-                "proprties":{
-                    "prop":'',
-                }
+                "id":f_id,
             },)
     }
 
