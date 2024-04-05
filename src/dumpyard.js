@@ -204,7 +204,7 @@ export function junctionExtract1(data, imgW, imgH, extent){
         }
         //console.log(lineArray, 'la');
 
-        if (lineArray.length>=30){
+        if (lineArray.length>=10){
             lineParts.push(lineArray);
             checker1+=1;
             lineArray=[];

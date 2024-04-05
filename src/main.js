@@ -16,6 +16,8 @@ import { clearChilds, lineProcesses, polygonProcesses } from './uiElements.js';
 import { growRegion } from './algorithms/regionGrowing.js';
 import { junctionExtract1 } from './dumpyard.js';
 import { createVectorLayer, snapLineToPoint } from './mapOperations/vectorLyrSrc.js';
+import { apply } from 'ol-mapbox-style';
+import { Tile } from 'ol/layer.js';
 
 
 
@@ -111,7 +113,7 @@ function init(src1, src2){
       
   map2=    new Map({
           layers:[
-              new TileLayer({source: src2}),
+              new Tile({source: src2}),
           ],
           view:view,
           target:'map2',
@@ -297,10 +299,11 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
       vectorFilePresent1=true;
       let jn= createVectorLayer(vectorData1);
       let lyr= createVectorLayer(redata[1]);
-      map1.addLayer(jn);
+      //map1.addLayer(jn);
       map1.addLayer(lyr);
-      snapLineToPoint(redata[0],redata[1]);
-      canvasCtx1.putImageData(redata[2],0,0);
+      let ss= snapLineToPoint(jn, lyr);
+      map1.addLayer(ss);
+      //canvasCtx1.putImageData(redata[2],0,0);
       imgProcessed1=false;
       clearChilds(inner);
      
@@ -382,8 +385,9 @@ let sourceMap={
   '2':sources.Bing_RoadsOnDemand,
   '3':sources.EsriXYZ,
   '4':sources.ArcGIS_sample,
-  '5':sources.EsriMaps,
-  '6':sources.ESALULC,
+  '5':sources.googleMaps,
+  '6':sources.EsriMaps,
+  '7':sources.ESALULC,
 }
 
 init(sourceMap['1'],sourceMap['2']);

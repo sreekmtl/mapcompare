@@ -211,7 +211,6 @@ export function junctionExtract(data, imgW, imgH, extent){
 
     
     
-
     while (featureLeft){
         ip=initializeSearch();
         if (ip===undefined){
@@ -228,7 +227,6 @@ export function junctionExtract(data, imgW, imgH, extent){
         
     }
    
-
     let lineSegments= createLine(linParts, imgW, extent, pixelWidth, pixelHeight);
     let junction= createJunctions(junctionArray,imgW,extent,pixelWidth,pixelHeight);
     //console.log(junctionArray,'junctions');
@@ -303,9 +301,55 @@ function createJunctions(intersections, imgW, extent, pixelWidth, pixelHeight){
 
 }
 
+function cleanLines(lp){
+
+    let cleanedArray=[];
+
+    loop1:
+    for (let i=0; i<10; i++){
+        let ip = lp[i][0];
+        let x= ip[0];
+        let y= ip[1];
+        let adjKernel= createKernel([x,y], 3);
+        loop2:
+        for (let j=1; j<lp[i].length; j++){
+
+            //if the value is is adjacent push to array
+            //or else, create new array
+            //if array length is too small, discard
+            let innerArray=[];
+            loop3:
+            for (let k=0; k<adjKernel.length; k++){
+
+                //if any one element is equal, add it to array and exit
+                //This is to prevent kernel moving to both sides
+                //Now make initial point the last one and continue
+                //Only search for adjacent element to last one
+                //else it will again connct to initial point and moves to the other side
+
+                if (adjKernel[k]===lp[i][j]){
+
+                    innerArray.push(lp[i][j]);
+                    break;
+                }else {
+
+                    //put leftovers here
+                    //create new initial point from leftover
+                    //do the same
+                }
+            }
+            
+        }
+
+        cleanedArray.push(innerArray);
+    }
+
+    return cleanedArray;
+}
+
 function createLine(lineParts, imgW, extent, pixelWidth, pixelHeight){
 
-    console.log(lineParts.length);
+    let cleanLineParts= cleanLines(lineParts);
 
     let lineSegs= {    //geojson file for storing junction positions
 
@@ -326,9 +370,11 @@ function createLine(lineParts, imgW, extent, pixelWidth, pixelHeight){
     
 
     //Take the line parts and apply dbscan (at pixel position level)
-    for (let i=0; i<lineParts.length; i++){
+    let f_id=0;
+    for (let i=0; i<10; i++){
+        f_id++;
 
-        //let coordinateArray=[];
+        let coordinateArray=[];
 
         for (let j=0; j<lineParts[i].length; j++){
 
@@ -339,21 +385,18 @@ function createLine(lineParts, imgW, extent, pixelWidth, pixelHeight){
             let y1= extent[3]- (y*pixelHeight); 
 
             let coordinate= [x1,y1];
-            //coordinateArray.push(coordinate);
-            lineSegs["features"].push(
-                {
-                    "type":"Feature",
-                    "geometry":{
-                        "type":"Point",
-                        "coordinates":coordinate
-                    },
-                    "proprties":{
-                        "prop":'',
-                    }
-                },)
-
+            coordinateArray.push(coordinate);
 
         }
+        lineSegs["features"].push(
+            {
+                "type":"Feature",
+                "geometry":{
+                    "type":"LineString",
+                    "coordinates":coordinateArray
+                },
+                "id":f_id,
+            },)
 
         
     }

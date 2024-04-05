@@ -267,3 +267,16 @@ let ao,bo,co;
 ao,bo,co=2;
 
 console.log(ao,bo,co);
+
+const dataqq = [
+    { id: 1, details: 'hdhdh' },
+    { id: 2, details: 'ddd' },
+    { id: 3, details: 'another detail' }
+  ];
+  
+  const removeId = 2; // Replace with the ID you want to remove
+  
+  const filteredData = dataqq.filter(item => item.id !== removeId);
+  
+  console.log(filteredData); 
+  

@@ -1,8 +1,9 @@
-import {XYZ,OSM,TileArcGISRest,BingMaps, WMTS} from 'ol/source';
+import {XYZ,OSM,TileArcGISRest,BingMaps, WMTS, Google} from 'ol/source';
 import Keys from './keys';
 import WMTSTileGrid from 'ol/tilegrid/WMTS';
 import {getTopLeft, getWidth} from 'ol/extent.js';
 import {get as getProjection} from 'ol/proj.js';
+import {Control, defaults as defaultControls} from 'ol/control';
 
 const projection = getProjection('EPSG:3857');
 const projectionExtent = projection.getExtent();
@@ -24,6 +25,15 @@ const EsriLayers={
   'World_Ocean_Base': 'Ocean/World_Ocean_Base',
   'World_Imagery': 'World_Imagery'
   };
+
+  const BingLayers={
+    'RoadOnDemand':'RoadOnDemand',
+    'Aerial':'Aerial',
+    'AerialWithLabelsOnDemand':'AerialWithLabelsOnDemand',
+    'CanvasDark':'CanvasDark',
+    'OrdnanceSurvey':'OrdnanceSurvey',
+    'Road':'Road',
+  }
 
 
 class Sources{
@@ -55,8 +65,14 @@ class Sources{
           });
 
         this.EsriMaps= new XYZ({
-          url: 'https://services.arcgisonline.com/arcgis/rest/services/'+EsriLayers['World_Topo_Map']+'/MapServer/MapServer/tile/{z}/{y}/{x}',
+          url: 'https://services.arcgisonline.com/arcgis/rest/services/'+EsriLayers['World_Imagery']+'/MapServer/MapServer/tile/{z}/{y}/{x}',
 
+        });
+
+        this.googleMaps = new Google({
+          key,
+          scale: 'scaleFactor2x',
+          highDpi: true,
         });
 
         this.ESALULC= new WMTS({
@@ -82,6 +98,22 @@ class Sources{
     }
 
   
+}
+
+class GoogleLogoControl extends Control{
+
+  constructor(){
+    const element = document.createElement('img');
+      element.style.pointerEvents = 'none';
+      element.style.position = 'absolute';
+      element.style.bottom = '5px';
+      element.style.left = '5px';
+      element.src =
+        'https://developers.google.com/static/maps/documentation/images/google_on_white.png';
+      super({
+        element: element,
+      });
+  }
 }
 
 export default Sources;

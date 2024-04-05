@@ -1,6 +1,1 @@
-/**
- * JSTS. See https://github.com/bjornharrtell/jsts
- * https://github.com/bjornharrtell/jsts/blob/master/LICENSE_EDLv1.txt
- * https://github.com/bjornharrtell/jsts/blob/master/LICENSE_EPLv1.txt
- * @license
- */
+/*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */

@@ -156,4 +156,11 @@ function imageCovariance(imageData1, imageData2){
     
 }
 
-export {getChannels, colorFromPixel, extractChannel, findMode, imageCovariance};
+function euclideanDistance(p1, p2){
+
+    let distance= Math.sqrt(Math.pow((p2[0]-p1[0]), 2)+ Math.pow((p2[1]-p1[1]), 2));
+    return distance;
+
+}
+
+export {getChannels, colorFromPixel, extractChannel, findMode, imageCovariance, euclideanDistance};

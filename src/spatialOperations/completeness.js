@@ -25,3 +25,14 @@ export function polygonCompleteness(geom_comp, geom_ref){
 export function lineCompleteness(geom_comp, geom_ref){
     
 }
+
+export function jaccardIndex(feature1, feature2){
+
+    /**
+     * Calculated jaccard index between two sets of polygon
+     * Takes two features
+     */
+
+    
+    
+}
