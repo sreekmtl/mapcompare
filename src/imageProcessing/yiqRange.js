@@ -48,6 +48,8 @@ function colorInRange(imageData, selectedColor, sensitivity){
         if (Math.abs(distanceinYIQ)===sensitivity){
             diffImg.data[i]=255;
             diffImg.data[i+3]=255;
+        }else {
+            diffImg.data[i+3]=255;
         }
         
 
