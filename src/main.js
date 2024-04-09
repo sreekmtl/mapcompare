@@ -18,6 +18,7 @@ import { junctionExtract1 } from './dumpyard.js';
 import { createVectorLayer, snapLineToPoint } from './mapOperations/vectorLyrSrc.js';
 import { apply } from 'ol-mapbox-style';
 import { Tile } from 'ol/layer.js';
+import { pixelWiseJI } from './results/completeness.js';
 
 
 
@@ -64,7 +65,7 @@ let vectorFilePresent2=false;
 let selectionAlgorithm= 'YIQ';
 
 
-let contourData1, contourData2, erodeCannyData1, erodeCannyData2, vectorData1, vectorData2 ;
+let contourData1, contourData2, erodeCannyData1, erodeCannyData2, vectorData1, vectorData2, diffImg1, diffImg2 ;
 let lp;
 
 let map1, map2;
@@ -153,14 +154,14 @@ function init(src1, src2){
  let coord; 
   map1.on('click',(e)=>{
     let imgData= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
-    let diffImg;
+    
     if (selectionAlgorithm==='YIQ'){
-      diffImg= colorInRange(imgData, colorFromPixel(e.pixel, imgData.data, 300, 300), 0);
-      canvasCtx1.putImageData(diffImg,0,0);
+      diffImg1= colorInRange(imgData, colorFromPixel(e.pixel, imgData.data, 300, 300), 0);
+      canvasCtx1.putImageData(diffImg1,0,0);
     }else if (selectionAlgorithm==='RG'){
       let op= growRegion(imgData, {delta:20,pixel:e.pixel});
-      diffImg= new ImageData(op.data,300,300);
-      canvasCtx1.putImageData(diffImg,0,0);
+      diffImg1= new ImageData(op.data,300,300);
+      canvasCtx1.putImageData(diffImg1,0,0);
     }
     
     map1Selected=true;
@@ -169,19 +170,19 @@ function init(src1, src2){
 
   map2.on('click',(e)=>{
     let imgData= canvasCtx2.getImageData(0,0,canvas2.width,canvas2.height);
-    let diffImg;
+    
     if (selectionAlgorithm==='YIQ'){
-      diffImg= colorInRange(imgData, colorFromPixel(e.pixel, imgData.data, 300, 300), 0);
-      canvasCtx2.putImageData(diffImg,0,0);
+      diffImg2= colorInRange(imgData, colorFromPixel(e.pixel, imgData.data, 300, 300), 0);
+      canvasCtx2.putImageData(diffImg2,0,0);
     }else if (selectionAlgorithm==='RG'){
       let op= growRegion(imgData, {delta:20,pixel:e.pixel});
-      diffImg= new ImageData(op.data,300,300);
-      canvasCtx2.putImageData(diffImg,0,0);
+      diffImg2= new ImageData(op.data,300,300);
+      canvasCtx2.putImageData(diffImg2,0,0);
     }
     
     map2Selected=true;
   })
-  
+
 
 }
 
@@ -215,6 +216,8 @@ imgProcessBtn.addEventListener('click',(e)=>{
   }else if (featureDropDown.value==='2'){
 
     //polygon feature
+
+    pixelWiseJI(diffImg1,diffImg2);
 
     if (map1Selected===true){
 
