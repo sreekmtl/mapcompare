@@ -11,7 +11,7 @@ function lengthOfLine(geom){
     return getLength(geom);
 }
 
-function AInterB(imageData1, imageData2){
+function AInterB(imageData1, imageData2, areaPerPixel){
 
     /**
      * Calculates and returns area of intersection of
@@ -31,11 +31,11 @@ function AInterB(imageData1, imageData2){
         }
     }
 
-    return interArea;
+    return interArea*areaPerPixel;
 
 }
 
-function A_area(imageData){
+function A_area(imageData, areaPerPixel){
 
     let areaOfA=0;
     let data= imageData.data;
@@ -45,10 +45,10 @@ function A_area(imageData){
         }
     }
 
-    return areaOfA;
+    return areaOfA*areaPerPixel;
 }
 
-function B_area(imageData){
+function B_area(imageData, areaPerPixel){
 
     let areaOfB=0;
     let data= imageData.data;
@@ -58,7 +58,7 @@ function B_area(imageData){
         }
     }
 
-    return areaOfB;
+    return areaOfB*areaPerPixel;
 }
 
 export function polygonCompleteness(geom_comp, geom_ref){
@@ -78,7 +78,7 @@ export function lineCompleteness(geom_comp, geom_ref){
     
 }
 
-export function pixelWiseJI(imageData1, imageData2){
+export function pixelWiseJI(imageData1, imageData2, areaPerPixel){
 
     /**
      * Calculates pixel wise Jaccard Index
@@ -86,9 +86,9 @@ export function pixelWiseJI(imageData1, imageData2){
      * Seleted features are represented by [255,0,0,255] in RGBA
      */
 
-    let A= A_area(imageData1);
-    let B= B_area(imageData2);
-    let A_INTER_B= AInterB(imageData1, imageData2);
+    let A= A_area(imageData1, areaPerPixel);
+    let B= B_area(imageData2, areaPerPixel);
+    let A_INTER_B= AInterB(imageData1, imageData2, areaPerPixel);
 
     let JI= A_INTER_B/(A+B-A_INTER_B);
 

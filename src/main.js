@@ -19,6 +19,7 @@ import { createVectorLayer, snapLineToPoint } from './mapOperations/vectorLyrSrc
 import { apply } from 'ol-mapbox-style';
 import { Tile } from 'ol/layer.js';
 import { pixelWiseJI } from './results/completeness.js';
+import Constants from './constants.js';
 
 
 
@@ -66,7 +67,6 @@ let selectionAlgorithm= 'YIQ';
 
 
 let contourData1, contourData2, erodeCannyData1, erodeCannyData2, vectorData1, vectorData2, diffImg1, diffImg2 ;
-let lp;
 
 let map1, map2;
 
@@ -187,7 +187,6 @@ function init(src1, src2){
 }
 
 
-
 function download(file, text){
   var element = document.createElement('a');
                 element.setAttribute('href',
@@ -205,7 +204,27 @@ function download(file, text){
  * All the UI events are written below
  * This includes button, slider events etc.
  */
+let sourceMap={
+  '1':sources.OSM_Standard,
+  '2':sources.Bing_RoadsOnDemand,
+  '3':sources.EsriXYZ,
+  '4':sources.ArcGIS_sample,
+  '5':sources.googleMaps,
+  '6':sources.EsriMaps,
+  '7':sources.ESALULC,
+}
 
+init(sourceMap['1'],sourceMap['2']);
+let constants= new Constants(canvas1.width, canvas1.height, map1.getView().calculateExtent(map1.getSize()));
+
+mapdd1.addEventListener('change',(c)=>{
+
+  //init(sourceMap[mapdd1.value], sourceMap[mapdd2.value]);
+});
+
+mapdd2.addEventListener('change', (c)=>{
+  //init(sourceMap[mapdd1.value], sourceMap[mapdd2.value]);
+});
 
 imgProcessBtn.addEventListener('click',(e)=>{
 
@@ -217,7 +236,7 @@ imgProcessBtn.addEventListener('click',(e)=>{
 
     //polygon feature
 
-    pixelWiseJI(diffImg1,diffImg2);
+    pixelWiseJI(diffImg1,diffImg2, constants.areaPerPixel);
 
     if (map1Selected===true){
 
@@ -383,26 +402,7 @@ compareBtn.addEventListener('click', (e)=>{
   
 })
 
-let sourceMap={
-  '1':sources.OSM_Standard,
-  '2':sources.Bing_RoadsOnDemand,
-  '3':sources.EsriXYZ,
-  '4':sources.ArcGIS_sample,
-  '5':sources.googleMaps,
-  '6':sources.EsriMaps,
-  '7':sources.ESALULC,
-}
 
-init(sourceMap['1'],sourceMap['2']);
-
-mapdd1.addEventListener('change',(c)=>{
-
-  //init(sourceMap[mapdd1.value], sourceMap[mapdd2.value]);
-});
-
-mapdd2.addEventListener('change', (c)=>{
-  //init(sourceMap[mapdd1.value], sourceMap[mapdd2.value]);
-});
 
 
 
