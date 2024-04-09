@@ -74,7 +74,12 @@ export function polygonCompleteness(geom_comp, geom_ref){
 
 export function lineCompleteness(geom_comp, geom_ref){
 
-    //Implement the percentage wise
+    let len_comp= lengthOfLine(geom_comp);
+    let len_ref= lengthOfLine(geom_ref);
+
+    let completeness_percent= (len_comp/len_ref)*100;
+
+    return completeness_percent;
     
 }
 
