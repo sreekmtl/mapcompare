@@ -18,7 +18,7 @@ import { junctionExtract1 } from './dumpyard.js';
 import { createVectorLayer, snapLineToPoint } from './mapOperations/vectorLyrSrc.js';
 import { apply } from 'ol-mapbox-style';
 import { Tile } from 'ol/layer.js';
-import { pixelWiseJI } from './results/completeness.js';
+import { geometryBasedJI, pixelBasedJI } from './results/completeness.js';
 import Constants from './constants.js';
 
 
@@ -67,8 +67,9 @@ let selectionAlgorithm= 'YIQ';
 
 
 let contourData1, contourData2, erodeCannyData1, erodeCannyData2, vectorData1, vectorData2, diffImg1, diffImg2 ;
-
+let polyLayer1, polyLayer2;
 let map1, map2;
+let extent, pixelWidth, pixelHeight;
 
 
 function init(src1, src2){
@@ -138,7 +139,10 @@ function init(src1, src2){
 
     }
 
-    extentBox.textContent="Extent: "+map1.getView().calculateExtent(map1.getSize());
+    extent= map1.getView().calculateExtent(map1.getSize());
+    pixelWidth= (extent[2]-extent[0])/canvas1.width;
+    pixelHeight= (extent[3]-extent[1])/canvas1.height;
+    extentBox.textContent="Extent: "+extent
     zoomLevelBox.textContent="Zoom Level: "+map1.getView().getZoom();
   });
   
@@ -236,7 +240,6 @@ imgProcessBtn.addEventListener('click',(e)=>{
 
     //polygon feature
 
-    pixelWiseJI(diffImg1,diffImg2, constants.areaPerPixel);
 
     if (map1Selected===true){
 
@@ -252,6 +255,7 @@ imgProcessBtn.addEventListener('click',(e)=>{
       imgProcessed2=true;
     }
     
+    pixelBasedJI(diffImg1,diffImg1,pixelWidth*pixelHeight);
 
   }else if (featureDropDown.value==='3'){
 
@@ -294,8 +298,8 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
       let extent1= map1.getView().calculateExtent(map1.getSize());
       vectorData1=contourToPolygon(contourData1, canvas1.width, canvas1.height, extent1);
       vectorFilePresent1=true;
-      let lyr= createVectorLayer(vectorData1);
-      map1.addLayer(lyr);
+      polyLayer1= createVectorLayer(vectorData1);
+      map1.addLayer(polyLayer1);
       imgProcessed1=false;
       console.log(map1.getLayers());
     }else {
@@ -306,11 +310,13 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
       let extent2= map2.getView().calculateExtent(map2.getSize());
       vectorData2=contourToPolygon(contourData2, canvas2.width, canvas2.height, extent2);
       vectorFilePresent2=true;
-      let lyr= createVectorLayer(vectorData2);
-      map1.addLayer(lyr);
+      polyLayer2= createVectorLayer(vectorData2);
+      map1.addLayer(polyLayer2);
       imgProcessed2=false;
 
     }
+
+    geometryBasedJI(polyLayer1,polyLayer1);
 
   }else if (featureDropDown.value==='3'){
 

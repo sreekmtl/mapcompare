@@ -6,8 +6,12 @@ import Style from 'ol/style/Style.js';
 import Icon from 'ol/style/Icon.js';
 import {getDistance} from 'ol/sphere';
 import { euclideanDistance } from "../utils";
-import { buffer, point } from "turf";
+import { buffer, point, polygon} from "turf";
 import { transform } from "ol/proj";
+import { simplify } from "turf";
+import LinearRing from 'ol/geom/LinearRing.js';
+import Polygon from 'ol/geom/Polygon.js';
+
 
 
 //let bufferBuilder= new BufferBuilder();
@@ -28,7 +32,9 @@ export function createVectorLayer(data){
 
     let vectorLayer= new VectorLayer();
 
-    if (data.name==='lines'){ //using douglas peuker algorithm to simplify line features
+    if (data.name==='lines'){ 
+      
+      //using douglas peuker algorithm to simplify line features
 
       snapLineToLine(data);
         let ft=[];
@@ -47,7 +53,38 @@ export function createVectorLayer(data){
         vectorLayer.setSource(simplifiedVectorSource);
         featureCount=ft.length;
 
-    }else { //if it is not line, dont simplify
+    }else if(data.name==='polygonFeatures'){
+
+      /**
+       * Using douglas-pecker algorithm from turf.js to simplify polygon here
+       * Because in openlayers, it does'nt uses douglas-pecker on polygons
+       * Buffer of thickness 1 unit could be added, so to compensate alaised pixels in contours and simplification
+       */
+
+        let ft=[];
+        vectorSource.forEachFeature((f)=>{
+
+        let coords= f.getGeometry().getCoordinates()[0];
+        let turfPoly;
+        if(coords.length>=4){
+          turfPoly= polygon([coords]);
+        }
+        let simplified= simplify(turfPoly,0.5);
+
+        let gj= new GeoJSON({dataProjection:'EPSG:3857'}).readFeature(simplified);
+        
+        ft.push(gj);
+        });
+
+        let simplifiedVectorSource= new VectorSource({
+        features:ft,
+        });
+
+        vectorLayer.setSource(simplifiedVectorSource);
+        featureCount=ft.length;
+
+    }
+    else { 
 
         featureCount= data['features'].length;
         vectorLayer.setSource(vectorSource);

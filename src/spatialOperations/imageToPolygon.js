@@ -84,6 +84,7 @@ function contourToPolygon(contourData, width, height, extent){
         
         let sortedContours= sortContourPixels(tempArr);
         let coordinates=[];
+        let initialPoint;
 
         for (let i=0; i<sortedContours.length;i++){
             let x1= sortedContours[i][0];
@@ -93,23 +94,32 @@ function contourToPolygon(contourData, width, height, extent){
             x1= extent[0]+ (x1*pixelWidth);  
             y1= extent[3]- (y1*pixelHeight); 
 
+            x1=parseFloat(x1.toFixed(2));
+            y1=parseFloat(y1.toFixed(2));
+
             coordinates.push([x1,y1]);
 
+           if(i===0){
+            initialPoint=[x1,y1];
+           }
 
         }
+        coordinates.push(initialPoint); //closing polygon with initial point
 
-        geoJSON["features"].push(
-            {
-                "type":"Feature",
-                "geometry":{
-                    "type":"Polygon",
-                    "coordinates":[coordinates]
-                },
-                "id":f_id,
-            },)
-        
-        //addGeoJSONLayer(geoJSON);
-       
+        if (coordinates.length>=4){
+
+            geoJSON["features"].push(
+                {
+                    "type":"Feature",
+                    "geometry":{
+                        "type":"Polygon",
+                        "coordinates":[coordinates]
+                    },
+                    "id":f_id,
+                },)
+            
+            //addGeoJSONLayer(geoJSON);
+        }
         
 
 
