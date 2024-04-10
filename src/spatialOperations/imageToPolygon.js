@@ -102,6 +102,9 @@ function contourToPolygon(contourData, width, height, extent){
            if(i===0){
             initialPoint=[x1,y1];
            }
+           //else if (i===sortedContours.length-1){ //To avoid self intersection
+            //break;
+           //}
 
         }
         coordinates.push(initialPoint); //closing polygon with initial point

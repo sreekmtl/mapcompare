@@ -301,7 +301,6 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
       polyLayer1= createVectorLayer(vectorData1);
       map1.addLayer(polyLayer1);
       imgProcessed1=false;
-      console.log(map1.getLayers());
     }else {
       alert('Process image from map1 before vectorizing');
     }
