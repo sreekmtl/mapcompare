@@ -7,13 +7,14 @@ import {Control, defaults as defaultControls} from 'ol/control';
 
 const projection = getProjection('EPSG:3857');
 const projectionExtent = projection.getExtent();
+//const matrixSet = Proj.CRS('EPSG:3857').getTileMatrixSet();
 const size = getWidth(projectionExtent) / 256;
 const resolutions = new Array(19);
 const matrixIds = new Array(19);
 for (let z = 0; z < 19; ++z) {
   // generate resolutions and matrixIds arrays for this WMTS
   resolutions[z] = size / Math.pow(2, z);
-  matrixIds[z] = z;
+  matrixIds[z] = "EPSG:3857:"+z;
 }
 
 const basemapId = "arcgis/streets";
@@ -75,7 +76,7 @@ class Sources{
           highDpi: true,
         });
 
-        this.ESALULC= new WMTS({
+        this.ESA_WORLDCOVER2020= new WMTS({
           url: 'https://services.terrascope.be/wmts/v2',
           layer: 'WORLDCOVER_2020_MAP',
           matrixSet: 'EPSG:3857',
@@ -86,7 +87,23 @@ class Sources{
             resolutions: resolutions,
             matrixIds: matrixIds,
           }),
-          
+          wrapX: true,
+         //crossOrigin:'null',
+        });
+
+        this.ESA_WORLDCOVER2021= new WMTS({
+          url: 'https://services.terrascope.be/wmts/v2',
+          layer: 'WORLDCOVER_2021_MAP',
+          matrixSet: 'EPSG:3857',
+          format: 'image/png',
+          projection: projection,
+          tileGrid: new WMTSTileGrid({
+            origin: getTopLeft(projectionExtent),
+            resolutions: resolutions,
+            matrixIds: matrixIds,
+          }),
+          wrapX: true,
+          //crossOrigin:'null',
         });
 
         this.BhuvanLULC= new WMTS({

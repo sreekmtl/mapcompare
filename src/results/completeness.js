@@ -1,8 +1,7 @@
 import {getArea} from 'ol/sphere';
 import {getLength} from 'ol/sphere';
-import { intersect } from 'turf';
-import { multiPolygon } from 'turf';
-import { polygon } from 'turf';
+import { intersect, multiPolygon, polygon, area } from 'turf';
+
 
 function areaOfPolygon(geom){
 
@@ -18,24 +17,26 @@ function GeometryBased_AInterB_1(vectorLayer1, vectorLayer2){
 
     let src1= vectorLayer1.getSource();
     let src2= vectorLayer2.getSource();
-    
+    let totalArea=0;
 
     src1.forEachFeature((f)=>{
 
         let coords1=f.getGeometry().getCoordinates()[0];
         let turfPolygon1= polygon([coords1]);
-        console.log(coords1);
 
         src2.forEachFeature((f)=>{
             let coords2= f.getGeometry().getCoordinates()[0];
             let turfPolygon2= polygon([coords2]);
 
             let intersection= intersect(turfPolygon1,turfPolygon2);
-            console.log(intersection, 'inter');
+            if (intersection!=undefined){
+                let ar= area(intersection);
+                totalArea+=ar;
+            }
         });
     });
 
-    return 1;
+    return totalArea;
 }
 
 function GeometryBased_AInterB(vectorLayer1, vectorLayer2){
@@ -44,11 +45,11 @@ function GeometryBased_AInterB(vectorLayer1, vectorLayer2){
     let src2= vectorLayer2.getSource();
     let multiPolygonArray1=[];
     let multiPolygonArray2=[];
+    
 
     src1.forEachFeature((f)=>{
 
         let coords=f.getGeometry().getCoordinates()[0];
-        console.log(coords);
         multiPolygonArray1.push(coords);
     })
 
@@ -62,7 +63,7 @@ function GeometryBased_AInterB(vectorLayer1, vectorLayer2){
     let multiPolygon2= multiPolygon([multiPolygonArray2]);
 
     let intersection= intersect(multiPolygon1, multiPolygon2);
-    console.log(intersection, 'intersection');
+    
 
     return 1;
 
@@ -153,7 +154,7 @@ export function geometryBasedJI(vectorLayer1, vectorLayer2){
 
     let JI= A_INTER_B/(A+B-A_INTER_B);
 
-    console.log(A, 'Geometry based Jaccard Index');
+    console.log(JI, 'Geometry based Jaccard Index');
 }
 
 export function pixelBasedJI(imageData1, imageData2, areaPerPixel){
@@ -170,6 +171,6 @@ export function pixelBasedJI(imageData1, imageData2, areaPerPixel){
 
     let JI= A_INTER_B/(A+B-A_INTER_B);
 
-    console.log(A,JI, "Pixel based Jaccard Index");
+    console.log(JI, "Pixel based Jaccard Index");
 }
 

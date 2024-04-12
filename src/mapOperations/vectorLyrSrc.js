@@ -70,7 +70,6 @@ export function createVectorLayer(data){
           turfPoly= polygon([coords]);
         }
         let simplified= simplify(turfPoly,0.5);
-
         let gj= new GeoJSON({dataProjection:'EPSG:3857'}).readFeature(simplified);
         
         ft.push(gj);
