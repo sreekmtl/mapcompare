@@ -13,6 +13,25 @@ function lengthOfLine(geom){
     return getLength(geom);
 }
 
+function vectorToGeom(vectorLayer, type){
+    let src= vectorLayer.getSource();
+    let result=0;
+    
+    if (type==='LineString'){
+
+        src.forEachFeature((f)=>{
+            result+= lengthOfLine(f.getGeometry());
+        });
+
+    } else if (type==='Polygon'){
+        src.forEachFeature((f)=>{
+            result+= areaOfPolygon(f.getGeometry());
+        });
+    }
+
+    return result;
+}
+
 function GeometryBased_AInterB_1(vectorLayer1, vectorLayer2){
 
     let src1= vectorLayer1.getSource();
@@ -119,23 +138,25 @@ function pixelArea(imageData, areaPerPixel){
     return area*areaPerPixel; //RIGHT NOW AREA PER PIXEL IS BASED ON ZOOM LVL 13, CHANGE THAT!!!
 }
 
-export function polygonCompleteness(geom_comp, geom_ref){
+export function polygonCompleteness(vectorLayer1, vectorLayer2){
 
-    let area_comp= areaOfPolygon(geom_comp);
-    let area_ref= areaOfPolygon(geom_ref);
+    let area_ref= vectorToGeom(vectorLayer1, 'Polygon');
+    let area_comp= vectorToGeom(vectorLayer2, 'Polygon');
 
     let completeness_percent= (area_comp/area_ref)*100;
+    console.log('reference area: ', area_ref, '\n', 'comp area: ', area_comp);
 
     return completeness_percent;
 
 }
 
-export function lineCompleteness(geom_comp, geom_ref){
+export function lineCompleteness(vectorLayer1, vectorLayer2){
 
-    let len_comp= lengthOfLine(geom_comp);
-    let len_ref= lengthOfLine(geom_ref);
+    let len_ref= vectorToGeom(vectorLayer1, 'LineString');
+    let len_comp= vectorToGeom(vectorLayer2, 'LineString');
 
     let completeness_percent= (len_comp/len_ref)*100;
+    console.log('reference length: ', len_ref, '\n', 'comp length: ', len_comp);
 
     return completeness_percent;
     
@@ -165,6 +186,7 @@ export function pixelBasedJI(imageData1, imageData2, areaPerPixel){
      * Seleted features are represented by [255,0,0,255] in RGBA
      */
 
+    
     let A= pixelArea(imageData1, areaPerPixel);
     let B= pixelArea(imageData2, areaPerPixel);
     let A_INTER_B= PixelBased_AInterB(imageData1, imageData2, areaPerPixel);
@@ -172,5 +194,6 @@ export function pixelBasedJI(imageData1, imageData2, areaPerPixel){
     let JI= A_INTER_B/(A+B-A_INTER_B);
 
     console.log(JI, "Pixel based Jaccard Index");
+    
 }
 

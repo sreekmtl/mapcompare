@@ -1,20 +1,32 @@
-import {XYZ,OSM,TileArcGISRest,BingMaps, WMTS, Google} from 'ol/source';
+import {XYZ,OSM,TileArcGISRest,BingMaps, WMTS, Google, TileWMS} from 'ol/source';
 import Keys from './keys';
 import WMTSTileGrid from 'ol/tilegrid/WMTS';
 import {getTopLeft, getWidth} from 'ol/extent.js';
 import {get as getProjection} from 'ol/proj.js';
 import {Control, defaults as defaultControls} from 'ol/control';
 
-const projection = getProjection('EPSG:3857');
-const projectionExtent = projection.getExtent();
+const projection_3857 = getProjection('EPSG:3857');
+const projectionExtent_3857 = projection_3857.getExtent();
 //const matrixSet = Proj.CRS('EPSG:3857').getTileMatrixSet();
-const size = getWidth(projectionExtent) / 256;
-const resolutions = new Array(19);
-const matrixIds = new Array(19);
+const size_3857 = getWidth(projectionExtent_3857) / 256;
+const resolutions_3857 = new Array(19);
+const matrixIds_3857 = new Array(19);
 for (let z = 0; z < 19; ++z) {
   // generate resolutions and matrixIds arrays for this WMTS
-  resolutions[z] = size / Math.pow(2, z);
-  matrixIds[z] = "EPSG:3857:"+z;
+  resolutions_3857[z] = size_3857 / Math.pow(2, z);
+  matrixIds_3857[z] = "EPSG:3857:"+z;
+}
+
+const projection_4326 = getProjection('EPSG:4326');
+const projectionExtent_4326 = projection_4326.getExtent();
+//const matrixSet = Proj.CRS('EPSG:3857').getTileMatrixSet();
+const size_4326 = getWidth(projectionExtent_4326) / 256;
+const resolutions_4326 = new Array(19);
+const matrixIds_4326 = new Array(19);
+for (let z = 0; z < 19; ++z) {
+  // generate resolutions and matrixIds arrays for this WMTS
+  resolutions_4326[z] = size_4326 / Math.pow(2, z);
+  matrixIds_4326[z] = "EPSG:4326:"+z;
 }
 
 const basemapId = "arcgis/streets";
@@ -34,6 +46,13 @@ const EsriLayers={
     'CanvasDark':'CanvasDark',
     'OrdnanceSurvey':'OrdnanceSurvey',
     'Road':'Road',
+  }
+
+  let bhuvanLayers={
+    'Uttarakhand_LULC_2005-06':'lulc:UK_LULC50K_0506',
+    'Uttarakhand_LULC_2011-12':'lulc:UK_LULC50K_1112',
+    'Uttarakhand_LULC_2015-16': 'lulc:UK_LULC50K_1516',
+
   }
 
 
@@ -81,14 +100,14 @@ class Sources{
           layer: 'WORLDCOVER_2020_MAP',
           matrixSet: 'EPSG:3857',
           format: 'image/png',
-          projection: projection,
+          projection: projection_3857,
           tileGrid: new WMTSTileGrid({
-            origin: getTopLeft(projectionExtent),
-            resolutions: resolutions,
-            matrixIds: matrixIds,
+            origin: getTopLeft(projectionExtent_3857),
+            resolutions: resolutions_3857,
+            matrixIds: matrixIds_3857,
           }),
           wrapX: true,
-         //crossOrigin:'null',
+         //crossOrigin:'*',
         });
 
         this.ESA_WORLDCOVER2021= new WMTS({
@@ -96,21 +115,46 @@ class Sources{
           layer: 'WORLDCOVER_2021_MAP',
           matrixSet: 'EPSG:3857',
           format: 'image/png',
-          projection: projection,
+          projection: projection_3857,
           tileGrid: new WMTSTileGrid({
-            origin: getTopLeft(projectionExtent),
-            resolutions: resolutions,
-            matrixIds: matrixIds,
+            origin: getTopLeft(projectionExtent_3857),
+            resolutions: resolutions_3857,
+            matrixIds: matrixIds_3857,
           }),
           wrapX: true,
-          //crossOrigin:'null',
+          //crossOrigin:'*',
         });
 
-        this.BhuvanLULC= new WMTS({
-          url:'https://bhuvan-vec2.nrsc.gov.in/bhuvan/gwc/service/wmts/',
-          version:'1.0.0',
-          format:"image/png",
+        this.BhuvanLULC1= new TileWMS({
+            url: 'https://bhuvan-vec2.nrsc.gov.in/bhuvan/gwc/service/wms',
+            params: {'LAYERS': bhuvanLayers['Uttarakhand_LULC_2005-06'], 
+            'TILED': true,
+            'VERSION':'1.1.1',
+            'BBOX':'77.575,28.715,81.043,31.467',
+            'SRS':'EPSG:4326',
+            'WIDTH':256,
+            'HEIGHT':256,
+            'FORMAT':'image/png'
+
+          },
+            serverType: 'geoserver',
+            crossOrigin: 'Anonymous',
         })
+        this.BhuvanLULC2= new TileWMS({
+          url: 'https://bhuvan-vec2.nrsc.gov.in/bhuvan/gwc/service/wms',
+          params: {'LAYERS': bhuvanLayers['Uttarakhand_LULC_2015-16'], 
+          'TILED': true,
+          'VERSION':'1.1.1',
+          'BBOX':'77.575,28.715,81.043,31.467',
+          'SRS':'EPSG:4326',
+          'WIDTH':256,
+          'HEIGHT':256,
+          'FORMAT':'image/png'
+
+        },
+          serverType: 'geoserver',
+          crossOrigin: 'Anonymous',
+      })
         
     }
 

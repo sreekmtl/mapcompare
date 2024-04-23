@@ -4,21 +4,38 @@
 
 import { createChart } from "./results/chart";
 
-function getChannels(imgDataArray){
+function getChannels(imgDataArray, alpha){
 
     let rgbArray=[];
 
-    for (let i=0; i<imgDataArray.length; i+=4){
+    if (alpha===false){
+        for (let i=0; i<imgDataArray.length; i+=4){
 
-        let R= imgDataArray[i];
-        let G= imgDataArray[i+1];
-        let B= imgDataArray[i+2];
-        let A= imgDataArray[i+3];
-
-        rgbArray.push([R,G,B]);
-
-
+            let R= imgDataArray[i];
+            let G= imgDataArray[i+1];
+            let B= imgDataArray[i+2];
+            let A= imgDataArray[i+3];
+    
+            rgbArray.push([R,G,B]);
+    
+    
+        }
+    }else if (alpha===true){
+        
+        for (let i=0; i<imgDataArray.length; i+=4){
+    
+            let R= imgDataArray[i];
+            let G= imgDataArray[i+1];
+            let B= imgDataArray[i+2];
+            let A= imgDataArray[i+3];
+    
+            rgbArray.push([R,G,B, A]);   
+        }
+        
+            
     }
+
+    
 
     return rgbArray;
 
@@ -52,7 +69,7 @@ function extractChannel(imgDataArray, channelName){
 
 function colorFromPixel(pixPos, imgDataArray, width, height){
 
-    let rgbArray= getChannels(imgDataArray);
+    let rgbArray= getChannels(imgDataArray, false);
     let pos= (Math.floor(pixPos[1])*width)+Math.floor(pixPos[0]);
     let colorRGB= rgbArray[pos];
 
@@ -92,8 +109,8 @@ function findMode(kernel){
 
 function imageCovariance(imageData1, imageData2){
 
-    let dataArray1= getChannels(imageData1.data);
-    let dataArray2= getChannels(imageData2.data);
+    let dataArray1= getChannels(imageData1.data, false);
+    let dataArray2= getChannels(imageData2.data, false);
 
     let cBand1= new Array(dataArray1.length);
     let cBand2= new Array(dataArray2.length);

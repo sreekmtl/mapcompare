@@ -4,13 +4,12 @@ import VectorSource from "ol/source/Vector";
 import GeoJSON from 'ol/format/GeoJSON.js';
 import Style from 'ol/style/Style.js';
 import Icon from 'ol/style/Icon.js';
-import {getDistance} from 'ol/sphere';
 import { euclideanDistance } from "../utils";
-import { buffer, point, polygon} from "turf";
+import { buffer, point, polygon, lineString} from "turf";
 import { transform } from "ol/proj";
 import { simplify } from "turf";
-import LinearRing from 'ol/geom/LinearRing.js';
-import Polygon from 'ol/geom/Polygon.js';
+import nearestPointOnLine from '@turf/nearest-point-on-line';
+
 
 
 
@@ -129,15 +128,18 @@ function snapLineToLine(data){
   let fc= firstLastArray[0]['coords'][0];
   let lc= firstLastArray[0]['coords'][1];
   
+  
 
   let idRm= firstLastArray[0]['id'];
 
+  let ls= lineString(data.features[0].geometry.coordinates);
+  let pt= point(lc);
+
+  console.log(nearestPointOnLine(ls,pt, 'kilometers'), 'bloo'); //do both with last cordinate and junctions
+
   for (let i=0; i<firstLastArray.length; i++){
 
-    if (euclideanDistance(lc, firstLastArray[i]['coords'][0])<10){
-
-      console.log(firstLastArray[i]['id']);
-    }
+    //console.log(nearestPointOnLine(ls, pt))
   }
   
   
@@ -180,6 +182,10 @@ export function snapLineToPoint(jn, lyr){
 
   return vl;
 
+}
+
+let downloadSchema= ()=>{
+  
 }
 
 
