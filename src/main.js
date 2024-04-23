@@ -18,8 +18,10 @@ import { junctionExtract1 } from './dumpyard.js';
 import { createVectorLayer, snapLineToPoint } from './mapOperations/vectorLyrSrc.js';
 import { apply } from 'ol-mapbox-style';
 import { Tile } from 'ol/layer.js';
-import { geometryBasedJI, pixelBasedJI } from './results/completeness.js';
+import { geometryBasedJI, lineCompleteness, pixelBasedJI, polygonCompleteness } from './results/completeness.js';
 import Constants from './constants.js';
+import mapToClass from './imageProcessing/mapToClass.js';
+import RasterSource from 'ol/source/Raster.js';
 
 
 
@@ -48,6 +50,7 @@ const imgVectorizeBtn= document.getElementById('vectorizeBtn');
 const compareBtn= document.getElementById('compareBtn')
 const downloadBtn= document.getElementById('downloadVector');
 const imgCovBtn= document.getElementById('imageCov');
+const gofBtn= document.getElementById('mapGOF');
 
 const extentBox= document.getElementById('extentBox');
 const zoomLevelBox= document.getElementById('zoomLevel');
@@ -67,10 +70,9 @@ let selectionAlgorithm= 'YIQ';
 
 
 let contourData1, contourData2, erodeCannyData1, erodeCannyData2, vectorData1, vectorData2, diffImg1, diffImg2 ;
-let polyLayer1, polyLayer2;
+let polyLayer1, polyLayer2, lineLayer1, lineLayer2;
 let map1, map2;
 let extent, pixelWidth, pixelHeight;
-
 
 function init(src1, src2){
 
@@ -84,6 +86,8 @@ function init(src1, src2){
     }else if (featureDropDown.value==='3'){ 
       clearChilds(inner);
       lineProcesses(inner);
+    }else if (featureDropDown.value==='4'){
+      gofBtn.disabled= false;
     }
   
   });
@@ -104,6 +108,21 @@ function init(src1, src2){
     zoom: 13,
     constrainResolution:true,
   });
+
+  const raster= new RasterSource({
+    sources: [src1],
+
+    operation: function (pixels, data){
+      
+      console.log(pixels, 'pixels');
+    }
+  });
+ raster.on('beforeoperations', function (e){
+    console.log(e.data, 'eventdata');
+ })
+ raster.on('afteroperations', function (e){
+  console.log(e.data, 'afterevent');
+ })
   
   map1=    new Map({
           layers: [
@@ -217,9 +236,11 @@ let sourceMap={
   '6':sources.EsriMaps,
   '7':sources.ESA_WORLDCOVER2020,
   '8':sources.ESA_WORLDCOVER2021,
+  '9':sources.BhuvanLULC1,
+  '10':sources.BhuvanLULC2,
 }
 
-init(sourceMap['1'],sourceMap['7']);
+init(sourceMap['9'],sourceMap['10']);
 let constants= new Constants(canvas1.width, canvas1.height, map1.getView().calculateExtent(map1.getSize()));
 
 mapdd1.addEventListener('change',(c)=>{
@@ -256,7 +277,7 @@ imgProcessBtn.addEventListener('click',(e)=>{
       imgProcessed2=true;
     }
     
-    pixelBasedJI(diffImg1,diffImg1,pixelWidth*pixelHeight);
+    pixelBasedJI(diffImg1,diffImg2,pixelWidth*pixelHeight);
 
   }else if (featureDropDown.value==='3'){
 
@@ -311,12 +332,13 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
       vectorData2=contourToPolygon(contourData2, canvas2.width, canvas2.height, extent2);
       vectorFilePresent2=true;
       polyLayer2= createVectorLayer(vectorData2);
-      map1.addLayer(polyLayer2);
+      map2.addLayer(polyLayer2);
       imgProcessed2=false;
 
     }
 
-    geometryBasedJI(polyLayer1,polyLayer1);
+    //geometryBasedJI(polyLayer1,polyLayer1);
+    console.log(polygonCompleteness(polyLayer1, polyLayer1), 'polygonCompleteness');
 
   }else if (featureDropDown.value==='3'){
 
@@ -326,11 +348,11 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
       vectorData1= redata[0];
       vectorFilePresent1=true;
       let jn= createVectorLayer(vectorData1);
-      let lyr= createVectorLayer(redata[1]);
-      //map1.addLayer(jn);
-      map1.addLayer(lyr);
-      let ss= snapLineToPoint(jn, lyr);
-      map1.addLayer(ss);
+      lineLayer1= createVectorLayer(redata[1]);
+      map1.addLayer(jn);
+      map1.addLayer(lineLayer1);
+      //let ss= snapLineToPoint(jn, lyr);
+      //map1.addLayer(ss);
       //canvasCtx1.putImageData(redata[2],0,0);
       imgProcessed1=false;
       clearChilds(inner);
@@ -347,10 +369,10 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
       vectorData2= redata[0];
       vectorFilePresent2=true;
       let jn = createVectorLayer(vectorData2);
-      let lyr= createVectorLayer(redata[1]);
+      lineLayer2= createVectorLayer(redata[1]);
       map2.addLayer(jn);
-      map2.addLayer(lyr);
-      snapLineToPoint(redata[0],redata[1]);
+      map2.addLayer(lineLayer2);
+      //snapLineToPoint(redata[0],redata[1]);
       canvasCtx2.putImageData(redata[2],0,0);
       imgProcessed2=false;
       clearChilds(inner);
@@ -358,6 +380,8 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
     }else {
       alert('Process image from map1 before vectorizing');
     }
+
+    console.log(lineCompleteness(lineLayer1,lineLayer2), 'lineCompleteness');
 
   }
 })
@@ -406,6 +430,11 @@ imgCovBtn.addEventListener('click',(e)=>{
 
 compareBtn.addEventListener('click', (e)=>{
   
+})
+
+gofBtn.addEventListener('click', (e)=>{
+  
+ 
 })
 
 
