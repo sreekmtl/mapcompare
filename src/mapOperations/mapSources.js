@@ -142,7 +142,7 @@ class Sources{
         })
         this.BhuvanLULC2= new TileWMS({
           url: 'https://bhuvan-vec2.nrsc.gov.in/bhuvan/gwc/service/wms',
-          params: {'LAYERS': bhuvanLayers['Uttarakhand_LULC_2015-16'], 
+          params: {'LAYERS': bhuvanLayers['Uttarakhand_LULC_2011-12'], 
           'TILED': true,
           'VERSION':'1.1.1',
           'BBOX':'77.575,28.715,81.043,31.467',

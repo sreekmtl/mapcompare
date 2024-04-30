@@ -3,25 +3,24 @@ import View from 'ol/View.js';
 import TileLayer from 'ol/layer/Tile.js';
 import '../styles/myStyles.css'
 import 'ol/ol.css';
-import { getContours, getCannyEdge, watershed, erode, erodePlusCanny } from './imageProcessing/cvOps.js';
+import { getContours, getCannyEdge, erodePlusCanny } from './imageProcessing/cvOps.js';
 import { colorFromPixel, extractChannel, getChannels, imageCovariance } from './utils.js';
 import Image from 'image-js';
 import { colorInRange } from './imageProcessing/yiqRange.js';
 import { contourToPolygon } from './spatialOperations/imageToPolygon.js';
-import { createChart } from './results/chart.js';
-import { junctionExtract } from './spatialOperations/imageToLine.js';
 import Sources from './mapOperations/mapSources.js';
 import { mapToImg } from './mapOperations/mapToImg.js';
-import { clearChilds, lineProcesses, polygonProcesses } from './uiElements.js';
+import { clearChilds, colorPalette, lineProcesses, polygonProcesses } from './uiElements.js';
 import { growRegion } from './algorithms/regionGrowing.js';
-import { junctionExtract1 } from './dumpyard.js';
+import { junctionExtract1 } from './spatialOperations/imageToLine.js';
 import { createVectorLayer, snapLineToPoint } from './mapOperations/vectorLyrSrc.js';
 import { apply } from 'ol-mapbox-style';
 import { Tile } from 'ol/layer.js';
 import { geometryBasedJI, lineCompleteness, pixelBasedJI, polygonCompleteness } from './results/completeness.js';
 import Constants from './constants.js';
-import mapToClass from './imageProcessing/mapToClass.js';
+import mapToClass, { detectAntiAlias } from './imageProcessing/mapToClass.js';
 import RasterSource from 'ol/source/Raster.js';
+import modFilter from './imageProcessing/modeFilter.js';
 
 
 
@@ -59,6 +58,8 @@ const selectionDropDown= document.getElementById('SelectionType');
 const mapdd1= document.getElementById('MapType1');
 const mapdd2= document.getElementById('MapType2');
 const inner= document.getElementById('processOptions');
+const colorArea1= document.getElementById('colorArea1');
+const colorArea2= document.getElementById('colorArea2');
 
 let map1Selected= false; //Whether user selected feature from map1 or not
 let map2Selected= false;
@@ -177,9 +178,9 @@ function init(src1, src2){
  let coord; 
   map1.on('click',(e)=>{
     let imgData= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
-    
     if (selectionAlgorithm==='YIQ'){
-      diffImg1= colorInRange(imgData, colorFromPixel(e.pixel, imgData.data, 300, 300), 0);
+      diffImg1= colorInRange(imgData, colorFromPixel(e.pixel, imgData.data, 300, 300), 0)[0];
+      console.log(colorFromPixel(e.pixel, imgData.data, 300, 300));
       canvasCtx1.putImageData(diffImg1,0,0);
     }else if (selectionAlgorithm==='RG'){
       let op= growRegion(imgData, {delta:20,pixel:e.pixel});
@@ -195,7 +196,7 @@ function init(src1, src2){
     let imgData= canvasCtx2.getImageData(0,0,canvas2.width,canvas2.height);
     
     if (selectionAlgorithm==='YIQ'){
-      diffImg2= colorInRange(imgData, colorFromPixel(e.pixel, imgData.data, 300, 300), 0);
+      diffImg2= colorInRange(imgData, colorFromPixel(e.pixel, imgData.data, 300, 300), 0)[0];
       canvasCtx2.putImageData(diffImg2,0,0);
     }else if (selectionAlgorithm==='RG'){
       let op= growRegion(imgData, {delta:20,pixel:e.pixel});
@@ -240,7 +241,7 @@ let sourceMap={
   '10':sources.BhuvanLULC2,
 }
 
-init(sourceMap['9'],sourceMap['10']);
+init(sourceMap['1'],sourceMap['2']);
 let constants= new Constants(canvas1.width, canvas1.height, map1.getView().calculateExtent(map1.getSize()));
 
 mapdd1.addEventListener('change',(c)=>{
@@ -306,7 +307,7 @@ imgProcessBtn.addEventListener('click',(e)=>{
 
     }
 
-
+    //pixelBasedJI(diffImg1,diffImg2,pixelWidth*pixelHeight);
   }
   
 
@@ -345,10 +346,10 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
     if (imgProcessed1===true){
       let extent1= map1.getView().calculateExtent(map1.getSize());
       let redata=junctionExtract1(erodeCannyData1.data, 300, 300, extent1);
-      vectorData1= redata[0];
+      vectorData1= redata[1];
       vectorFilePresent1=true;
-      let jn= createVectorLayer(vectorData1);
-      lineLayer1= createVectorLayer(redata[1]);
+      let jn= createVectorLayer(redata[0]);
+      lineLayer1= createVectorLayer(vectorData1);
       map1.addLayer(jn);
       map1.addLayer(lineLayer1);
       //let ss= snapLineToPoint(jn, lyr);
@@ -373,7 +374,7 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
       map2.addLayer(jn);
       map2.addLayer(lineLayer2);
       //snapLineToPoint(redata[0],redata[1]);
-      canvasCtx2.putImageData(redata[2],0,0);
+      //canvasCtx2.putImageData(redata[2],0,0);
       imgProcessed2=false;
       clearChilds(inner);
 
@@ -381,7 +382,7 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
       alert('Process image from map1 before vectorizing');
     }
 
-    console.log(lineCompleteness(lineLayer1,lineLayer2), 'lineCompleteness');
+    //console.log(lineCompleteness(lineLayer1,lineLayer2), 'lineCompleteness');
 
   }
 })
@@ -434,7 +435,16 @@ compareBtn.addEventListener('click', (e)=>{
 
 gofBtn.addEventListener('click', (e)=>{
   
- 
+  let imageData1=canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
+  //let v1= detectAntiAlias(imageData1);
+  let cls1= mapToClass(imageData1, 5);
+  //canvasCtx1.putImageData(imageData1,0,0);
+  colorPalette(colorArea1, cls1[0], 'map-1 classes');
+  let imageData2=canvasCtx2.getImageData(0,0,canvas1.width,canvas1.height);
+  //let v2= detectAntiAlias(imageData2);
+  let cls2= mapToClass(imageData2, 5);
+  //canvasCtx2.putImageData(imageData2,0,0);
+  colorPalette(colorArea2,cls2[0],'map-2 classes')
 })
 
 

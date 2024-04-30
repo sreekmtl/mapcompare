@@ -34,8 +34,6 @@ export function createVectorLayer(data){
     if (data.name==='lines'){ 
       
       //using douglas peuker algorithm to simplify line features
-
-      snapLineToLine(data);
         let ft=[];
         vectorSource.forEachFeature((f)=>{
         let gm1= f.getGeometry().simplify(3); 
@@ -102,50 +100,6 @@ export function createVectorLayer(data){
   
 }
 
-let firstLastArray=[];
-function snapLineToLine(data){
-  console.log(data, 'rawdata');
-  //Go through each line segment
-  //Check whether the last of this particular is near to first of other segments
-  //if yes, add the other to this
-
-  let featureLength= data.features.length;
-
-  for (let i=0; i<data.features.length; i++){
-
-    let id= data.features[i].id;
-    let len= data.features[i].geometry.coordinates.length;
-    let coord= data.features[i].geometry.coordinates;
-
-    firstLastArray.push({
-      'id':id,
-      'coords': [coord[0], coord[len-1]],
-    });
-
-  }
-
-
-  let fc= firstLastArray[0]['coords'][0];
-  let lc= firstLastArray[0]['coords'][1];
-  
-  
-
-  let idRm= firstLastArray[0]['id'];
-
-  let ls= lineString(data.features[0].geometry.coordinates);
-  let pt= point(lc);
-
-  console.log(nearestPointOnLine(ls,pt, 'kilometers'), 'bloo'); //do both with last cordinate and junctions
-
-  for (let i=0; i<firstLastArray.length; i++){
-
-    //console.log(nearestPointOnLine(ls, pt))
-  }
-  
-  
-}
-
-
 
 export function snapLineToPoint(jn, lyr){
 
@@ -182,10 +136,6 @@ export function snapLineToPoint(jn, lyr){
 
   return vl;
 
-}
-
-let downloadSchema= ()=>{
-  
 }
 
 
