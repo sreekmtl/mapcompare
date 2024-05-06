@@ -1,6 +1,19 @@
 import GeoJSON from 'ol/format/GeoJSON.js';
+import VectorLayer from 'ol/layer/Vector';
 import {transform} from 'ol/proj';
+import VectorSource from 'ol/source/Vector';
 import {polygon, featureCollection} from 'turf';
+
+
+/**
+ * THIS FILE CONTAINS FUNCTIONS TO CONVERT BETWEEN FOLLOWING VECTOR FILE FORMATS:
+ * 
+ * Openlayers vectorlayer to GeoJSON
+ * Openlayers vectorlayer to turfJS
+ * 
+ * Openlayers vectorlayer (FROM CRS) to Openlayers vectorlayer (TO CRS)
+ */
+
 
 export function olVectorLayerToGeoJSON(vectorLayer){
 
@@ -62,4 +75,27 @@ export function olVectorLayerToTurfLayer(vectorLayer, vectorType){
 
     }
 
+}
+
+export function transformOlLayer(vectorLayer, crs_from, crs_to){
+
+    let vectorSource= vectorLayer.getSource();
+    let returnVectorLayer= new VectorLayer();
+    let transformedArray=[];
+
+    vectorSource.forEachFeature((feature)=>{
+        
+        let f= feature.clone();
+        f.getGeometry().transform(crs_from,crs_to);
+        transformedArray.push(f);
+
+    });
+
+    let returnVectorSource= new VectorSource({
+        features:transformedArray,
+    });
+
+    returnVectorLayer.setSource(returnVectorSource);
+
+    return returnVectorLayer;
 }

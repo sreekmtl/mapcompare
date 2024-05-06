@@ -23,7 +23,7 @@ import RasterSource from 'ol/source/Raster.js';
 import modFilter from './imageProcessing/modeFilter.js';
 import { junctionExtract2 } from './spatialOperations/imageToLine2.js';
 import { linePositionalAccuracy } from './results/positionalAccuracy.js';
-import { olVectorLayerToGeoJSON, olVectorLayerToTurfLayer } from './mapOperations/vectorUtils.js';
+import { olVectorLayerToGeoJSON, olVectorLayerToTurfLayer, transformOlLayer } from './mapOperations/vectorUtils.js';
 
 
 
@@ -245,7 +245,7 @@ let sourceMap={
   '10':sources.BhuvanLULC2,
 }
 
-init(sourceMap['1'],sourceMap['5']);
+init(sourceMap['1'],sourceMap['2']);
 let constants= new Constants(canvas1.width, canvas1.height, map1.getView().calculateExtent(map1.getSize()));
 
 mapdd1.addEventListener('change',(c)=>{
@@ -324,13 +324,14 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
     if (imgProcessed1===true){
       let extent1= map1.getView().calculateExtent(map1.getSize());
       vectorData1=contourToPolygon(contourData1, canvas1.width, canvas1.height, extent1);
-      //console.log(vectorData1,'vectorData1');
+
       vectorFilePresent1=true;
       polyLayer1= createVectorLayer(vectorData1);
-      map1.addLayer(polyLayer1);
+      let polyLayer3857= transformOlLayer(polyLayer1,'EPSG:4326', 'EPSG:3857'); //For visualizing converting to 3857
+
+      map1.addLayer(polyLayer3857);
       vectorData1=olVectorLayerToGeoJSON(polyLayer1);
-      //let tflyr= olVectorLayerToTurfLayer(polyLayer1,'polygon');
-      //console.log(tflyr,'tflyr');
+      
       imgProcessed1=false;
     }else {
       alert('Process image from map1 before vectorizing');
@@ -339,9 +340,12 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
     if(imgProcessed2===true){
       let extent2= map2.getView().calculateExtent(map2.getSize());
       vectorData2=contourToPolygon(contourData2, canvas2.width, canvas2.height, extent2);
+
       vectorFilePresent2=true;
       polyLayer2= createVectorLayer(vectorData2);
-      map2.addLayer(polyLayer2);
+      let polyLayer3857= transformOlLayer(polyLayer2,'EPSG:4326', 'EPSG:3857');
+
+      map2.addLayer(polyLayer3857);
       vectorData2=olVectorLayerToGeoJSON(polyLayer2);
       imgProcessed2=false;
 
@@ -355,12 +359,16 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
     if (imgProcessed1===true){
       let extent1= map1.getView().calculateExtent(map1.getSize());
       let redata=junctionExtract2(erodeCannyData1.data, 300, 300, extent1);
+
       vectorData1= redata[1];
       vectorFilePresent1=true;
       let jn= createVectorLayer(redata[0]);
       lineLayer1= createVectorLayer(vectorData1);
+      let line3857= transformOlLayer(lineLayer1,'EPSG:4326', 'EPSG:3857');
+
       map1.addLayer(jn);
-      map1.addLayer(lineLayer1);
+      map1.addLayer(line3857);
+      vectorData1=olVectorLayerToGeoJSON(lineLayer1);
       imgProcessed1=false;
       clearChilds(inner);
      
@@ -373,12 +381,16 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
 
       let extent2= map2.getView().calculateExtent(map2.getSize());
       let redata=junctionExtract2(erodeCannyData2.data, 300, 300, extent2);
+
       vectorData2= redata[0];
       vectorFilePresent2=true;
       let jn = createVectorLayer(vectorData2);
       lineLayer2= createVectorLayer(redata[1]);
+      let line3857= transformOlLayer(lineLayer2,'EPSG:4326', 'EPSG:3857');
+
       map2.addLayer(jn);
-      map2.addLayer(lineLayer2);
+      map2.addLayer(line3857);
+      vectorData2=olVectorLayerToGeoJSON(lineLayer2);
       imgProcessed2=false;
       clearChilds(inner);
 

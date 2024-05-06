@@ -90,7 +90,7 @@ class Sources{
         });
 
         this.googleMaps = new Google({
-          key:'hdkkskkkdkkdkkkdk',
+          key:key.apikeys.GoogleMapKey,
           scale: 'scaleFactor2x',
           highDpi: true,
         });
