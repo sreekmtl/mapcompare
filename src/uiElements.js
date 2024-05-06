@@ -89,6 +89,26 @@ function polygonProcesses(root){
 
 }
 
+function colorPalette(root,cls, text){
+
+    let pp= document.createElement('p');
+    pp.textContent=text;
+    let br= document.createElement('br');
+    root.append(pp,br);
+
+    cls.forEach(e => {
+        let clr= Object.keys(e);
+        let clrId= clr.toString();
+        let imgEl= document.createElement('img');
+        imgEl.style.width='20px';
+        imgEl.style.height='20px';
+        imgEl.style.background='rgba('+clrId+')';
+        root.append(imgEl);
+    });
+
+    
+}
+
 function clearChilds(root){
     while (root.firstChild) {
         root.removeChild(root.firstChild);
@@ -120,4 +140,4 @@ RESULT_TITLE_2.textContent='Results for Map-2';
 }
 
 
-export {polygonProcesses,lineProcesses, clearChilds};
+export {polygonProcesses,lineProcesses, colorPalette, clearChilds};

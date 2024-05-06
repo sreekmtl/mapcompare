@@ -1,7 +1,8 @@
-import { jDBSCAN } from "./algorithms/jDBScan";
+import { jDBSCAN } from "../algorithms/jDBScan";
+import { euclideanDistance } from "../utils";
 
 
-export function junctionExtract1(data, imgW, imgH, extent){
+export function junctionExtract2(data, imgW, imgH, extent){
 
    
     let points=[];
@@ -240,7 +241,7 @@ export function junctionExtract1(data, imgW, imgH, extent){
 
     let junctions= createJunctions(intersections,imgW,extent,pixelWidth,pixelHeight);
     let lineSegs= createLines(lineParts,imgW,extent,pixelWidth,pixelHeight);
-    //console.log(checker1, lineSegs,'jjffj');
+    //console.log(lineParts,'jjffj');
 
     return [junctions,lineSegs,residualImage];
 
@@ -307,7 +308,85 @@ function createJunctions(intersections, imgW, extent, pixelWidth, pixelHeight){
 
 }
 
-function createLines(lineParts, imgW, extent, pixelWidth, pixelHeight){
+function splitArray(arr){
+    
+    //checks for neighbouring positions, if it is continous leave it, else split it
+    let splittedArray= [];
+    let tempArray;
+
+    for (let k=0; k<arr.length; k++){
+        let fp= arr[k];
+        tempArray=[];
+        if (fp!=0){
+
+            if (tempArray.length===0){
+                tempArray.push(fp);
+                arr[k]=0;
+            }
+        for (let m=0; m<tempArray.length;m++){
+            let nearby= createKernel(tempArray[tempArray.length-1],3);
+            //console.log(nearby,'nearby');
+
+            for (let i=0; i<nearby.length;i++){
+                for (let j=0; j<arr.length;j++){
+                    if(nearby[i][0]===arr[j][0] && nearby[i][1]===arr[j][1]){
+                        tempArray.push(arr[j]);
+                        arr[j]=0;
+                    }
+                }
+            }
+        }
+        splittedArray.push(tempArray);
+        }else {
+            continue;
+        }
+    }
+
+   //console.log(splittedArray,'splitarray');
+   return splittedArray;
+}
+
+function isGood(arr){
+
+    let good=true;
+    for (let i=1; i<arr.length; i++){
+        if (Math.abs(euclideanDistance(arr[i], arr[i-1])<10)){
+            continue;
+        }else{
+            good=false;
+            break;
+        }
+    }
+
+    return good;
+
+}
+
+function cleanLines(lp){
+
+    let returnArray=[];
+
+    for (let i=0; i<lp.length;i++){
+
+        if (!isGood(lp[i])){ //if segment is not good, split it 
+
+                let arrays= splitArray(lp[i]);
+                arrays.forEach(element => {
+                returnArray.push(element);
+            });
+
+        }else{
+            returnArray.push(lp[i]);
+        }
+    }
+
+    //console.log(returnArray,'returnarray');
+    return returnArray;
+}
+
+function createLines(lp, imgW, extent, pixelWidth, pixelHeight){
+
+    let lineParts= cleanLines(lp);
 
     let lineSegs= {    //geojson file for storing junction positions
 

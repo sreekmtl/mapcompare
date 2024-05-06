@@ -180,4 +180,6 @@ function euclideanDistance(p1, p2){
 
 }
 
+
+
 export {getChannels, colorFromPixel, extractChannel, findMode, imageCovariance, euclideanDistance};

@@ -10,7 +10,13 @@
   "author": "sreekmtl",
   "license": "ISC",
   "dependencies": {
+    "@turf/boolean-intersects": "^6.5.0",
+    "@turf/clean-coords": "^6.5.0",
+    "@turf/dissolve": "^6.5.0",
+    "@turf/flatten": "^6.5.0",
+    "@turf/line-overlap": "^6.5.0",
     "@turf/nearest-point-on-line": "^6.5.0",
+    "@turf/unkink-polygon": "^6.5.0",
     "d3": "^7.9.0",
     "image-js": "^0.35.5",
     "node-polyfill-webpack-plugin": "^3.0.0",

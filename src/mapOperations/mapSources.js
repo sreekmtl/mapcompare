@@ -90,7 +90,7 @@ class Sources{
         });
 
         this.googleMaps = new Google({
-          key,
+          key:key.apikeys.GoogleMapKey,
           scale: 'scaleFactor2x',
           highDpi: true,
         });
@@ -142,7 +142,7 @@ class Sources{
         })
         this.BhuvanLULC2= new TileWMS({
           url: 'https://bhuvan-vec2.nrsc.gov.in/bhuvan/gwc/service/wms',
-          params: {'LAYERS': bhuvanLayers['Uttarakhand_LULC_2015-16'], 
+          params: {'LAYERS': bhuvanLayers['Uttarakhand_LULC_2011-12'], 
           'TILED': true,
           'VERSION':'1.1.1',
           'BBOX':'77.575,28.715,81.043,31.467',
@@ -161,20 +161,6 @@ class Sources{
   
 }
 
-class GoogleLogoControl extends Control{
 
-  constructor(){
-    const element = document.createElement('img');
-      element.style.pointerEvents = 'none';
-      element.style.position = 'absolute';
-      element.style.bottom = '5px';
-      element.style.left = '5px';
-      element.src =
-        'https://developers.google.com/static/maps/documentation/images/google_on_white.png';
-      super({
-        element: element,
-      });
-  }
-}
 
 export default Sources;

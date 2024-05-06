@@ -1,16 +1,18 @@
+import { Projection } from 'ol/proj';
 import {getArea} from 'ol/sphere';
 import {getLength} from 'ol/sphere';
 import { intersect, multiPolygon, polygon, area } from 'turf';
+import { olVectorLayerToGeoJSON } from '../mapOperations/vectorUtils';
 
 
 function areaOfPolygon(geom){
 
-    return getArea(geom);
+    return getArea(geom,{projection:'EPSG:4326'});
 }
 
 function lengthOfLine(geom){
 
-    return getLength(geom);
+    return getLength(geom, {projection:'EPSG:4326'});
 }
 
 function vectorToGeom(vectorLayer, type){
@@ -32,31 +34,6 @@ function vectorToGeom(vectorLayer, type){
     return result;
 }
 
-function GeometryBased_AInterB_1(vectorLayer1, vectorLayer2){
-
-    let src1= vectorLayer1.getSource();
-    let src2= vectorLayer2.getSource();
-    let totalArea=0;
-
-    src1.forEachFeature((f)=>{
-
-        let coords1=f.getGeometry().getCoordinates()[0];
-        let turfPolygon1= polygon([coords1]);
-
-        src2.forEachFeature((f)=>{
-            let coords2= f.getGeometry().getCoordinates()[0];
-            let turfPolygon2= polygon([coords2]);
-
-            let intersection= intersect(turfPolygon1,turfPolygon2);
-            if (intersection!=undefined){
-                let ar= area(intersection);
-                totalArea+=ar;
-            }
-        });
-    });
-
-    return totalArea;
-}
 
 function GeometryBased_AInterB(vectorLayer1, vectorLayer2){
 
@@ -68,37 +45,37 @@ function GeometryBased_AInterB(vectorLayer1, vectorLayer2){
 
     src1.forEachFeature((f)=>{
 
-        let coords=f.getGeometry().getCoordinates()[0];
+        let f1= f.clone()
+        //f1.getGeometry().transform('EPSG:3857','EPSG:4326');
+        let coords=f1.getGeometry().getCoordinates();
         multiPolygonArray1.push(coords);
     })
 
     src2.forEachFeature((f)=>{
 
-        let coords=f.getGeometry().getCoordinates()[0];
+        let f1= f.clone()
+        //f1.getGeometry().transform('EPSG:3857','EPSG:4326');
+        let coords=f1.getGeometry().getCoordinates();
         multiPolygonArray2.push(coords);
     })
 
-    let multiPolygon1= multiPolygon([multiPolygonArray1]);
-    let multiPolygon2= multiPolygon([multiPolygonArray2]);
+    let multiPolygon1= multiPolygon(multiPolygonArray1);
+    let multiPolygon2= multiPolygon(multiPolygonArray2);
 
+    //console.log(multiPolygonArray1,multiPolygon1,'mpi');
     let intersection= intersect(multiPolygon1, multiPolygon2);
-    
+    let inter_area= area(intersection);
 
-    return 1;
+    return inter_area;
 
 }
 
 function vectorLayerArea(vectorLayer){
 
-    let area=0;
+   let gj= olVectorLayerToGeoJSON(vectorLayer);
+   let areaofLayer= area(gj);
 
-    let src= vectorLayer.getSource();
-    src.forEachFeature((f)=>{
-
-        area+= f.getGeometry().getArea();
-    })
-
-    return area;
+    return areaofLayer;
 }
 
 function PixelBased_AInterB(imageData1, imageData2, areaPerPixel){
@@ -144,7 +121,7 @@ export function polygonCompleteness(vectorLayer1, vectorLayer2){
     let area_comp= vectorToGeom(vectorLayer2, 'Polygon');
 
     let completeness_percent= (area_comp/area_ref)*100;
-    console.log('reference area: ', area_ref, '\n', 'comp area: ', area_comp);
+    console.log('reference area: ', area_ref, 'm^2', '\n', 'comp area: ', area_comp, 'm^2');
 
     return completeness_percent;
 
@@ -156,7 +133,7 @@ export function lineCompleteness(vectorLayer1, vectorLayer2){
     let len_comp= vectorToGeom(vectorLayer2, 'LineString');
 
     let completeness_percent= (len_comp/len_ref)*100;
-    console.log('reference length: ', len_ref, '\n', 'comp length: ', len_comp);
+    console.log('reference length: ', len_ref, 'm', '\n', 'comp length: ', len_comp, 'm');
 
     return completeness_percent;
     
@@ -171,11 +148,12 @@ export function geometryBasedJI(vectorLayer1, vectorLayer2){
 
     let A= vectorLayerArea(vectorLayer1);
     let B= vectorLayerArea(vectorLayer2);
-    let A_INTER_B= GeometryBased_AInterB_1(vectorLayer1, vectorLayer2);
+    let A_INTER_B= GeometryBased_AInterB(vectorLayer1, vectorLayer2);
 
     let JI= A_INTER_B/(A+B-A_INTER_B);
 
-    console.log(JI, 'Geometry based Jaccard Index');
+    console.log('A: ', A,'\n', 'B: ',B,'\n', 'A_INTER_B: ', A_INTER_B)
+    console.log(Math.abs(JI).toFixed(2), 'Geometry based Jaccard Index');
 }
 
 export function pixelBasedJI(imageData1, imageData2, areaPerPixel){

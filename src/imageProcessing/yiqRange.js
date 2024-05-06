@@ -12,6 +12,7 @@
 function colorInRange(imageData, selectedColor, sensitivity){
 
     let diffData= [];
+    let count=0;
     let diffImg= new ImageData(imageData.width, imageData.height);
 
     let colorSelected= [
@@ -45,9 +46,10 @@ function colorInRange(imageData, selectedColor, sensitivity){
         diffData.push(distanceinYIQ);
 
      
-        if (Math.abs(distanceinYIQ)===sensitivity){
+        if (Math.abs(distanceinYIQ)<=sensitivity){
             diffImg.data[i]=255;
             diffImg.data[i+3]=255;
+            count++;
         }else {
             diffImg.data[i+3]=255;
         }
@@ -56,7 +58,17 @@ function colorInRange(imageData, selectedColor, sensitivity){
     }
 
     //console.log('original YIQ distance', diffData);
-    return diffImg;
+    return [diffImg,count];
+
+}
+
+function rgbToyiq(r,g,b){
+
+    let y= rgb2y(r,g,b);
+    let i= rgb2i(r,g,b);
+    let q= rgb2q(r,g,b);
+
+    return [y,i,q];
 
 }
 
@@ -64,4 +76,4 @@ function rgb2y(r, g, b) { return r * 0.29889531 + g * 0.58662247 + b * 0.1144822
 function rgb2i(r, g, b) { return r * 0.59597799 - g * 0.27417610 - b * 0.32180189; }
 function rgb2q(r, g, b) { return r * 0.21147017 - g * 0.52261711 + b * 0.31114694; }
 
-export {colorInRange};
+export {colorInRange, rgbToyiq};
