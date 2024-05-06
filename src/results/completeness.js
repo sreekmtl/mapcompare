@@ -152,7 +152,8 @@ export function geometryBasedJI(vectorLayer1, vectorLayer2){
 
     let JI= A_INTER_B/(A+B-A_INTER_B);
 
-    console.log(A, B, Math.abs(JI).toFixed(2), 'Geometry based Jaccard Index');
+    console.log('A: ', A,'\n', 'B: ',B,'\n', 'A_INTER_B: ', A_INTER_B)
+    console.log(Math.abs(JI).toFixed(2), 'Geometry based Jaccard Index');
 }
 
 export function pixelBasedJI(imageData1, imageData2, areaPerPixel){

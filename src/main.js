@@ -245,7 +245,7 @@ let sourceMap={
   '10':sources.BhuvanLULC2,
 }
 
-init(sourceMap['1'],sourceMap['2']);
+init(sourceMap['1'],sourceMap['5']);
 let constants= new Constants(canvas1.width, canvas1.height, map1.getView().calculateExtent(map1.getSize()));
 
 mapdd1.addEventListener('change',(c)=>{

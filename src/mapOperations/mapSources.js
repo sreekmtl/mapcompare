@@ -90,7 +90,7 @@ class Sources{
         });
 
         this.googleMaps = new Google({
-          key:'AIzaSyDs7BWib3HEzlzB9EXV3dqtc7iNWCLxgaU',
+          key:'hdkkskkkdkkdkkkdk',
           scale: 'scaleFactor2x',
           highDpi: true,
         });
