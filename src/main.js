@@ -13,7 +13,7 @@ import { mapToImg } from './mapOperations/mapToImg.js';
 import { clearChilds, colorPalette, lineProcesses, polygonProcesses } from './uiElements.js';
 import { growRegion } from './algorithms/regionGrowing.js';
 import { junctionExtract1 } from './spatialOperations/imageToLine.js';
-import { createVectorLayer, snapLineToPoint } from './mapOperations/vectorLyrSrc.js';
+import { createVectorLayer } from './mapOperations/vectorLyrSrc.js';
 import { apply } from 'ol-mapbox-style';
 import { Tile } from 'ol/layer.js';
 import { geometryBasedJI, lineCompleteness, pixelBasedJI, polygonCompleteness } from './results/completeness.js';
@@ -21,6 +21,9 @@ import Constants from './constants.js';
 import mapToClass, { detectAntiAlias } from './imageProcessing/mapToClass.js';
 import RasterSource from 'ol/source/Raster.js';
 import modFilter from './imageProcessing/modeFilter.js';
+import { junctionExtract2 } from './spatialOperations/imageToLine2.js';
+import { linePositionalAccuracy } from './results/positionalAccuracy.js';
+import { olVectorLayerToGeoJSON, olVectorLayerToTurfLayer } from './mapOperations/vectorUtils.js';
 
 
 
@@ -164,6 +167,7 @@ function init(src1, src2){
     pixelHeight= (extent[3]-extent[1])/canvas1.height;
     extentBox.textContent="Extent: "+extent
     zoomLevelBox.textContent="Zoom Level: "+map1.getView().getZoom();
+    
   });
   
   map2.on('moveend',(e)=>{
@@ -307,7 +311,7 @@ imgProcessBtn.addEventListener('click',(e)=>{
 
     }
 
-    //pixelBasedJI(diffImg1,diffImg2,pixelWidth*pixelHeight);
+    pixelBasedJI(diffImg1,diffImg2,pixelWidth*pixelHeight);
   }
   
 
@@ -320,9 +324,13 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
     if (imgProcessed1===true){
       let extent1= map1.getView().calculateExtent(map1.getSize());
       vectorData1=contourToPolygon(contourData1, canvas1.width, canvas1.height, extent1);
+      //console.log(vectorData1,'vectorData1');
       vectorFilePresent1=true;
       polyLayer1= createVectorLayer(vectorData1);
       map1.addLayer(polyLayer1);
+      vectorData1=olVectorLayerToGeoJSON(polyLayer1);
+      //let tflyr= olVectorLayerToTurfLayer(polyLayer1,'polygon');
+      //console.log(tflyr,'tflyr');
       imgProcessed1=false;
     }else {
       alert('Process image from map1 before vectorizing');
@@ -334,27 +342,25 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
       vectorFilePresent2=true;
       polyLayer2= createVectorLayer(vectorData2);
       map2.addLayer(polyLayer2);
+      vectorData2=olVectorLayerToGeoJSON(polyLayer2);
       imgProcessed2=false;
 
     }
 
-    //geometryBasedJI(polyLayer1,polyLayer1);
-    console.log(polygonCompleteness(polyLayer1, polyLayer1), 'polygonCompleteness');
+    console.log(polygonCompleteness(polyLayer1, polyLayer2), 'polygonCompleteness');
+    geometryBasedJI(polyLayer1,polyLayer2);
 
   }else if (featureDropDown.value==='3'){
 
     if (imgProcessed1===true){
       let extent1= map1.getView().calculateExtent(map1.getSize());
-      let redata=junctionExtract1(erodeCannyData1.data, 300, 300, extent1);
+      let redata=junctionExtract2(erodeCannyData1.data, 300, 300, extent1);
       vectorData1= redata[1];
       vectorFilePresent1=true;
       let jn= createVectorLayer(redata[0]);
       lineLayer1= createVectorLayer(vectorData1);
       map1.addLayer(jn);
       map1.addLayer(lineLayer1);
-      //let ss= snapLineToPoint(jn, lyr);
-      //map1.addLayer(ss);
-      //canvasCtx1.putImageData(redata[2],0,0);
       imgProcessed1=false;
       clearChilds(inner);
      
@@ -366,15 +372,13 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
     if (imgProcessed2===true){
 
       let extent2= map2.getView().calculateExtent(map2.getSize());
-      let redata=junctionExtract1(erodeCannyData2.data, 300, 300, extent2);
+      let redata=junctionExtract2(erodeCannyData2.data, 300, 300, extent2);
       vectorData2= redata[0];
       vectorFilePresent2=true;
       let jn = createVectorLayer(vectorData2);
       lineLayer2= createVectorLayer(redata[1]);
       map2.addLayer(jn);
       map2.addLayer(lineLayer2);
-      //snapLineToPoint(redata[0],redata[1]);
-      //canvasCtx2.putImageData(redata[2],0,0);
       imgProcessed2=false;
       clearChilds(inner);
 
@@ -382,7 +386,8 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
       alert('Process image from map1 before vectorizing');
     }
 
-    //console.log(lineCompleteness(lineLayer1,lineLayer2), 'lineCompleteness');
+    console.log(lineCompleteness(lineLayer1,lineLayer2), 'lineCompleteness');
+    console.log('positional accuracy');
 
   }
 })
@@ -393,10 +398,14 @@ downloadBtn.addEventListener('click',(e)=>{
 
   if (vectorFilePresent1===true){
 
-    let text= JSON.stringify(vectorData1);
-    var filename = "layer.geojson";
+    let text1= JSON.stringify(vectorData1);
+    var filename1 = "layer1.geojson";
+
+    let text2=JSON.stringify(vectorData2);
+    var filename2= "layer2.geojson";
  
-    download(filename, text);
+    download(filename1, text1);
+    download(filename2,text2);
 
   }else{
     alert('Generate vector file before downloading');
@@ -430,6 +439,9 @@ imgCovBtn.addEventListener('click',(e)=>{
 });
 
 compareBtn.addEventListener('click', (e)=>{
+
+  let bfrd= linePositionalAccuracy(lineLayer1,lineLayer2);
+  map1.addLayer(bfrd);
   
 })
 

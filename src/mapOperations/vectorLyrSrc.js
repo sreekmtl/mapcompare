@@ -9,6 +9,10 @@ import { buffer, point, polygon, lineString} from "turf";
 import { transform } from "ol/proj";
 import { simplify } from "turf";
 import nearestPointOnLine from '@turf/nearest-point-on-line';
+import { kinks } from "turf";
+import unkinkPolygon from '@turf/unkink-polygon'
+import cleanCoords from '@turf/clean-coords'
+import { SimpleGeometry } from "ol/geom";
 
 
 
@@ -37,15 +41,21 @@ export function createVectorLayer(data){
         let ft=[];
         vectorSource.forEachFeature((f)=>{
         let gm1= f.getGeometry().simplify(3); 
-        let feature= new Feature({
-            geometry:gm1,
-        });
-        ft.push(feature);
+        if (gm1.getCoordinates().length>=2){
+          let feature= new Feature({
+              geometry:gm1,
+          });
+          ft.push(feature);
+        }
         });
 
         let simplifiedVectorSource= new VectorSource({
         features:ft,
         });
+
+        simplifiedVectorSource.forEachFeature((f)=>{
+          f.getGeometry().transform('EPSG:3857','EPSG:4326');
+        })
 
         vectorLayer.setSource(simplifiedVectorSource);
         featureCount=ft.length;
@@ -59,22 +69,44 @@ export function createVectorLayer(data){
        */
 
         let ft=[];
-        vectorSource.forEachFeature((f)=>{
-
+        vectorSource.forEachFeature((FTR)=>{
+  
+        let f= FTR.clone();
+        f.getGeometry().transform('EPSG:3857','EPSG:4326'); //converting to wgs-84 for using turfjs
         let coords= f.getGeometry().getCoordinates()[0];
         let turfPoly;
         if(coords.length>=4){
           turfPoly= polygon([coords]);
         }
-        let simplified= simplify(turfPoly,0.5);
-        let gj= new GeoJSON({dataProjection:'EPSG:3857'}).readFeature(simplified);
+        let simplified= cleanCoords(simplify(turfPoly,0.000005,true));
+        let kink= kinks(simplified);
+        if(kink.features.length){
+          let simplifiedpolys=unkinkPolygon(simplified);
+          let ftrs= simplifiedpolys.features;
+          ftrs.forEach((element) => {
+            let gj= new GeoJSON({dataProjection:'EPSG:4326'}).readFeature(element);
+            ft.push(gj);
+          });
+        }else{
+          let gj= new GeoJSON({dataProjection:'EPSG:4326'}).readFeature(simplified);
+          ft.push(gj);
+        }
         
-        ft.push(gj);
         });
+
+        //Now we have to convert this back to epsg:3857 for adding it to map
+
+        
 
         let simplifiedVectorSource= new VectorSource({
         features:ft,
         });
+
+        //simplifiedVectorSource.forEachFeature((f)=>{
+          //f.getGeometry().transform('EPSG:4326','EPSG:3857');
+        //});
+
+        
 
         vectorLayer.setSource(simplifiedVectorSource);
         featureCount=ft.length;
@@ -101,41 +133,5 @@ export function createVectorLayer(data){
 }
 
 
-export function snapLineToPoint(jn, lyr){
-
-  //Used to combine lines and junctions
-
-  const pointSource= jn.getSource();
-  const lineSource= lyr.getSource();
-
-
-
-  let ftr_list= [];
-  lineSource.forEachFeature((f)=>{
-    
-    let geom= f.getGeometry();
-    let coords= geom.getCoordinates();
-    let len= coords.length;
-
-    let fp= coords[0];
-    let lp= coords[len-1];
-
-    let pnt= point(transform(fp, 'EPSG:3857', 'EPSG:4326'));
-    let bfr= buffer(pnt, 0.02, 'kilometers');
-    
-    
-
-  });
- 
-  let buffVctrSrc= new VectorSource({
-    features: ftr_list,
-  })
-  
-  let vl= new  VectorLayer();
-  vl.setSource(buffVctrSrc);
-
-  return vl;
-
-}
 
 

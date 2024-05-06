@@ -90,7 +90,7 @@ class Sources{
         });
 
         this.googleMaps = new Google({
-          key,
+          key:'AIzaSyDs7BWib3HEzlzB9EXV3dqtc7iNWCLxgaU',
           scale: 'scaleFactor2x',
           highDpi: true,
         });
@@ -161,20 +161,6 @@ class Sources{
   
 }
 
-class GoogleLogoControl extends Control{
 
-  constructor(){
-    const element = document.createElement('img');
-      element.style.pointerEvents = 'none';
-      element.style.position = 'absolute';
-      element.style.bottom = '5px';
-      element.style.left = '5px';
-      element.src =
-        'https://developers.google.com/static/maps/documentation/images/google_on_white.png';
-      super({
-        element: element,
-      });
-  }
-}
 
 export default Sources;

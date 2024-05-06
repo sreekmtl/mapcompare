@@ -1,65 +1,133 @@
 import { jDBSCAN } from "../algorithms/jDBScan";
 import { euclideanDistance } from "../utils";
-import { sortContourPixels } from "./imageToPolygon";
 
-let lll=0; let jjj=0;
 
-export function junctionExtract1(data, imgW, imgH, extent){
-
-       /**
-     * ______________________________________LINEAR FEATURE EXTRACTION_________________________________________________
-     * 
-     * Take canny edge filtered data + eroded data
-     * Runs a kernel (depending on road size) over the image pixel by pixel
-     * Kernel will follow the linear feature
-     * only the outer shell of the kernel is populated (with 1 and all others are 0)
-     * multiply outer element with underlying image pixel element
-     * if same image pixel element is returning, it means the image element is intersecting with kernel.
-     * If it is intersecting with more (threshold) numbers of points, which means it is a JUNCTION
-     * 
-     * Since no algorithms are perfect, there will be many junctions bcos a width of eroded road
-     * So using DBSCAN algorithm, nearby junctions are clustered and replaced with one junction
-     * 
-     * So points which are not junctions are part of LINE SEGMENTS between these junctions
-     * 
-     *
-     * 
-     * 
-     */
+export function junctionExtract2(data, imgW, imgH, extent){
 
    
-
-    let minSize= 25;
-    let maxSize=31;
-    let featureLeft=true;
     let points=[];
+    let featureLeft=true;
+    let lineArray=[];
+    let lineParts=[];
+    let roadSegs=[];
+    let checker1=0;
+    let checker2=0;
     let ip;
-    
-    let linePointArray=[]; //main array for storing all linear points
-    let junctionArray=[]; //stores only points which qualifies as junctions from linearray
-    let lineSegArray=[]; //stores only line segments from line array
-    let linParts=[];
-
     let edges=[];
-    let count=0;
+    let intersections=[];
     let pixelWidth= (extent[2]-extent[0])/imgW;
     let pixelHeight= (extent[3]-extent[1])/imgH;
 
 
     for (let i=0; i<data.length; i+=4){
         
-        points.push(data[i]); //eroded part
-        edges.push(data[i+1]); //canny edge part
+        points.push(data[i]);
+        edges.push(data[i+1]);
         
 
     }
-    
+
+
+     /**
+     * ______________________________________JUNCTION EXTRACTION_________________________________________________
+     * 
+     * Take canny edge filtered data + eroded data
+     * Runs a kernel (depending on road size) over the image pixel by pixel
+     * only the outer shell of the kernel is populated (with 1 and all others are 0)
+     * multiply outer element with underlying image pixel element
+     * if same image pixel element is returning, it means the image element is intersecting with kernel.
+     * 
+     * BASED ON INTERSECTIONS:
+     * 
+     * 4 intersection- Not a juntion
+     * 6 intersection- Juntion of 3 roads
+     * 8 intersections- junction of 4 roads
+     * Like that....
+     */
+
+    loop1:
+    for (let i=0; i<points.length; i++){
+
+        
+
+        if (points[i]===255){
+
+            let x= (i%imgW);
+            let y= Math.floor((i/imgW));
+            
+           
+
+            loop2:
+            for (let j=25; j<=31; j+=2){
+
+                let imgWindow=[];
+                let kernelSize= j;
+                let intersection=0;
+                let kernel= createCicrcularKernel(j);
+
+                for (let k=0-Math.floor((kernelSize/2)); k<=Math.floor(kernelSize/2); k++){
+                    let p,q;
+                    for (let l=0-Math.floor((kernelSize/2)); l<=Math.floor(kernelSize/2); l++){
+        
+                        p=x+k;
+                        q=y+l;
+                        let pos= (q*imgW+p);
+                        imgWindow.push(edges[pos]);
+                    }
+                }
+
+                for (let m=0; m<j; m++){
+                    for (let n=0; n<j; n++){
+
+                        if (kernel[m][n]*imgWindow[(m*j)+n]===255){
+                            intersection+=1;
+                        }
+                        
+                    }
+                }
+
+                if (intersection>=8){
+                    intersections.push(i);
+                    points[i]=0; //Remove intersected points from the eroded points now to keep only points representing roads in between
+                    break loop2;
+                }
+  
+
+            }
+
+        }
+
+    }
+
+    let residualImageData= new Uint8ClampedArray(data.length);
+
+    for (let i=0, j=0; i<residualImageData.length; i+=4,j++){
+
+        residualImageData[i]=points[j];
+        residualImageData[i+1]=0;
+        residualImageData[i+2]=0;
+        residualImageData[i+3]=255;
+    }
+
+    let residualImage= new ImageData(residualImageData, imgW, imgH);
+
+    /**
+     * ________________________________________LINE EXTRACTION________________________________________________________________
+     * 
+     * Takes the eroded data (junction points are removed)
+     * Takes a point>> Runs a window kernel to check adjacent pixel>> if present-appends to array
+     * Once appended point is removed
+     * Continues till all points are covered
+     * Once it completes, all points are converted to coordinates
+     * line geojson file is created
+     */
+
+    let count=0;
     for (let i=0; i<points.length;i++){ 
         if (points[i]===255){
             count+=1;
         }
     }
-
 
     function initializeSearch(){
         let pnt;
@@ -75,97 +143,21 @@ export function junctionExtract1(data, imgW, imgH, extent){
 
     }
 
-    
-
-    function isJunction(anchorPoint){
-        let ij=false;
-
-        let x= anchorPoint[0];
-        let y= anchorPoint[1];
-
-        for (let j=minSize; j<=maxSize; j+=2){
-
-            let imgWindow=[];
-            let kernelSize= j;
-            let intersection=0;
-            let kernel= createCicrcularKernel(j);
-
-            for (let k=0-Math.floor((kernelSize/2)); k<=Math.floor(kernelSize/2); k++){
-                let p,q;
-                for (let l=0-Math.floor((kernelSize/2)); l<=Math.floor(kernelSize/2); l++){
-    
-                    p=x+k;
-                    q=y+l;
-                    let pos= (q*imgW+p);
-                    imgWindow.push(edges[pos]);
-                }
-            }
-
-            for (let m=0; m<j; m++){
-                for (let n=0; n<j; n++){
-
-                    if (kernel[m][n]*imgWindow[(m*j)+n]===255){
-                        intersection+=1;
-                    }
-                    
-                }
-            }
-
-            if (intersection>=8){
-                ij=true;
-               //Remove intersected points from the eroded points now to keep only points representing roads in between
-                break;
-            }
-        }
-
-        return ij;
-        
-    }
-
-
     function extractor(ip){
-
-        if (lineSegArray.length!=0){
-            linParts.push([...lineSegArray]);
-            lineSegArray=[];
-            linePointArray=[];
-        }
-
-        linePointArray.push(ip);
+        
+        lineArray.push(ip);
+        //console.log(ip,'ip');
 
         for (let i=0; i<count; i++){
 
-            if (linePointArray[i]===undefined){
+            if (lineArray[i]===undefined){
                 break;
             }
     
-            let x= linePointArray[i][0];
-            let y= linePointArray[i][1];
+            let x= lineArray[i][0];
+            let y= lineArray[i][1];
             let actualPos= (y*imgW)+x;
             let jf=false;
-
-            //Check the point is junction or line segment. Then find next point adjacent to it and add to lineArray
-    
-            if(isJunction([x,y])===true){
-    
-                junctionArray.push([x,y]);
-                points[actualPos]=0;
-                jf=true;
-
-                if ((lineSegArray.length!=0) && (lineSegArray.length>=30)){
-                    linParts.push([...lineSegArray]);
-                    lineSegArray=[];
-                }
-    
-            }else{
-                
-                //Actually here if it is not junction then throw it to line, not even checking the connection. that is problem
-                lineSegArray.push([x,y]);
-                points[actualPos]=0;
-                
-                
-            }
-    
     
             let adjacentPoints= createKernel([x,y], 3); 
             let adjOK=[];
@@ -181,65 +173,79 @@ export function junctionExtract1(data, imgW, imgH, extent){
     
                 if (points[pos_1]===255){
                     adjOK.push([x_1,y_1]); //adjacent points with 255
-
-                    //so there will be multiple adjacent points. We add these to lineArray
-                    //console.log(adjOK,'adjok');
-                    for (let k=0; k<adjOK.length;k++){
-    
-                        let isThere=false;
-            
-                        for (let l=0; l<linePointArray.length; l++){
-            
-                            if ((adjOK[k][0]===linePointArray[l][0]) && (adjOK[k][1]===linePointArray[l][1])){
-                                isThere=true;
-                                break;
-                            }else{
-                                isThere=false;
-                            }
-                        }
-            
-                        if (isThere===false){
-                            linePointArray.push(adjOK[k]);
-                        }
-            
-                    } 
+                    points[actualPos]=0;
                 }
     
             }
     
+            //so there will be multiple adjacent points. We add these to lineArray
+            //console.log(adjOK,'adjok');
+            
+            for (let k=0; k<adjOK.length;k++){
+    
+                let isThere=false;
+    
+                for (let l=0; l<lineArray.length; l++){
+    
+                    if ((adjOK[k][0]===lineArray[l][0]) && (adjOK[k][1]===lineArray[l][1])){
+                        isThere=true;
+                        break;
+                    }else{
+                        isThere=false;
+                    }
+                }
+    
+                if (isThere===false){
+                    lineArray.push(adjOK[k]);
+                }
+    
+             
+            }
+    
         }
-      
+        //console.log(lineArray, 'la');
+
+        if (lineArray.length>=10){
+            lineParts.push(lineArray);
+            checker1+=1;
+            lineArray=[];
+        }else {
+            lineArray=[];
+        }
+
+        
     
     }
 
-    //extractor();
-
-    
     while (featureLeft){
         ip=initializeSearch();
         if (ip===undefined){
             featureLeft=false;
 
-            if ((lineSegArray.length!=0) && (lineSegArray.length>=10)){
-                linParts.push([...lineSegArray]);
-                lineSegArray=[];
-            }
+            //if ((lineArray.length!=0) && (lineArray.length>=30)){
+                //lineParts.push(lineArray);
+                //lineArray=[];
+           // }
 
             break;
         }
         extractor(ip);
+        
     }
+
    
-    let lineSegments= createLine(linParts, imgW, extent, pixelWidth, pixelHeight);
-    let junction= createJunctions(junctionArray,imgW,extent,pixelWidth,pixelHeight);
-    //console.log(junction,'junctions');
-    console.log(linParts,'lineseg');
+    let result=1;
+    /**
+     * Returning both generated junctions and line segments
+     */
 
-    return [junction,lineSegments];
+    let junctions= createJunctions(intersections,imgW,extent,pixelWidth,pixelHeight);
+    let lineSegs= createLines(lineParts,imgW,extent,pixelWidth,pixelHeight);
+    //console.log(lineParts,'jjffj');
 
+    return [junctions,lineSegs,residualImage];
 
 }
-
 
 
 
@@ -265,8 +271,8 @@ function createJunctions(intersections, imgW, extent, pixelWidth, pixelHeight){
 
     for (let i in intersections){
 
-        let x= intersections[i][0];
-        let y= intersections[i][1];
+        let x= intersections[i]%imgW;
+        let y= Math.floor(intersections[i]/imgW);
 
         let x1= extent[0]+ (x*pixelWidth);  
         let y1= extent[3]- (y*pixelHeight); 
@@ -277,13 +283,13 @@ function createJunctions(intersections, imgW, extent, pixelWidth, pixelHeight){
 
     }
 
-    //Taking the junction and applying dbscan (at coordinate level)
-
     let dbScanner= jDBSCAN().eps(10).minPts(1).distance('EUCLIDEAN').data(point_data);
     let clusters= dbScanner();
     let clusterCenters= dbScanner.getClusters();
 
+    let f_id=0;
     for (let i=0; i<clusterCenters.length; i++){
+        f_id++;
 
         let coordinates=[clusterCenters[i].x, clusterCenters[i].y]
         
@@ -294,9 +300,7 @@ function createJunctions(intersections, imgW, extent, pixelWidth, pixelHeight){
                     "type":"Point",
                     "coordinates":coordinates
                 },
-                "proprties":{
-                    "prop":'',
-                }
+                "id":f_id,
             },)
     }
 
@@ -341,25 +345,21 @@ function splitArray(arr){
    //console.log(splittedArray,'splitarray');
    return splittedArray;
 }
-function mergeArray(ret_arr){
-    let mergedArray=[];
-    for (let i=0;i<ret_arr.length;i++){
-        for (let j=1; j<ret_arr.length;j++){
-            let last= ret_arr[i].length-1;
 
-            if (ret_arr[i]!=0 && ret_arr[j]!=0){
-            
-            if(Math.abs(euclideanDistance(ret_arr[i][last],ret_arr[j][0]))<10){
-                let temp= ret_arr[i].concat(ret_arr[j]);
-                ret_arr[i]=0;
-                ret_arr[j]=0;
-                mergedArray.push(temp);
-            }
-        }
+function isGood(arr){
+
+    let good=true;
+    for (let i=1; i<arr.length; i++){
+        if (Math.abs(euclideanDistance(arr[i], arr[i-1])<10)){
+            continue;
+        }else{
+            good=false;
+            break;
         }
     }
 
-    return mergedArray;
+    return good;
+
 }
 
 function cleanLines(lp){
@@ -368,22 +368,25 @@ function cleanLines(lp){
 
     for (let i=0; i<lp.length;i++){
 
-        let arrays= splitArray(lp[i]);
-        arrays.forEach(element => {
-            returnArray.push(element);
-        });
+        if (!isGood(lp[i])){ //if segment is not good, split it 
+
+                let arrays= splitArray(lp[i]);
+                arrays.forEach(element => {
+                returnArray.push(element);
+            });
+
+        }else{
+            returnArray.push(lp[i]);
+        }
     }
 
-    
-    let merged= mergeArray(returnArray);
-    console.log(returnArray, merged,'returnarray');
-    return merged;
+    //console.log(returnArray,'returnarray');
+    return returnArray;
 }
 
-function createLine(lineParts, imgW, extent, pixelWidth, pixelHeight){
+function createLines(lp, imgW, extent, pixelWidth, pixelHeight){
 
-    let cleanLineParts= cleanLines(lineParts);
-    
+    let lineParts= cleanLines(lp);
 
     let lineSegs= {    //geojson file for storing junction positions
 
@@ -400,22 +403,16 @@ function createLine(lineParts, imgW, extent, pixelWidth, pixelHeight){
             
         ]
     }
-
-    
     let f_id=0;
-    for (let i=0; i<cleanLineParts.length; i++){
-
-        if(cleanLineParts[i].length<3){
-            continue;
-        }
+    for (let i=0; i<lineParts.length; i++){
         f_id++;
 
         let coordinateArray=[];
 
-        for (let j=0; j<cleanLineParts[i].length; j++){
+        for (let j=0; j<lineParts[i].length;j+=3){
 
-            let x= cleanLineParts[i][j][0];
-            let y= cleanLineParts[i][j][1];
+            let x= lineParts[i][j][0];
+            let y= lineParts[i][j][1];
 
             let x1= extent[0]+ (x*pixelWidth);  
             let y1= extent[3]- (y*pixelHeight); 
@@ -424,6 +421,7 @@ function createLine(lineParts, imgW, extent, pixelWidth, pixelHeight){
             coordinateArray.push(coordinate);
 
         }
+
         lineSegs["features"].push(
             {
                 "type":"Feature",
@@ -433,8 +431,6 @@ function createLine(lineParts, imgW, extent, pixelWidth, pixelHeight){
                 },
                 "id":f_id,
             },)
-
-        
     }
 
     return lineSegs;
