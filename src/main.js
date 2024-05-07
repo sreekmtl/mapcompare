@@ -24,6 +24,8 @@ import modFilter from './imageProcessing/modeFilter.js';
 import { junctionExtract2 } from './spatialOperations/imageToLine2.js';
 import { linePositionalAccuracy } from './results/positionalAccuracy.js';
 import { olVectorLayerToGeoJSON, olVectorLayerToTurfLayer, transformOlLayer } from './mapOperations/vectorUtils.js';
+import { Fill, Stroke, Style } from 'ol/style'
+
 
 
 
@@ -452,8 +454,22 @@ imgCovBtn.addEventListener('click',(e)=>{
 
 compareBtn.addEventListener('click', (e)=>{
 
-  let bfrd= linePositionalAccuracy(lineLayer1,lineLayer2);
-  map1.addLayer(bfrd);
+  let re= linePositionalAccuracy(lineLayer1,lineLayer2);
+  let buffer3857= transformOlLayer(re[0],'EPSG:4326', 'EPSG:3857');
+  let line3857= transformOlLayer(re[1],'EPSG:4326', 'EPSG:3857');
+
+  line3857.setStyle([new Style({
+      fill:new Fill({
+          color:'rgba(255,0,0,1.0)'
+      }),
+      stroke:new Stroke({
+          color:'rgba(255,0,0,1.0)',
+          width:3
+      })
+  })]);
+
+  map1.addLayer(buffer3857);
+  map2.addLayer(line3857);
   
 })
 
