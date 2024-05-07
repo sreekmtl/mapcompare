@@ -469,7 +469,9 @@ compareBtn.addEventListener('click', (e)=>{
   })]);
 
   map1.addLayer(buffer3857);
-  map2.addLayer(line3857);
+  map1.addLayer(line3857);
+
+
   
 })
 

@@ -15,7 +15,7 @@ function lengthOfLine(geom){
     return getLength(geom, {projection:'EPSG:4326'});
 }
 
-function vectorToGeom(vectorLayer, type){
+export function vectorToGeom(vectorLayer, type){
     let src= vectorLayer.getSource();
     let result=0;
     
@@ -174,4 +174,5 @@ export function pixelBasedJI(imageData1, imageData2, areaPerPixel){
     console.log(JI, "Pixel based Jaccard Index");
     
 }
+
 
