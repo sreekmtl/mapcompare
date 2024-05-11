@@ -39,7 +39,7 @@ export function linePositionalAccuracy(vectorLayer1, vectorLayer2){
         featureArray2.push(f);
     })
 
-    for (let b=1; b<=10;b++){
+    for (let b=1; b<=20;b++){
         let w=b*0.001; //buffer width
         let value= bufferAnalysis(featureArray1,featureArray2,w,vectorLayer2);
         bufferData.push({

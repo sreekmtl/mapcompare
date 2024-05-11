@@ -78,27 +78,63 @@ export function createCovarianceChart(data){
 
 export function createLineChart(data){
 
-    var margin={
-        top:30, right:30, bottom:30, left:30
-    };
+   
 
-    var width= 360-margin.left-margin.right;
-    var height= 360-margin.top-margin.bottom;
+        // Set up dimensions and margins
+        const margin = { top: 20, right: 30, bottom: 30, left: 40 };
+        const width = 400 - margin.left - margin.right;
+        const height = 400 - margin.top - margin.bottom;
 
-    var svg= d3.select("#chart").append("svg")
-                .attr("width", width+margin.left+margin.right)
-                .attr("height", height+margin.top+margin.bottom)
-                .append("g")
-                .attr("transform","translate("+margin.left+","+margin.top+")");
+        // Append SVG to the container
+        const svg = d3.select("#chart")
+                    .append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                    .append("g")
+                    .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-    
-    //creating x and y axis
+        // Create scales
+        const xScale = d3.scaleLinear()
+                        .domain([1, d3.max(data, d => d.bufferWidth)])
+                        .range([0, width]);
 
-    var labels= Array.from({length:10},(v,i)=>i+1);
-    var x= d3.scaleBand().range([0,width]).domain(labels);
-    svg.append("g").call(d3.axisBottom(x).tickValues(d3.range(x.domain()[0], x.domain()[10], 1)));
+        const yScale = d3.scaleLinear()
+                        .domain([0, d3.max(data, d => d.percentageInBuffer)])
+                        .range([height, 0]);
 
-    var y= d3.scaleBand().range([0,height]).domain(labels);
-    svg.append("g").call(d3.axisLeft(y).tickValues(d3.range(x.domain()[0], x.domain()[100], 10)));
+        // Create line generator
+        const line = d3.line()
+                    .x(d => xScale(d.bufferWidth))
+                    .y(d => yScale(d.percentageInBuffer));
 
+        // Append the line path
+        svg.append("path")
+            .datum(data)
+            .attr("fill", "none")
+            .attr("stroke", "steelblue")
+            .attr("stroke-width", 2)
+            .attr("d", line);
+
+        // Create axes
+        const xAxis = d3.axisBottom(xScale);
+        const yAxis = d3.axisLeft(yScale);
+
+        // Append axes to the SVG
+        svg.append("g")
+            .attr("class", "x-axis")
+            .attr("transform", `translate(0, ${height})`)
+            .call(xAxis);
+
+        svg.append("g")
+            .attr("class", "y-axis")
+            .call(yAxis);
+
+        svg.selectAll("circle")
+            .data(data)
+            .enter()
+            .append("circle")
+            .attr("cx", d => xScale(d.bufferWidth))
+            .attr("cy", d => yScale(d.percentageInBuffer))
+            .attr("r", 5)
+            .attr("fill", "steelblue");
 }
