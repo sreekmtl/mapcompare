@@ -4,7 +4,7 @@
 
 import * as d3 from 'd3';
 
-export function createChart(data){
+export function createCovarianceChart(data){
 
     let min= Math.min(...data);
     let max=Math.max(...data);
@@ -73,5 +73,32 @@ export function createChart(data){
 
     console.log(i,'i');
 
+
+}
+
+export function createLineChart(data){
+
+    var margin={
+        top:30, right:30, bottom:30, left:30
+    };
+
+    var width= 360-margin.left-margin.right;
+    var height= 360-margin.top-margin.bottom;
+
+    var svg= d3.select("#chart").append("svg")
+                .attr("width", width+margin.left+margin.right)
+                .attr("height", height+margin.top+margin.bottom)
+                .append("g")
+                .attr("transform","translate("+margin.left+","+margin.top+")");
+
+    
+    //creating x and y axis
+
+    var labels= Array.from({length:10},(v,i)=>i+1);
+    var x= d3.scaleBand().range([0,width]).domain(labels);
+    svg.append("g").call(d3.axisBottom(x).tickValues(d3.range(x.domain()[0], x.domain()[10], 1)));
+
+    var y= d3.scaleBand().range([0,height]).domain(labels);
+    svg.append("g").call(d3.axisLeft(y).tickValues(d3.range(x.domain()[0], x.domain()[100], 10)));
 
 }

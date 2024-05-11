@@ -10,7 +10,7 @@ import lineSplit from '@turf/line-split';
 import booleanWithin from '@turf/boolean-within';
 import { lineCompleteness, vectorToGeom } from './completeness';
 
-
+let buffer2m;
 
 function polygonPositionAccuracy(vectorLayer1, vectorLayer2){
 
@@ -23,6 +23,8 @@ export function linePositionalAccuracy(vectorLayer1, vectorLayer2){
 
     //Accepts two line vector features
     //Creates buffer around reference feature and checks the amount of % of second feature lying in it
+
+    let bufferData=[];
 
     let src1= vectorLayer1.getSource();
     let src2= vectorLayer2.getSource();
@@ -37,8 +39,28 @@ export function linePositionalAccuracy(vectorLayer1, vectorLayer2){
         featureArray2.push(f);
     })
 
+    for (let b=1; b<=10;b++){
+        let w=b*0.001; //buffer width
+        let value= bufferAnalysis(featureArray1,featureArray2,w,vectorLayer2);
+        bufferData.push({
+            bufferWidth:b,
+            percentageInBuffer:value,
+        });
+
+    }
+
+    
+
+    return {layers:buffer2m, data:bufferData};
+
+    
+
+}
+
+function bufferAnalysis(featureArray1, featureArray2,w,vectorLayer2){
+
     let bufferedLine= new GeoJSON().writeFeaturesObject(featureArray1);
-    let buffer1= buffer(bufferedLine, 0.005,'kilometers');
+    let buffer1= buffer(bufferedLine, w,'kilometers');
 
     let lineToCheck= new GeoJSON().writeFeaturesObject(featureArray2);
 
@@ -51,7 +73,7 @@ export function linePositionalAccuracy(vectorLayer1, vectorLayer2){
     let dissolvedFeatures= dissolved.features;
     let lineFeatures= lineToCheck.features;
 
-    console.log(dissolvedFeatures[0].geometry.coordinates, lineFeatures[0].geometry.coordinates);
+    //console.log(dissolvedFeatures[0].geometry.coordinates, lineFeatures[0].geometry.coordinates);
 
     let overlappedFeatures=[];
     let splittedArray=[];
@@ -91,22 +113,12 @@ export function linePositionalAccuracy(vectorLayer1, vectorLayer2){
             
         }
     }
-    console.log(splittedArray.length,'splittedlines');
-    console.log(intersectedArray.length,'intersectedarray')
-
-    console.log(overlappedFeatures,'ovlftr');
-
+   
     let fc= featureCollection(overlappedFeatures);
 
     const returnSrc= new VectorSource({
         features:new GeoJSON({dataProjection:'EPSG:4326', featureProjection:'EPSG:4326'}).readFeatures(dissolved),
     });
-
-   // returnSrc.forEachFeature((f)=>{
-       // f.getGeometry().transform('EPSG:4326','EPSG:3857');
-    //});
-
-
 
     const returnLayer= new VectorLayer();
     returnLayer.setSource(returnSrc);
@@ -115,23 +127,21 @@ export function linePositionalAccuracy(vectorLayer1, vectorLayer2){
         features:new GeoJSON({dataProjection:'EPSG:4326', featureProjection:'EPSG:4326'}).readFeatures(fc),
     });
 
-    //console.log('Line within buffer: ', lineCompleteness())
-
-    //intersectedSrc.forEachFeature((f)=>{
-        //f.getGeometry().transform('EPSG:4326','EPSG:3857');
-    //});
-
     const intersectedLayer= new VectorLayer();
     intersectedLayer.setSource(intersectedSrc);
 
     let len_line_in_bfr= vectorToGeom(intersectedLayer,'LineString');
     let original_len= vectorToGeom(vectorLayer2,'LineString');
 
-    console.log('Length of line within buffer: ', len_line_in_bfr);
-    console.log('Percentage of line within buffer: ', (len_line_in_bfr/original_len)*100, '%');
+    //console.log('Length of line within buffer: ', len_line_in_bfr);
+    //console.log('Percentage of line within buffer: ', (len_line_in_bfr/original_len)*100, '%');
 
-    return [returnLayer, intersectedLayer];
+    //for visualization
 
-    
+    if(w===0.005){
+        buffer2m=[returnLayer,intersectedLayer];
+    }
+
+    return ((len_line_in_bfr/original_len)*100);
 
 }
