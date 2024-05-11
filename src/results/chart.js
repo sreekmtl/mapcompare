@@ -4,7 +4,7 @@
 
 import * as d3 from 'd3';
 
-export function createChart(data){
+export function createCovarianceChart(data){
 
     let min= Math.min(...data);
     let max=Math.max(...data);
@@ -74,4 +74,67 @@ export function createChart(data){
     console.log(i,'i');
 
 
+}
+
+export function createLineChart(data){
+
+   
+
+        // Set up dimensions and margins
+        const margin = { top: 20, right: 30, bottom: 30, left: 40 };
+        const width = 400 - margin.left - margin.right;
+        const height = 400 - margin.top - margin.bottom;
+
+        // Append SVG to the container
+        const svg = d3.select("#chart")
+                    .append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                    .append("g")
+                    .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+        // Create scales
+        const xScale = d3.scaleLinear()
+                        .domain([1, d3.max(data, d => d.bufferWidth)])
+                        .range([0, width]);
+
+        const yScale = d3.scaleLinear()
+                        .domain([0, d3.max(data, d => d.percentageInBuffer)])
+                        .range([height, 0]);
+
+        // Create line generator
+        const line = d3.line()
+                    .x(d => xScale(d.bufferWidth))
+                    .y(d => yScale(d.percentageInBuffer));
+
+        // Append the line path
+        svg.append("path")
+            .datum(data)
+            .attr("fill", "none")
+            .attr("stroke", "steelblue")
+            .attr("stroke-width", 2)
+            .attr("d", line);
+
+        // Create axes
+        const xAxis = d3.axisBottom(xScale);
+        const yAxis = d3.axisLeft(yScale);
+
+        // Append axes to the SVG
+        svg.append("g")
+            .attr("class", "x-axis")
+            .attr("transform", `translate(0, ${height})`)
+            .call(xAxis);
+
+        svg.append("g")
+            .attr("class", "y-axis")
+            .call(yAxis);
+
+        svg.selectAll("circle")
+            .data(data)
+            .enter()
+            .append("circle")
+            .attr("cx", d => xScale(d.bufferWidth))
+            .attr("cy", d => yScale(d.percentageInBuffer))
+            .attr("r", 5)
+            .attr("fill", "steelblue");
 }

@@ -15,7 +15,7 @@ function lengthOfLine(geom){
     return getLength(geom, {projection:'EPSG:4326'});
 }
 
-function vectorToGeom(vectorLayer, type){
+export function vectorToGeom(vectorLayer, type){
     let src= vectorLayer.getSource();
     let result=0;
     
@@ -121,9 +121,21 @@ export function polygonCompleteness(vectorLayer1, vectorLayer2){
     let area_comp= vectorToGeom(vectorLayer2, 'Polygon');
 
     let completeness_percent= (area_comp/area_ref)*100;
-    console.log('reference area: ', area_ref, 'm^2', '\n', 'comp area: ', area_comp, 'm^2');
+    console.log('reference area: ', area_ref, 'm^2', '\n', 'comparison area: ', area_comp, 'm^2');
 
     return completeness_percent;
+
+}
+
+export function getPolygonCount(vectorLayer){
+
+    let count=0;
+    let src= vectorLayer.getSource();
+    src.forEachFeature((f)=>{
+        count++;
+    });
+
+    return count;
 
 }
 
@@ -152,7 +164,7 @@ export function geometryBasedJI(vectorLayer1, vectorLayer2){
 
     let JI= A_INTER_B/(A+B-A_INTER_B);
 
-    console.log('A: ', A,'\n', 'B: ',B,'\n', 'A_INTER_B: ', A_INTER_B)
+    //console.log('A: ', A,'\n', 'B: ',B,'\n', 'A_INTER_B: ', A_INTER_B)
     console.log(Math.abs(JI).toFixed(2), 'Geometry based Jaccard Index');
 }
 
@@ -174,4 +186,5 @@ export function pixelBasedJI(imageData1, imageData2, areaPerPixel){
     console.log(JI, "Pixel based Jaccard Index");
     
 }
+
 

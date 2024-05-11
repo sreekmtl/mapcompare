@@ -16,7 +16,7 @@ import { junctionExtract1 } from './spatialOperations/imageToLine.js';
 import { createVectorLayer } from './mapOperations/vectorLyrSrc.js';
 import { apply } from 'ol-mapbox-style';
 import { Tile } from 'ol/layer.js';
-import { geometryBasedJI, lineCompleteness, pixelBasedJI, polygonCompleteness } from './results/completeness.js';
+import { geometryBasedJI, getPolygonCount, lineCompleteness, pixelBasedJI, polygonCompleteness } from './results/completeness.js';
 import Constants from './constants.js';
 import mapToClass, { detectAntiAlias } from './imageProcessing/mapToClass.js';
 import RasterSource from 'ol/source/Raster.js';
@@ -24,6 +24,10 @@ import modFilter from './imageProcessing/modeFilter.js';
 import { junctionExtract2 } from './spatialOperations/imageToLine2.js';
 import { linePositionalAccuracy } from './results/positionalAccuracy.js';
 import { olVectorLayerToGeoJSON, olVectorLayerToTurfLayer, transformOlLayer } from './mapOperations/vectorUtils.js';
+import { Fill, Stroke, Style } from 'ol/style';
+import ssim from 'ssim.js';
+import { createLineChart } from './results/chart.js';
+
 
 
 
@@ -63,6 +67,7 @@ const mapdd2= document.getElementById('MapType2');
 const inner= document.getElementById('processOptions');
 const colorArea1= document.getElementById('colorArea1');
 const colorArea2= document.getElementById('colorArea2');
+//const chartArea= document.getElementById('chart');
 
 let map1Selected= false; //Whether user selected feature from map1 or not
 let map2Selected= false;
@@ -283,6 +288,9 @@ imgProcessBtn.addEventListener('click',(e)=>{
     }
     
     pixelBasedJI(diffImg1,diffImg2,pixelWidth*pixelHeight);
+    const {mssim} = ssim(diffImg1, diffImg2,);
+ 
+    console.log(`SSIM: ${mssim}`);
 
   }else if (featureDropDown.value==='3'){
 
@@ -312,6 +320,9 @@ imgProcessBtn.addEventListener('click',(e)=>{
     }
 
     pixelBasedJI(diffImg1,diffImg2,pixelWidth*pixelHeight);
+    const {mssim} = ssim(diffImg1, diffImg2,);
+ 
+    console.log(`SSIM: ${mssim}`);
   }
   
 
@@ -351,7 +362,9 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
 
     }
 
-    console.log(polygonCompleteness(polyLayer1, polyLayer2), 'polygonCompleteness');
+    console.log('Feature count in reference map : ', getPolygonCount(polyLayer1));
+    console.log('Feature count in comparison map : ', getPolygonCount(polyLayer2));
+    console.log('Area Completeness: ', polygonCompleteness(polyLayer1, polyLayer2));
     geometryBasedJI(polyLayer1,polyLayer2);
 
   }else if (featureDropDown.value==='3'){
@@ -399,7 +412,6 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
     }
 
     console.log(lineCompleteness(lineLayer1,lineLayer2), 'lineCompleteness');
-    console.log('positional accuracy');
 
   }
 })
@@ -452,10 +464,29 @@ imgCovBtn.addEventListener('click',(e)=>{
 
 compareBtn.addEventListener('click', (e)=>{
 
-  let bfrd= linePositionalAccuracy(lineLayer1,lineLayer2);
-  map1.addLayer(bfrd);
+  let bufferData= linePositionalAccuracy(lineLayer1,lineLayer2);
+  let re= bufferData.layers;
+  let data= bufferData.data;
+  console.log(data);
+  let buffer3857= transformOlLayer(re[0],'EPSG:4326', 'EPSG:3857');
+  let line3857= transformOlLayer(re[1],'EPSG:4326', 'EPSG:3857');
+
+  line3857.setStyle([new Style({
+      fill:new Fill({
+          color:'rgba(255,0,0,1.0)'
+      }),
+      stroke:new Stroke({
+          //color:'rgba(255,0,0,1.0)',
+          //width:3
+      })
+  })]);
+
+  map1.addLayer(buffer3857);
+  map1.addLayer(line3857);
+
+createLineChart(data);
   
-})
+});
 
 gofBtn.addEventListener('click', (e)=>{
   
