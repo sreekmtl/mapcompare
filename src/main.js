@@ -27,6 +27,7 @@ import { olVectorLayerToGeoJSON, olVectorLayerToTurfLayer, transformOlLayer } fr
 import { Fill, Stroke, Style } from 'ol/style';
 import ssim from 'ssim.js';
 import { createLineChart } from './results/chart.js';
+import { mapCurves } from './results/mapCurves.js';
 
 
 
@@ -250,7 +251,7 @@ let sourceMap={
   '10':sources.BhuvanLULC2,
 }
 
-init(sourceMap['1'],sourceMap['2']);
+init(sourceMap['9'],sourceMap['10']);
 let constants= new Constants(canvas1.width, canvas1.height, map1.getView().calculateExtent(map1.getSize()));
 
 mapdd1.addEventListener('change',(c)=>{
@@ -491,15 +492,17 @@ createLineChart(data);
 gofBtn.addEventListener('click', (e)=>{
   
   let imageData1=canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
-  //let v1= detectAntiAlias(imageData1);
   let cls1= mapToClass(imageData1, 5);
-  //canvasCtx1.putImageData(imageData1,0,0);
+  canvasCtx1.putImageData(cls1[1],0,0);
   colorPalette(colorArea1, cls1[0], 'map-1 classes');
+
   let imageData2=canvasCtx2.getImageData(0,0,canvas1.width,canvas1.height);
-  //let v2= detectAntiAlias(imageData2);
   let cls2= mapToClass(imageData2, 5);
-  //canvasCtx2.putImageData(imageData2,0,0);
-  colorPalette(colorArea2,cls2[0],'map-2 classes')
+  canvasCtx2.putImageData(cls2[1],0,0);
+  colorPalette(colorArea2,cls2[0],'map-2 classes');
+
+  let gof= mapCurves(cls1[0],cls2[0], (pixelWidth*pixelHeight));
+  console.log(`Goodness of fit is: ${gof}`);
 })
 
 

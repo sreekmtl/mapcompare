@@ -15,6 +15,7 @@ export default function mapToClass(mapImageData, numberOfClasses){
     //* Filter out anti-aliased pixels or else these pixels appear as seperate class
 
     let imageData= detectAntiAlias(mapImageData);
+    let aaremoved= new ImageData(imageData.data.slice(), 300,300);
     
 
     let classes=[];
@@ -57,7 +58,7 @@ export default function mapToClass(mapImageData, numberOfClasses){
     console.log(classes, 'class');
     //groupClasses(classes);
 
-    return [classes,imageData];
+    return [classes,aaremoved];
 
 
 }
