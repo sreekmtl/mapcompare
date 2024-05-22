@@ -441,25 +441,7 @@ downloadBtn.addEventListener('click',(e)=>{
 
 imgCovBtn.addEventListener('click',(e)=>{
 
-  if (map1Selected===true && map1Selected===true){
-
-    let imgData1= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
-    let imgData2= canvasCtx2.getImageData(0,0,canvas2.width,canvas2.height);
-
-    getCannyEdge(imgData1, canvas1);
-    getCannyEdge(imgData2, canvas2);
-
-    let cannyData1= canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
-    let cannyData2= canvasCtx2.getImageData(0,0,canvas2.width,canvas2.height);
-
-    console.log(cannyData1,cannyData2);
-
-    let covImage= imageCovariance(cannyData1, cannyData2);
-
-
-  }else {
-    alert('Select features from both maps');
-  }
+  location.reload();
 
 });
 

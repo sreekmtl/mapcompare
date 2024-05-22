@@ -14,8 +14,10 @@ export default function mapToClass(mapImageData, numberOfClasses){
     //Do till everything becomes zero
     //* Filter out anti-aliased pixels or else these pixels appear as seperate class
 
-    let imageData= detectAntiAlias(mapImageData);
-    let aaremoved= new ImageData(imageData.data.slice(), 300,300);
+    console.log(mapImageData,'hehe');
+
+    let imageData= detectAntiAlias(mapImageData, mapImageData.width, mapImageData.height);
+    let aaremoved= new ImageData(imageData.data.slice(), mapImageData.width, mapImageData.height);
     
 
     let classes=[];
@@ -63,16 +65,16 @@ export default function mapToClass(mapImageData, numberOfClasses){
 
 }
 
-export function detectAntiAlias(imageData){
+export function detectAntiAlias(imageData, width, height){
 
     let count=0;
-    let samimgdata= new Uint8ClampedArray(300*300*4);
+    let samimgdata= new Uint8ClampedArray(width*height*4);
   //for (let i=0; i<samimgdata.length;i++){
     //samimgdata[i]=255;
   //}
-  let samimg= new ImageData(samimgdata,300,300);
-  const opdat= new ImageData(300,300);
-  pixelmatch(imageData.data, samimg.data, opdat.data,300, 300, {threshold:0, includeAA:false, aaColor:[255,0,0], diffColor:[0,0,0]});
+  let samimg= new ImageData(samimgdata,width,height);
+  const opdat= new ImageData(width,height);
+  pixelmatch(imageData.data, samimg.data, opdat.data,width,height, {threshold:0, includeAA:false, aaColor:[255,0,0], diffColor:[0,0,0]});
 
   for (let i=0; i<imageData.data.length;i+=4){
     if ((opdat.data[i]===255 && opdat.data[i+1]===0 && opdat.data[i+2]===0 && opdat.data[i+3]===255)){
