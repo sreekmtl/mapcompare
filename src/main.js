@@ -28,6 +28,7 @@ import { Fill, Stroke, Style } from 'ol/style';
 import ssim from 'ssim.js';
 import { createLineChart } from './results/chart.js';
 import { mapCurves } from './results/mapCurves.js';
+import { vMeasure } from './results/vmeasure.js';
 
 
 
@@ -483,8 +484,10 @@ gofBtn.addEventListener('click', (e)=>{
   canvasCtx2.putImageData(cls2[1],0,0);
   colorPalette(colorArea2,cls2[0],'map-2 classes');
 
-  let gof= mapCurves(cls1[0],cls2[0], (pixelWidth*pixelHeight));
-  console.log(`Goodness of fit is: ${gof}`);
+
+  //let gof= mapCurves(cls1[0],cls2[0], (pixelWidth*pixelHeight));
+  //console.log(`Goodness of fit is: ${gof}`);
+  vMeasure(cls1[0],cls2[0],(pixelWidth*pixelHeight));
 })
 
 
