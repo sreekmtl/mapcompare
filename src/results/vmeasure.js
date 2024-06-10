@@ -65,9 +65,9 @@ export function vMeasure(class1, class2, areaPerPixel){
     console.log(classArray1, classArray2,'vm');
 
     let segmentArray= segments(classArray1,classArray2, areaPerPixel);
-    console.log(segmentArray,'segarray');
+    console.log(segmentArray,'segments');
 
-    let vm= computeVMeasure(segmentArray, 4,3, areaPerPixel);
+    let vm= computeVMeasure(segmentArray, num1, num2, areaPerPixel);
 
 }
 
@@ -102,7 +102,7 @@ function segments(classArray1, classArray2, areaPerPixel){
         }
     }
 
-    return [13,0,4,0,3,16,0,4,4,4,16,16];
+    return segmentArray;//[13,0,4,0,3,16,0,4,4,4,16,16];
 }
 
 function areaofSegment(segmentClass, areaPerPixel){
@@ -164,7 +164,9 @@ function computeVMeasure(segmentArray, n, m, areaPerPixel){
     }
 
 
-    console.log(Aj_arr, Ai_arr, A, 'ajarr-aaiarr');
+    console.log(Aj_arr, 'Aj');
+    console.log(Ai_arr, 'Ai');
+    console.log(A, 'A');
 
     SRj_arr= regionalVariation(segmentArray,Aj_arr,n);
     SZi_arr= zonalVariation(segmentArray,Ai_arr,m);
@@ -187,7 +189,11 @@ function computeVMeasure(segmentArray, n, m, areaPerPixel){
     vm= 2*((h*c)/(h+c));
     
 
-    console.log(SRj_arr, SZi_arr, SR, SZ,h, c, vm, 'shanon');
+    console.log(SRj_arr,'SRj');
+    console.log(SZi_arr, 'SZi');
+    console.log(SR, 'SR');
+    console.log(SZ, 'SZ');
+    console.log(h, c, vm, '  vmeasure ');
 
     return 1;
 
@@ -198,8 +204,6 @@ function regionalVariation(segmentArray, homo_arr, numOfClasses){
 
     /**
      * Regional variation is calculated in terms of shanon entropy
-     * 
-     * Calculates variance for both 'region/zone' and entire 'domain'
      */
 
     let entropy_arr=[];
@@ -226,9 +230,7 @@ function regionalVariation(segmentArray, homo_arr, numOfClasses){
 function zonalVariation(segmentArray, homo_arr, numOfClasses){
 
     /**
-     * Regional variation is calculated in terms of shanon entropy
-     * 
-     * Calculates variance for both 'region/zone' and entire 'domain'
+     * Zonal variation is calculated in terms of shanon entropy
      */
 
     let entropy_arr=[];
@@ -254,10 +256,17 @@ function zonalVariation(segmentArray, homo_arr, numOfClasses){
 
 function domainVariance(classes, A,num){
 
+    /**
+     * Variance of regions/zones within domain is calculated here
+     * The same function computes both SR and SZ
+     */
+
     let variance=0;
 
     for (let i=0; i<num; i++){
-        variance+= (0-(Math.log2(classes[i]/A))*(classes[i]/A));
+        if (classes[i]!=0){
+            variance+= (0-(Math.log2(classes[i]/A))*(classes[i]/A));
+        }
     }
 
     return variance;
