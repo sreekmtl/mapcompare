@@ -79,7 +79,7 @@ export function detectAntiAlias(imageData, width, height){
   const opdat= new ImageData(width,height);
   //pixelmatch(imageData.data, samimg.data, opdat.data,width,height, {threshold:0, includeAA:false, aaColor:[255,0,0], diffColor:[0,0,0]});
 
-  detectAntiAliasPixels(imageData, opdat, width, height);
+  detectAntiAliasPixels(imageData, opdat, width, height,{aaColor:[255,0,0,255], merge:true});
   console.log(opdat,'OPDAT');
 
   //assign these anti-aliased pixel to the nearest class using yiqrange
