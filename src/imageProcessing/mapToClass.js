@@ -3,6 +3,7 @@ import '../algorithms/kmeans';
 import kmeans from "../algorithms/kmeans";
 import { colorInRange, rgbToyiq } from "./yiqRange";
 import pixelmatch from 'pixelmatch';
+import { detectAntiAliasPixels } from "../algorithms/antialiasDetector";
 
 
 
@@ -13,6 +14,8 @@ export default function mapToClass(mapImageData, numberOfClasses){
     //Take next non-0 pixel-> Do the same
     //Do till everything becomes zero
     //* Filter out anti-aliased pixels or else these pixels appear as seperate class
+
+    //if two seperated classes are closer, then add them together
 
     console.log(mapImageData,'hehe');
 
@@ -30,7 +33,7 @@ export default function mapToClass(mapImageData, numberOfClasses){
             let selectedColor= [imageData.data[i],imageData.data[i+1],imageData.data[i+2]];
             let sc=[imageData.data[i],imageData.data[i+1],imageData.data[i+2]];
             //console.log(selectedColor,'selectedcolor');
-            let cir= colorInRange(imageData, selectedColor, 10);
+            let cir= colorInRange(imageData, selectedColor, 0);
             let colorClass= cir[0];
             let classPixelCount= cir[1];
             if (classPixelCount>=100){
@@ -74,19 +77,28 @@ export function detectAntiAlias(imageData, width, height){
   //}
   let samimg= new ImageData(samimgdata,width,height);
   const opdat= new ImageData(width,height);
-  pixelmatch(imageData.data, samimg.data, opdat.data,width,height, {threshold:0, includeAA:false, aaColor:[255,0,0], diffColor:[0,0,0]});
+  //pixelmatch(imageData.data, samimg.data, opdat.data,width,height, {threshold:0, includeAA:false, aaColor:[255,0,0], diffColor:[0,0,0]});
+
+  detectAntiAliasPixels(imageData, opdat, width, height);
+  console.log(opdat,'OPDAT');
+
+  //assign these anti-aliased pixel to the nearest class using yiqrange
+  //nearest class is found using: take all black pixels, find it original color, assign to other class based on distance.
 
   for (let i=0; i<imageData.data.length;i+=4){
-    if ((opdat.data[i]===255 && opdat.data[i+1]===0 && opdat.data[i+2]===0 && opdat.data[i+3]===255)){
+    if ((opdat.data[i]===255 && opdat.data[i+1]===0 && opdat.data[i+2]===0 && opdat.data[i+3]===255)){ //position of anti-aliased pixel
         count++;
-      imageData.data[i]=0; 
-      imageData.data[i+1]=0; 
-      imageData.data[i+2]=0; 
-      imageData.data[i+3]=255; 
+        
+        imageData.data[i]=0; 
+        imageData.data[i+1]=0; 
+        imageData.data[i+2]=0; 
+        imageData.data[i+3]=255; 
+        
+       
     }
   }
-console.log('no of anti-aliased pixels: ', count);
-  return imageData;
+    console.log('no of anti-aliased pixels: ', count);
+    return imageData;
 }
 
 function groupClasses(classes){

@@ -59,6 +59,7 @@ const compareBtn= document.getElementById('compareBtn')
 const downloadBtn= document.getElementById('downloadVector');
 const imgCovBtn= document.getElementById('imageCov');
 const gofBtn= document.getElementById('mapGOF');
+const visBtn= document.getElementById('visBtn');
 
 const extentBox= document.getElementById('extentBox');
 const zoomLevelBox= document.getElementById('zoomLevel');
@@ -90,15 +91,52 @@ function init(src1, src2){
   featureDropDown.addEventListener('change',(c)=>{
 
     if (featureDropDown.value==='1'){
+      imgProcessBtn.disabled=false;
+      imgVectorizeBtn.disabled=false;
+      compareBtn.disabled=false;
+      downloadBtn.disabled=false;
+      gofBtn.disabled= false;
+      visBtn.disabled= false;
+
       clearChilds(inner);
+
     }else if (featureDropDown.value==='2'){ 
+      imgProcessBtn.disabled=false;
+      imgVectorizeBtn.disabled=false;
+      compareBtn.disabled=false;
+      downloadBtn.disabled=false;
+      gofBtn.disabled= true;
+      visBtn.disabled= true;
+
       clearChilds(inner);
       polygonProcesses(inner);
+
     }else if (featureDropDown.value==='3'){ 
+      imgProcessBtn.disabled=false;
+      imgVectorizeBtn.disabled=false;
+      compareBtn.disabled=false;
+      downloadBtn.disabled=false;
+      gofBtn.disabled= true;
+      visBtn.disabled= true;
+      
       clearChilds(inner);
       lineProcesses(inner);
+
     }else if (featureDropDown.value==='4'){
       gofBtn.disabled= false;
+      imgProcessBtn.disabled=true;
+      imgVectorizeBtn.disabled=true;
+      compareBtn.disabled=true;
+      downloadBtn.disabled=true;
+      visBtn.disabled=true;
+
+    }else if (featureDropDown.value==='5'){
+      visBtn.disabled= false;
+      imgProcessBtn.disabled=true;
+      imgVectorizeBtn.disabled=true;
+      compareBtn.disabled=true;
+      downloadBtn.disabled=true;
+      gofBtn.disabled=true;
     }
   
   });

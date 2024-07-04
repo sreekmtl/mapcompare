@@ -174,16 +174,19 @@ function computeVMeasure(segmentArray, n, m, areaPerPixel){
     SR= domainVariance(Ai_arr, A, n);
     SZ= domainVariance(Aj_arr, A, m);
 
-    for (let x=0; x<m; x++){
-        h+= ((Aj_arr[x]/A)*(SRj_arr[x]/SR));
-    }
+    if (SR!=0){
+        for (let x=0; x<m; x++){ 
+            h+= ((Aj_arr[x]/A)*(SRj_arr[x]/SR));  
+        }
 
+    } 
     h= 1-h;
 
-    for (let y=0; y<n; y++){
-        c+=((Ai_arr[y]/A)*(SZi_arr[y]/SZ));
+    if (SZ!=0){
+        for (let y=0; y<n; y++){ 
+            c+=((Ai_arr[y]/A)*(SZi_arr[y]/SZ));
+        }
     }
-
     c= 1-c;
 
     vm= 2*((h*c)/(h+c));
