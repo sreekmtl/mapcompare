@@ -22,7 +22,6 @@ export default function mapToClass(mapImageData, numberOfClasses){
     let imageData= detectAntiAlias(mapImageData, mapImageData.width, mapImageData.height);
     let aaremoved= new ImageData(imageData.data.slice(), mapImageData.width, mapImageData.height);
     
-
     let classes=[];
     let j=0;
     for (let i=0; i<imageData.data.length; i+=4){
@@ -31,17 +30,31 @@ export default function mapToClass(mapImageData, numberOfClasses){
             continue;
         }else {
             let selectedColor= [imageData.data[i],imageData.data[i+1],imageData.data[i+2]];
-            let sc=[imageData.data[i],imageData.data[i+1],imageData.data[i+2]];
+            let sc=[imageData.data[i],imageData.data[i+1],imageData.data[i+2], imageData.data[i+3]];
             //console.log(selectedColor,'selectedcolor');
             let cir= colorInRange(imageData, selectedColor, 0);
             let colorClass= cir[0];
             let classPixelCount= cir[1];
-            if (classPixelCount>=100){
+            if (classPixelCount>=500){
                 j++;
                 let key= sc.toString();
                 let classObj={};
                 classObj[key]= [colorClass.data, classPixelCount];
-                classes.push(classObj)
+                classes.push(classObj);
+            } else {
+                /**
+                 * If the class is small, it wont get into intial filtering. So here we are going to use a trick....
+                 * The trick is, the classes are represented by pure pixels and pure pixels will have alpha channel= 255
+                 * So RGB color with alpha 255 is extracted. Then the whole pixels belonging to those classes are extracted
+                 */
+
+                if (sc[3]===255){
+                    let key= sc.toString();
+                    let classObj={}
+                    classObj[key]= [colorClass.data, classPixelCount];
+                    classes.push(classObj);
+                }
+
             }
             
 
@@ -79,7 +92,7 @@ export function detectAntiAlias(imageData, width, height){
   const opdat= new ImageData(width,height);
   //pixelmatch(imageData.data, samimg.data, opdat.data,width,height, {threshold:0, includeAA:false, aaColor:[255,0,0], diffColor:[0,0,0]});
 
-  detectAntiAliasPixels(imageData, opdat, width, height,{aaColor:[255,0,0,255], merge:true});
+  detectAntiAliasPixels(imageData, opdat, width, height,{aaColor:[255,0,0,255], merge:false});
   console.log(opdat,'OPDAT');
 
   //assign these anti-aliased pixel to the nearest class using yiqrange
