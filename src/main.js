@@ -513,12 +513,12 @@ createLineChart(data);
 gofBtn.addEventListener('click', (e)=>{
   
   let imageData1=canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
-  let cls1= mapToClass(imageData1, 5);
+  let cls1= mapToClass(imageData1,{merge:true, threshold:10});
   canvasCtx1.putImageData(cls1[1],0,0);
   colorPalette(colorArea1, cls1[0], 'map-1 classes');
 
   let imageData2=canvasCtx2.getImageData(0,0,canvas1.width,canvas1.height);
-  let cls2= mapToClass(imageData2, 5);
+  let cls2= mapToClass(imageData2,{merge:true, threshold:10});
   canvasCtx2.putImageData(cls2[1],0,0);
   colorPalette(colorArea2,cls2[0],'map-2 classes');
 

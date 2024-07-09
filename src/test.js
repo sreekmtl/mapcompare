@@ -1,19 +1,30 @@
-arr= [11,2,8,9,5,1,0];
+function findMode(kernel){
 
-function getMinValPos(arr){
+    //Finds the mode value frm the kernel
 
-    if (arr.length === 0) {
-        console.log('ERROR');
-    }
+    let count={};
+    let mode=0;
 
-    let smallestIndex = 0;
-    for (let i = 1; i < arr.length; i++) {
-        if (arr[i] < arr[smallestIndex]) {
-            smallestIndex = i;
+    for (let i=0; i<kernel.length; i++){
+
+        if (kernel[i].toString() in count){
+
+            count[(kernel[i]).toString()]+=1;
+            
+            if (count[(kernel[i]).toString()]> mode){
+                mode= kernel[i];
+            }
+
+        } else {
+
+            count[(kernel[i]).toString()]=1;
+
         }
+
     }
-    return smallestIndex;
+
+    return mode;
 
 }
 
-console.log(getMinValPos(arr));
+console.log(findMode([[1,3,2],[1,3,2],[2,3,1],[1,3,2]]));

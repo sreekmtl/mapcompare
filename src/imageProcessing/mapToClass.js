@@ -4,10 +4,13 @@ import kmeans from "../algorithms/kmeans";
 import { colorInRange, rgbToyiq } from "./yiqRange";
 import pixelmatch from 'pixelmatch';
 import { detectAntiAliasPixels } from "../algorithms/antialiasDetector";
+import { findMode } from "../utils";
 
 
+export default function mapToClass(mapImageData, options){
 
-export default function mapToClass(mapImageData, numberOfClasses){
+    let mergeAA= options.merge || false;
+    let minimumThreshold= options.threshold || 10
 
     
     //Take first pixel->YIQ->Extract all-> Assign to class1->assign 0 to covered pixels
@@ -17,13 +20,60 @@ export default function mapToClass(mapImageData, numberOfClasses){
 
     //if two seperated classes are closer, then add them together
 
-    console.log(mapImageData,'hehe');
+    console.log(mapImageData,'MapImageData');
 
     let imageData= detectAntiAlias(mapImageData, mapImageData.width, mapImageData.height);
     let aaremoved= new ImageData(imageData.data.slice(), mapImageData.width, mapImageData.height);
     
     let classes=[];
+    
+    let temp=[];
+    let temp1=[];
+    let temp2=[];
     let j=0;
+
+
+    if (mergeAA){
+
+        /**
+         * If anti-aliasing merging is true, this will merge anti-aliased pixel with nearby class
+         * A square kernel of size (3,5,7) is moved just though anti-aliased pixel by keeping anti-aliased pixel at the anchor point
+         * Then checks for the dominant class and adds the pixel
+         */
+
+        for (let i=0; i<imageData.data.length;i+=4){
+            if (imageData.data[i]===0 && imageData.data[i+1]===0 && imageData.data[i+2]===0 && imageData.data[i+3]===255){
+
+                let x= (i%aaremoved.width)/4;
+                let y= Math.floor((i/aaremoved.width))/4;
+
+                let kernelSize= 5;
+                let adjacentPoints= createKernel([x,y], kernelSize);
+                let adjacentValues= [];
+
+                for (let j=0; j<adjacentPoints.length; j++){
+                    let pos= ((adjacentPoints[j][1]*aaremoved.width)+adjacentPoints[j][0])*4;
+                    adjacentValues.push([imageData.data[pos], imageData.data[pos+1], imageData.data[pos+2], imageData.data[pos+3]]);
+
+                }
+
+                temp1.push(adjacentValues);
+                let mode= findMode(adjacentValues);
+                temp2.push(mode);
+                imageData.data[i]=mode[0];
+                imageData.data[i+1]=mode[1];
+                imageData.data[i+2]=mode[2];
+                imageData.data[i+3]=mode[3];
+
+                   
+            }
+        }
+
+        
+    }
+
+
+
     for (let i=0; i<imageData.data.length; i+=4){
 
         if (imageData.data[i]===0 && imageData.data[i+1]===0 && imageData.data[i+2]===0 && imageData.data[i+3]===255){
@@ -35,17 +85,24 @@ export default function mapToClass(mapImageData, numberOfClasses){
             let cir= colorInRange(imageData, selectedColor, 0);
             let colorClass= cir[0];
             let classPixelCount= cir[1];
-            if (classPixelCount>=500){
+            if (classPixelCount>=500){ //Large classes
                 j++;
                 let key= sc.toString();
                 let classObj={};
                 classObj[key]= [colorClass.data, classPixelCount];
                 classes.push(classObj);
-            } else {
+
+            } else if (classPixelCount<minimumThreshold){ //If pixel is noise or part of unwanted 
+
+                continue;
+
+            } else { //Small classes
                 /**
                  * If the class is small, it wont get into intial filtering. So here we are going to use a trick....
                  * The trick is, the classes are represented by pure pixels and pure pixels will have alpha channel= 255
                  * So RGB color with alpha 255 is extracted. Then the whole pixels belonging to those classes are extracted
+                 * 
+                 * There will be still pixels left out and we have to add those based on nearest position in color space
                  */
 
                 if (sc[3]===255){
@@ -53,6 +110,11 @@ export default function mapToClass(mapImageData, numberOfClasses){
                     let classObj={}
                     classObj[key]= [colorClass.data, classPixelCount];
                     classes.push(classObj);
+                }else {
+                    let key= sc.toString();
+                    let classObj={}
+                    classObj[key]= [colorClass.data, classPixelCount];
+                    temp.push(classObj);
                 }
 
             }
@@ -74,32 +136,26 @@ export default function mapToClass(mapImageData, numberOfClasses){
 
     
     console.log(classes, 'class');
-    //groupClasses(classes);
-
+    console.log(temp,'temp');
+    console.log(temp1,'temp1');
+    console.log(temp2,'temp2');
     return [classes,aaremoved];
 
 
 }
 
-export function detectAntiAlias(imageData, width, height){
+function detectAntiAlias(imageData, width, height){
 
     let count=0;
-    let samimgdata= new Uint8ClampedArray(width*height*4);
-  //for (let i=0; i<samimgdata.length;i++){
-    //samimgdata[i]=255;
-  //}
-  let samimg= new ImageData(samimgdata,width,height);
-  const opdat= new ImageData(width,height);
-  //pixelmatch(imageData.data, samimg.data, opdat.data,width,height, {threshold:0, includeAA:false, aaColor:[255,0,0], diffColor:[0,0,0]});
 
-  detectAntiAliasPixels(imageData, opdat, width, height,{aaColor:[255,0,0,255], merge:false});
-  console.log(opdat,'OPDAT');
+    let opdat= detectAntiAliasPixels(imageData, width, height,{aaColor:[0,0,0,255], merge:false});
+    console.log(opdat,'OPDAT');
 
   //assign these anti-aliased pixel to the nearest class using yiqrange
   //nearest class is found using: take all black pixels, find it original color, assign to other class based on distance.
 
   for (let i=0; i<imageData.data.length;i+=4){
-    if ((opdat.data[i]===255 && opdat.data[i+1]===0 && opdat.data[i+2]===0 && opdat.data[i+3]===255)){ //position of anti-aliased pixel
+    if ((opdat.data[i]===0 && opdat.data[i+1]===0 && opdat.data[i+2]===0 && opdat.data[i+3]===255)){ //position of anti-aliased pixel
         count++;
         
         imageData.data[i]=0; 
@@ -114,42 +170,20 @@ export function detectAntiAlias(imageData, width, height){
     return imageData;
 }
 
-function groupClasses(classes){
+let createKernel= (k, size)=>{
 
-    let colorClasses=[];
-    let finalClasses=[];
-    classes.forEach(e => {
-        let key= Object.keys(e);
-        colorClasses.push(key.toString().split(','));
-    });
+    let pad= Math.floor(size/2);
 
-    for (let i=0; i<colorClasses.length; i++){
-        for (let j=0; j<colorClasses.length; j++){
-
-            let r1= parseInt(colorClasses[i][0]); let r2= parseInt(colorClasses[j][0]);
-            let g1= parseInt(colorClasses[i][1]); let g2= parseInt(colorClasses[j][1]);
-            let b1= parseInt(colorClasses[i][2]); let b2= parseInt(colorClasses[j][2]);
-
-            let yiq1= rgbToyiq(r1,g1,b1); let yiq2= rgbToyiq(r2,g2,b2);
-            let yiqDistance= distanceInYIQ(yiq1, yiq2);
-
-           if (yiqDistance>0 && yiqDistance<5){
-            //Here we have to join classes
-            finalClasses.push([r1,g1,b1, yiqDistance, r2,g2,b2]);
-           }
-
+    let kernel = [];
+    for (let i = k[0] - pad; i <= k[0] + pad; i++) {
+        for (let j = k[1] - pad; j <= k[1] + pad; j++) {
+            if((i>=0 && j>=0) && (!(i===k[0] && j===k[1]))){
+                kernel.push([i, j]);
+            }
+            
         }
     }
-    console.log(finalClasses,'fc');
+    return kernel;
+
 }
 
-let distanceInYIQ= (yiq1, yiq2)=>{
-
-    let dis= Math.sqrt(                                        
-        0.5053*(Math.pow((yiq1[0]-yiq2[0]),2))+
-         0.299*(Math.pow((yiq1[1]-yiq2[1]),2))+
-         0.1957*(Math.pow((yiq1[2]-yiq2[2]),2))
-        );
-
-    return dis;
-}

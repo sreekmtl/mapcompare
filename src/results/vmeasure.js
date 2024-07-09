@@ -126,6 +126,7 @@ function computeVMeasure(segmentArray, n, m, areaPerPixel){
 
     let A= 0;
     let B= 90000*areaPerPixel;
+    console.log(B, areaPerPixel, 'B');
     let Ai_arr=[];
     let Aj_arr=[];
     let SRj_arr=[];

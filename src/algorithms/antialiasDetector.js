@@ -14,7 +14,8 @@
 
 import { rgbToyiq } from "../imageProcessing/yiqRange";
 
-export function detectAntiAliasPixels(imageData, outputData, width, height, options){
+
+export function detectAntiAliasPixels(imageData,width, height, options){
 
     /**
      * Assuming that the edge-most pixels of image don't contains anti-aliased pixels 
@@ -22,8 +23,10 @@ export function detectAntiAliasPixels(imageData, outputData, width, height, opti
      * And also, kernel will move till i-1 and j-1 position
      */
 
-    let aaColor= options.aaColour || [255,0,0,255];
+    let aaColor= options.aaColour || [0,0,0,255];
     let mergeAA= options.merge || false;
+
+    let outputData= new ImageData(width, height);
 
 
     for (let i=1; i<width-1; i++){
@@ -57,43 +60,14 @@ export function detectAntiAliasPixels(imageData, outputData, width, height, opti
              * 2. Assign the pixel to a nearby class
              */
 
-            if (mergeAA===false && antialiased===true){  //case-1
+            if (antialiased===true){  //case-1
 
                 outputData.data[anchorPosition]=aaColor[0];
                 outputData.data[anchorPosition+1]=aaColor[1];
                 outputData.data[anchorPosition+2]=aaColor[2];
                 outputData.data[anchorPosition+3]=aaColor[3];
 
-            }else if (mergeAA===true && antialiased===true){ //case-2
-
-                /**
-                 * If the merge option is true, then the AA pixels have to be merged with adjacent classes
-                 * Here we are merging this in terms of the distance. Which means
-                 * The particular AA pixel will be merged to adjacent class to which distance in color space is less
-                 */
-
-                let YIQdistanceArray=[];
-                
-                for (let l=0; l<adjacentValues.length; l++){
-                    YIQdistanceArray.push(distanceInYIQ(anchorValueYIQ, adjacentValues[l]));
-                }
-
-                let minimumDistancePosition= getMinValPos(YIQdistanceArray);
-
-                //Now find the original color at minimumDistancePosition and assign our anchorPixel colour to that color
-
-                let adjPixArrayRGB= findAdjacentPixels(pos, width, height, imageData, 'rgb');
-                let replaceColor= adjPixArrayRGB[minimumDistancePosition];
-
-                imageData.data[anchorPosition]= replaceColor[0];
-                imageData.data[anchorPosition+1]= replaceColor[1];
-                imageData.data[anchorPosition+2]= replaceColor[2];
-                imageData.data[anchorPosition+3]= replaceColor[3];
-
-
-            }
-
-            
+            }  
         }
     }
 
@@ -143,19 +117,5 @@ let distanceInYIQ= (yiq1, yiq2)=>{
     return dis;
 }
 
-function getMinValPos(arr){
 
-    if (arr.length === 0) {
-        console.log('ERROR');
-    }
-
-    let smallestIndex = 0;
-    for (let i = 1; i < arr.length; i++) {
-        if (arr[i] < arr[smallestIndex]) {
-            smallestIndex = i;
-        }
-    }
-    return smallestIndex;
-
-}
 
