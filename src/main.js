@@ -71,6 +71,7 @@ const mapdd2= document.getElementById('MapType2');
 const inner= document.getElementById('processOptions');
 const colorArea1= document.getElementById('colorArea1');
 const colorArea2= document.getElementById('colorArea2');
+const resultBox= document.getElementById('resultView');
 //const chartArea= document.getElementById('chart');
 
 let map1Selected= false; //Whether user selected feature from map1 or not
@@ -526,7 +527,10 @@ gofBtn.addEventListener('click', (e)=>{
 
   //let gof= mapCurves(cls1[0],cls2[0], (pixelWidth*pixelHeight));
   //console.log(`Goodness of fit is: ${gof}`);
-  vMeasure(cls1[0],cls2[0],(pixelWidth*pixelHeight));
+  resultBox.style.visibility='visible';
+  let result= vMeasure(cls1[0],cls2[0],(pixelWidth*pixelHeight));
+  resultBox.value=result['vm'];
+
 });
 
 visBtn.addEventListener('click', (e)=>{

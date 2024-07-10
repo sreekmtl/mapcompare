@@ -69,6 +69,8 @@ export function vMeasure(class1, class2, areaPerPixel){
 
     let vm= computeVMeasure(segmentArray, num1, num2, areaPerPixel);
 
+    return vm;
+
 }
 
 
@@ -135,6 +137,7 @@ function computeVMeasure(segmentArray, n, m, areaPerPixel){
     let h=0
     let c=0;
     let vm;
+    let result={};
 
     //Calculates Regionalization (Aj)
     let i=0;
@@ -199,7 +202,11 @@ function computeVMeasure(segmentArray, n, m, areaPerPixel){
     console.log(SZ, 'SZ');
     console.log(h, c, vm, '  vmeasure ');
 
-    return 1;
+    result['h']=h;
+    result['c']=c;
+    result['vm']=vm;
+
+    return result;
 
 
 }
