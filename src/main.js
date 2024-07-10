@@ -29,6 +29,7 @@ import ssim from 'ssim.js';
 import { createLineChart } from './results/chart.js';
 import { mapCurves } from './results/mapCurves.js';
 import { vMeasure } from './results/vmeasure.js';
+import { getColorComponents } from './results/colorMap.js';
 
 
 
@@ -526,6 +527,23 @@ gofBtn.addEventListener('click', (e)=>{
   //let gof= mapCurves(cls1[0],cls2[0], (pixelWidth*pixelHeight));
   //console.log(`Goodness of fit is: ${gof}`);
   vMeasure(cls1[0],cls2[0],(pixelWidth*pixelHeight));
+});
+
+visBtn.addEventListener('click', (e)=>{
+
+  let imageData1=canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
+  let classData1= mapToClass(imageData1,{merge:true, threshold:10});
+  canvasCtx1.putImageData(classData1[1],0,0);
+  colorPalette(colorArea1, classData1[0], 'map-1 classes');
+
+  let imageData2=canvasCtx2.getImageData(0,0,canvas1.width,canvas1.height);
+  let classData2= mapToClass(imageData2,{merge:true, threshold:10});
+  canvasCtx2.putImageData(classData2[1],0,0);
+  colorPalette(colorArea2,classData2[0],'map-2 classes');
+
+  getColorComponents(classData1[0],classData2[0]);
+
+  
 })
 
 

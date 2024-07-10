@@ -85,15 +85,14 @@ export default function mapToClass(mapImageData, options){
             let cir= colorInRange(imageData, selectedColor, 0);
             let colorClass= cir[0];
             let classPixelCount= cir[1];
-            if (classPixelCount>=500){ //Large classes
+            if (classPixelCount>=100){ //Large classes
                 j++;
                 let key= sc.toString();
                 let classObj={};
                 classObj[key]= [colorClass.data, classPixelCount];
                 classes.push(classObj);
 
-            } else if (classPixelCount<minimumThreshold){ //If pixel is noise or part of unwanted 
-
+            } else if (classPixelCount<minimumThreshold){
                 continue;
 
             } else { //Small classes

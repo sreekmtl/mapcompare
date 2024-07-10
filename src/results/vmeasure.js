@@ -65,7 +65,7 @@ export function vMeasure(class1, class2, areaPerPixel){
     console.log(classArray1, classArray2,'vm');
 
     let segmentArray= segments(classArray1,classArray2, areaPerPixel);
-    console.log(segmentArray,'segments');
+    //console.log(segmentArray,'segments');
 
     let vm= computeVMeasure(segmentArray, num1, num2, areaPerPixel);
 
