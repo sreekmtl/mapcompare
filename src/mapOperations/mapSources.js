@@ -131,7 +131,7 @@ class Sources{
             'TILED': true,
             'VERSION':'1.1.1',
             'BBOX':'77.575,28.715,81.043,31.467',
-            'SRS':'EPSG:4326',
+            'SRS':'EPSG:3857',
             'WIDTH':256,
             'HEIGHT':256,
             'FORMAT':'image/png'
@@ -146,7 +146,7 @@ class Sources{
           'TILED': true,
           'VERSION':'1.1.1',
           'BBOX':'77.575,28.715,81.043,31.467',
-          'SRS':'EPSG:4326',
+          'SRS':'EPSG:3857',
           'WIDTH':256,
           'HEIGHT':256,
           'FORMAT':'image/png'

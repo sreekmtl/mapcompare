@@ -6,7 +6,7 @@
     <script src="./opencv.js" type="text/javascript"></script>
 </head>
 
-<body>
+<body class="body">
 
 
     <div class="row">
@@ -41,12 +41,13 @@
         </div>
         <div class="column" style="background-color:#bbb;">
 
-            <label for="FeatureType">Choose feature type:</label>
+            <label for="FeatureType">Choose feature/comparison type:</label>
             <select name="FeatureType" id="FeatureType">
                 <option value="1">Choose Type</option>
                 <option value="2">Polygon</option>
                 <option value="3">Line</option>
                 <option value="4">Thematic</option>
+                <option value="5">Visualization</option>
             </select>
             <br></br>
 
@@ -59,17 +60,31 @@
 
             <div id="processOptions"></div><br></br>
            
-            <button id="processImgBtn">1. Process Image</button>
-            <button id="vectorizeBtn">2. Generate Vector File</button>
-            <button id="compareBtn">3. Compare Maps</button>
+            <button id="processImgBtn" disabled>1. Process Image</button>
+            <button id="vectorizeBtn" disabled>2. Generate Vector File</button>
+            <button id="compareBtn" disabled>3. Compare Maps</button>
             <br></br>
-            <button id="downloadVector">Download Vector File</button> <br></br>
+            <button id="downloadVector" disabled>Download Vector File</button> <br></br>
+           
+            <button id="mapGOF" disabled>Calculate V-Measure</button>
+            <button id="visBtn" disabled>Check visualization</button>
+            <br></br>
             <button id="imageCov">Clear All</button>
-            <button id="mapGOF" disabled>Calculate GOF</button>
 
             <div id="chart"></div>
+
             <div id="colorArea1"></div>
             <div id="colorArea2"></div>
+
+
+            <br></br>
+
+            <h3>---Results---</h3>
+
+            <br></br>
+
+            <input class="resultTxt" type="text" id="resultView"/>
+
          
         </div>
     </div>

@@ -3,8 +3,8 @@
   }
 .column {
     float: left;
-    width: 30%;
-    height: 680px; /* Should be removed. Only for demonstration */
+    width: 33%;
+    height: 680px; /* Only for demonstration */
 }
   
   /* Clear floats after the columns */
@@ -59,3 +59,19 @@ select{
 .article{
   color: white;
 }
+
+
+
+.resultTxt{
+
+  display: flex;
+  width: 100%;
+  visibility: hidden;
+
+}
+
+.row{
+  display: flex;
+  width: 100%;
+}
+

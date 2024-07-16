@@ -28,6 +28,8 @@ import { Fill, Stroke, Style } from 'ol/style';
 import ssim from 'ssim.js';
 import { createLineChart } from './results/chart.js';
 import { mapCurves } from './results/mapCurves.js';
+import { vMeasure } from './results/vmeasure.js';
+import { getColorComponents } from './results/colorMap.js';
 
 
 
@@ -58,6 +60,7 @@ const compareBtn= document.getElementById('compareBtn')
 const downloadBtn= document.getElementById('downloadVector');
 const imgCovBtn= document.getElementById('imageCov');
 const gofBtn= document.getElementById('mapGOF');
+const visBtn= document.getElementById('visBtn');
 
 const extentBox= document.getElementById('extentBox');
 const zoomLevelBox= document.getElementById('zoomLevel');
@@ -68,6 +71,7 @@ const mapdd2= document.getElementById('MapType2');
 const inner= document.getElementById('processOptions');
 const colorArea1= document.getElementById('colorArea1');
 const colorArea2= document.getElementById('colorArea2');
+const resultBox= document.getElementById('resultView');
 //const chartArea= document.getElementById('chart');
 
 let map1Selected= false; //Whether user selected feature from map1 or not
@@ -89,15 +93,52 @@ function init(src1, src2){
   featureDropDown.addEventListener('change',(c)=>{
 
     if (featureDropDown.value==='1'){
+      imgProcessBtn.disabled=false;
+      imgVectorizeBtn.disabled=false;
+      compareBtn.disabled=false;
+      downloadBtn.disabled=false;
+      gofBtn.disabled= false;
+      visBtn.disabled= false;
+
       clearChilds(inner);
+
     }else if (featureDropDown.value==='2'){ 
+      imgProcessBtn.disabled=false;
+      imgVectorizeBtn.disabled=false;
+      compareBtn.disabled=false;
+      downloadBtn.disabled=false;
+      gofBtn.disabled= true;
+      visBtn.disabled= true;
+
       clearChilds(inner);
       polygonProcesses(inner);
+
     }else if (featureDropDown.value==='3'){ 
+      imgProcessBtn.disabled=false;
+      imgVectorizeBtn.disabled=false;
+      compareBtn.disabled=false;
+      downloadBtn.disabled=false;
+      gofBtn.disabled= true;
+      visBtn.disabled= true;
+      
       clearChilds(inner);
       lineProcesses(inner);
+
     }else if (featureDropDown.value==='4'){
       gofBtn.disabled= false;
+      imgProcessBtn.disabled=true;
+      imgVectorizeBtn.disabled=true;
+      compareBtn.disabled=true;
+      downloadBtn.disabled=true;
+      visBtn.disabled=true;
+
+    }else if (featureDropDown.value==='5'){
+      visBtn.disabled= false;
+      imgProcessBtn.disabled=true;
+      imgVectorizeBtn.disabled=true;
+      compareBtn.disabled=true;
+      downloadBtn.disabled=true;
+      gofBtn.disabled=true;
     }
   
   });
@@ -474,17 +515,39 @@ createLineChart(data);
 gofBtn.addEventListener('click', (e)=>{
   
   let imageData1=canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
-  let cls1= mapToClass(imageData1, 5);
+  let cls1= mapToClass(imageData1,{merge:true, threshold:10});
   canvasCtx1.putImageData(cls1[1],0,0);
   colorPalette(colorArea1, cls1[0], 'map-1 classes');
 
   let imageData2=canvasCtx2.getImageData(0,0,canvas1.width,canvas1.height);
-  let cls2= mapToClass(imageData2, 5);
+  let cls2= mapToClass(imageData2,{merge:true, threshold:10});
   canvasCtx2.putImageData(cls2[1],0,0);
   colorPalette(colorArea2,cls2[0],'map-2 classes');
 
-  let gof= mapCurves(cls1[0],cls2[0], (pixelWidth*pixelHeight));
-  console.log(`Goodness of fit is: ${gof}`);
+
+  //let gof= mapCurves(cls1[0],cls2[0], (pixelWidth*pixelHeight));
+  //console.log(`Goodness of fit is: ${gof}`);
+  resultBox.style.visibility='visible';
+  let result= vMeasure(cls1[0],cls2[0],(pixelWidth*pixelHeight));
+  resultBox.value=result['vm'];
+
+});
+
+visBtn.addEventListener('click', (e)=>{
+
+  let imageData1=canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
+  let classData1= mapToClass(imageData1,{merge:true, threshold:10});
+  canvasCtx1.putImageData(classData1[1],0,0);
+  colorPalette(colorArea1, classData1[0], 'map-1 classes');
+
+  let imageData2=canvasCtx2.getImageData(0,0,canvas1.width,canvas1.height);
+  let classData2= mapToClass(imageData2,{merge:true, threshold:10});
+  canvasCtx2.putImageData(classData2[1],0,0);
+  colorPalette(colorArea2,classData2[0],'map-2 classes');
+
+  getColorComponents(classData1[0],classData2[0]);
+
+  
 })
 
 

@@ -15,10 +15,15 @@ function colorInRange(imageData, selectedColor, sensitivity){
     let count=0;
     let diffImg= new ImageData(imageData.width, imageData.height);
 
+    //Normalizing RGB values between [0 to 1]
+    let r1= selectedColor[0]/255;
+    let g1= selectedColor[1]/255;
+    let b1= selectedColor[2]/255;
+
     let colorSelected= [
-        rgb2y(selectedColor[0], selectedColor[1], selectedColor[2]),
-        rgb2i(selectedColor[0], selectedColor[1], selectedColor[2]),
-        rgb2q(selectedColor[0], selectedColor[1], selectedColor[2])
+        rgb2y(r1,g1,b1),
+        rgb2i(r1,g1,b1),
+        rgb2q(r1,g1,b1)
 
     ];
 
@@ -27,9 +32,9 @@ function colorInRange(imageData, selectedColor, sensitivity){
 
     for (let i=0; i<imageData.data.length;i+=4){
 
-        let r= imageData.data[i];
-        let g= imageData.data[i+1];
-        let b= imageData.data[i+2];
+        let r= imageData.data[i]/255;
+        let g= imageData.data[i+1]/255;
+        let b= imageData.data[i+2]/255;
 
         let yiq= [
             rgb2y(r,g,b),
