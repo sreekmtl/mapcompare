@@ -10,11 +10,10 @@ import { colorInRange } from './imageProcessing/yiqRange.js';
 import { contourToPolygon } from './spatialOperations/imageToPolygon.js';
 import Sources from './mapOperations/mapSources.js';
 import { mapToImg } from './mapOperations/mapToImg.js';
-import { clearChilds, colorPalette, lineProcesses, polygonProcesses } from './uiElements.js';
+import { clearChilds, colorPalette, lineProcesses, polygonProcesses, showResults } from './uiElements.js';
 import { growRegion } from './algorithms/regionGrowing.js';
 import { junctionExtract1 } from './spatialOperations/imageToLine.js';
 import { createVectorLayer } from './mapOperations/vectorLyrSrc.js';
-import { apply } from 'ol-mapbox-style';
 import { Tile } from 'ol/layer.js';
 import { geometryBasedJI, getPolygonCount, lineCompleteness, pixelBasedJI, polygonCompleteness } from './results/completeness.js';
 import Constants from './constants.js';
@@ -33,9 +32,6 @@ import { getColorComponents } from './results/colorMap.js';
 import { createHeatMap } from './results/heatmap.js';
 
 
-
-
-
 let sources= new Sources();
 
 const canvas1= document.getElementById('imgCanvas1');
@@ -49,7 +45,6 @@ var mCanvas2= document.createElement('canvas');
 
 var mCtx1= mCanvas1.getContext('2d');
 var mCtx2= mCanvas2.getContext('2d');
-
 
 
 var img1= new Image();
@@ -72,7 +67,7 @@ const mapdd2= document.getElementById('MapType2');
 const inner= document.getElementById('processOptions');
 const colorArea1= document.getElementById('colorArea1');
 const colorArea2= document.getElementById('colorArea2');
-const resultBox= document.getElementById('resultView');
+const resultArea= document.getElementById('resultsArea');
 //const chartArea= document.getElementById('chart');
 
 let map1Selected= false; //Whether user selected feature from map1 or not
@@ -528,9 +523,9 @@ thematicBtn.addEventListener('click', (e)=>{
 
   //let gof= mapCurves(cls1[0],cls2[0], (pixelWidth*pixelHeight));
   //console.log(`Goodness of fit is: ${gof}`);
-  resultBox.style.visibility='visible';
+  //resultArea.style.visibility='visible';
   let result= vMeasure(cls1[0],cls2[0],(pixelWidth*pixelHeight));
-  resultBox.value=result['vm'];
+  showResults(resultArea, result);
 
 });
 

@@ -202,9 +202,9 @@ function computeVMeasure(segmentArray, n, m, areaPerPixel){
     console.log(SZ, 'SZ');
     console.log(h, c, vm, '  vmeasure ');
 
-    result['h']=h;
-    result['c']=c;
-    result['vm']=vm;
+    result['Homogeneity']=h;
+    result['Completeness']=c;
+    result['V-Measure']=vm;
 
     return result;
 

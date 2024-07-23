@@ -118,26 +118,27 @@ function clearChilds(root){
 function createResults(txt, param){
 
     let RSLT= document.createElement('p');
-    RSLT.textContent= txt + param;
+    RSLT.textContent= txt +' : '+ param;
     RSLT.className='p';
 
 }
 
-function showResults(root){
+function showResults(root, resultData){
 
-let RESULT_DIV= document.createElement('DIV');
-RESULT_DIV.style.width='300px';
-DIV1.style.background="white";
+Object.entries(resultData).map(entry=>{
+        let key=entry[0];
+        let value= entry[1];
+        let res= key+" : "+value+" ";
 
-let RESULT_TITLE_1= document.createElement('h3');
-RESULT_TITLE_1.textContent='Results for Map-1';
-
-let RESULT_TITLE_2= document.createElement('h3');
-RESULT_TITLE_2.textContent='Results for Map-2';
-
-
+        let RESULT_TXT= document.createElement('p');
+        //let br= document.createElement('br');
+        RESULT_TXT.textContent= res;
+        root.append(RESULT_TXT);
+        //root.append(br);
+        
+      });
 
 }
 
 
-export {polygonProcesses,lineProcesses, colorPalette, clearChilds};
+export {polygonProcesses,lineProcesses, colorPalette, clearChilds, showResults};
