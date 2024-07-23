@@ -3,10 +3,16 @@
 Web application for comparing web map layers. This application compares web maps and produce comparison metrices.
 
 ## Warning !
-Read the docs before proceeding
+Read the docs before proceeding. Install Node.js on your system to build or make any changes to the app. Use your own API keys, If keys are not prsent in /src/mapOperations/keys.js .
 
-## To Run,
+## To Run
+Open the terminal, then:
 
-1. git clone repo
-2. npm install
-3. npx webpack --config webpack.config.js
+>git clone repo
+>npm run serve
+
+## To Build
+Open the terminal, make the changes you want, then:
+
+>npm install
+>npm run bundle

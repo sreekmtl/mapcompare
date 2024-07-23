@@ -1,10 +1,12 @@
 {
   "name": "mapcompare",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.0.1",
+  "description": "Web application for comparing web map layers. This application compares web maps and produce comparison metrices.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "serve": "npx serve ./dist",
+    "bundle": "npx webpack --config webpack.config.js"
   },
   "keywords": [],
   "author": "sreekmtl",

@@ -59,7 +59,7 @@ const imgProcessBtn= document.getElementById('processImgBtn');
 const imgVectorizeBtn= document.getElementById('vectorizeBtn');
 const compareBtn= document.getElementById('compareBtn')
 const downloadBtn= document.getElementById('downloadVector');
-const imgCovBtn= document.getElementById('imageCov');
+const clearAllBtn= document.getElementById('clearAll');
 const thematicBtn= document.getElementById('mapGOF');
 const visBtn= document.getElementById('visBtn');
 
@@ -481,7 +481,7 @@ downloadBtn.addEventListener('click',(e)=>{
 
 });
 
-imgCovBtn.addEventListener('click',(e)=>{
+clearAllBtn.addEventListener('click',(e)=>{
 
   location.reload();
 

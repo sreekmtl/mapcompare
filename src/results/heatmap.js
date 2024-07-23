@@ -11,8 +11,8 @@ export function createHeatMap(colorArray, distanceArray){
     let max= Math.max(...dis);
 
 
-    var margin={top:30, right:30, bottom:100, left:100}, width= 450-margin.left-margin.right,
-        height= 450-margin.top-margin.bottom;
+    var margin={top:30, right:30, bottom:100, left:100}, width= 350-margin.left-margin.right,
+        height= 350-margin.top-margin.bottom;
 
     var svg= d3.select('#chart').append("svg").attr("width", width+margin.left+margin.right)
                 .attr("height", height+margin.top+margin.bottom)
@@ -31,13 +31,13 @@ export function createHeatMap(colorArray, distanceArray){
     .style("text-anchor", "end") 
     .attr("dx", "-0.8em") 
     .attr("dy", "0.15em") 
-    .style("font", "12px times")
+    .style("font", "10px times")
     .attr("transform", "rotate(-90)"); 
 
 
     var y = d3.scaleBand().range([ height, 0 ]).domain(labelY).padding(0.01);
     svg.append("g")
-    .style("font", "12px times")
+    .style("font", "10px times")
     .call(d3.axisLeft(y));
 
     var colorScheme= d3.scaleLinear().range(["white","red"]).domain([min,max]);
@@ -60,7 +60,7 @@ export function createHeatMap(colorArray, distanceArray){
                                 .attr("dy", ".35em") 
                                 .attr("text-anchor", "middle") 
                                 .text(function(d) { return d.dis.toFixed(2); })
-                                .style("font", "16px times")
+                                .style("font", "12px times")
                                 .style("fill", "black"); 
 
 }
