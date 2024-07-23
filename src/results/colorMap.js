@@ -38,6 +38,13 @@ export function getColorComponents(classData1, classData2){
     console.log(hueArray1,hueArray2, 'hue');
     console.log(saturationArray1, saturationArray2, 'saturation');
     console.log(lightnessArray1,lightnessArray2, 'lightness');
+
+    return {
+        colorArray1:colorArray1,
+        colorArray2:colorArray2,
+        distanceArray1:distanceArray1,
+        distanceArray2:distanceArray2
+    }
 }
 
 let getHue= (colorArray)=>{
@@ -100,7 +107,7 @@ let getDistanceBetweenColors= (colorArray)=>{
             let yiq_j= rgbToyiq(colorArray[j][0]/255,colorArray[j][1]/255,colorArray[j][2]/255,colorArray[j][3]/255);
 
             let dis= distanceInYIQ(yiq_i,yiq_j);
-            distanceArray.push(dis);
+            distanceArray.push({c1:colorArray[i].toString(), c2:colorArray[j].toString(), dis:dis});
 
         }
     }

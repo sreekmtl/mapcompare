@@ -10,7 +10,7 @@ import { findMode } from "../utils";
 export default function mapToClass(mapImageData, options){
 
     let mergeAA= options.merge || false;
-    let minimumThreshold= options.threshold || 10
+    let minimumThreshold= options.threshold || 10;
 
     
     //Take first pixel->YIQ->Extract all-> Assign to class1->assign 0 to covered pixels

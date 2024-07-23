@@ -30,6 +30,7 @@ import { createLineChart } from './results/chart.js';
 import { mapCurves } from './results/mapCurves.js';
 import { vMeasure } from './results/vmeasure.js';
 import { getColorComponents } from './results/colorMap.js';
+import { createHeatMap } from './results/heatmap.js';
 
 
 
@@ -59,7 +60,7 @@ const imgVectorizeBtn= document.getElementById('vectorizeBtn');
 const compareBtn= document.getElementById('compareBtn')
 const downloadBtn= document.getElementById('downloadVector');
 const imgCovBtn= document.getElementById('imageCov');
-const gofBtn= document.getElementById('mapGOF');
+const thematicBtn= document.getElementById('mapGOF');
 const visBtn= document.getElementById('visBtn');
 
 const extentBox= document.getElementById('extentBox');
@@ -97,7 +98,7 @@ function init(src1, src2){
       imgVectorizeBtn.disabled=false;
       compareBtn.disabled=false;
       downloadBtn.disabled=false;
-      gofBtn.disabled= false;
+      thematicBtn.disabled= false;
       visBtn.disabled= false;
 
       clearChilds(inner);
@@ -107,7 +108,7 @@ function init(src1, src2){
       imgVectorizeBtn.disabled=false;
       compareBtn.disabled=false;
       downloadBtn.disabled=false;
-      gofBtn.disabled= true;
+      thematicBtn.disabled= true;
       visBtn.disabled= true;
 
       clearChilds(inner);
@@ -118,14 +119,14 @@ function init(src1, src2){
       imgVectorizeBtn.disabled=false;
       compareBtn.disabled=false;
       downloadBtn.disabled=false;
-      gofBtn.disabled= true;
+      thematicBtn.disabled= true;
       visBtn.disabled= true;
       
       clearChilds(inner);
       lineProcesses(inner);
 
     }else if (featureDropDown.value==='4'){
-      gofBtn.disabled= false;
+      thematicBtn.disabled= false;
       imgProcessBtn.disabled=true;
       imgVectorizeBtn.disabled=true;
       compareBtn.disabled=true;
@@ -138,7 +139,7 @@ function init(src1, src2){
       imgVectorizeBtn.disabled=true;
       compareBtn.disabled=true;
       downloadBtn.disabled=true;
-      gofBtn.disabled=true;
+      thematicBtn.disabled=true;
     }
   
   });
@@ -512,7 +513,7 @@ createLineChart(data);
   
 });
 
-gofBtn.addEventListener('click', (e)=>{
+thematicBtn.addEventListener('click', (e)=>{
   
   let imageData1=canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
   let cls1= mapToClass(imageData1,{merge:true, threshold:10});
@@ -545,7 +546,8 @@ visBtn.addEventListener('click', (e)=>{
   canvasCtx2.putImageData(classData2[1],0,0);
   colorPalette(colorArea2,classData2[0],'map-2 classes');
 
-  getColorComponents(classData1[0],classData2[0]);
+  let components= getColorComponents(classData1[0],classData2[0]);
+  createHeatMap(components.colorArray1,components.distanceArray1);
 
   
 })
