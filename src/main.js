@@ -280,7 +280,7 @@ let sourceMap={
   '2':sources.Bing_RoadsOnDemand,
   '3':sources.EsriXYZ,
   '4':sources.ArcGIS_sample, //NW
-  '5':sources.googleMaps,    //NW
+  '5':sources.googleMaps,    
   '6':sources.EsriMaps,
   '7':sources.ESA_WORLDCOVER2020,
   '8':sources.ESA_WORLDCOVER2021,
@@ -288,7 +288,7 @@ let sourceMap={
   '10':sources.BhuvanLULC2,
 }
 
-init(sourceMap['9'],sourceMap['10']);
+init(sourceMap['1'],sourceMap['2']);
 let constants= new Constants(canvas1.width, canvas1.height, map1.getView().calculateExtent(map1.getSize()));
 
 mapdd1.addEventListener('change',(c)=>{
@@ -325,10 +325,13 @@ imgProcessBtn.addEventListener('click',(e)=>{
       imgProcessed2=true;
     }
     
-    pixelBasedJI(diffImg1,diffImg2,pixelWidth*pixelHeight);
+    let pji= pixelBasedJI(diffImg1,diffImg2,pixelWidth*pixelHeight);
     const {mssim} = ssim(diffImg1, diffImg2,);
  
-    console.log(`SSIM: ${mssim}`);
+    showResults(resultArea,{
+      'Pixel based Jaccard Index': pji,
+      'Structural Similarity Index Measure': mssim.toFixed(2)
+    });
 
   }else if (featureDropDown.value==='3'){
 
@@ -357,10 +360,14 @@ imgProcessBtn.addEventListener('click',(e)=>{
 
     }
 
-    pixelBasedJI(diffImg1,diffImg2,pixelWidth*pixelHeight);
+    let pji= pixelBasedJI(diffImg1,diffImg2,pixelWidth*pixelHeight);
     const {mssim} = ssim(diffImg1, diffImg2,);
  
-    console.log(`SSIM: ${mssim}`);
+
+    showResults(resultArea,{
+      'Pixel based Jaccard Index': pji,
+      'Structural Similarity Index Measure': mssim.toFixed(2)
+    });
   }
   
 
@@ -399,11 +406,17 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
       imgProcessed2=false;
 
     }
+    let gji= geometryBasedJI(polyLayer1,polyLayer2);
+    let pc= polygonCompleteness(polyLayer1, polyLayer2)
 
-    console.log('Feature count in reference map : ', getPolygonCount(polyLayer1));
-    console.log('Feature count in comparison map : ', getPolygonCount(polyLayer2));
-    console.log('Area Completeness: ', polygonCompleteness(polyLayer1, polyLayer2));
-    geometryBasedJI(polyLayer1,polyLayer2);
+    showResults(resultArea, {
+      'Feature count in reference map': getPolygonCount(polyLayer1),
+      'Feature count in comparison map': getPolygonCount(polyLayer2),
+      'Geometry based Jaccard Index': gji
+    });
+
+    showResults(resultArea, pc);
+    
 
   }else if (featureDropDown.value==='3'){
 
@@ -449,7 +462,9 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
       alert('Process image from map1 before vectorizing');
     }
 
-    console.log(lineCompleteness(lineLayer1,lineLayer2), 'lineCompleteness');
+    let lc= lineCompleteness(lineLayer1,lineLayer2)
+
+    showResults(resultArea,lc);
 
   }
 })

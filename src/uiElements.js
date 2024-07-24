@@ -1,6 +1,22 @@
 let DIV1= document.createElement('div');
-    DIV1.style.width='300px';
-    DIV1.style.background="white";
+    //DIV1.style.background="white";
+    DIV1.style.display="flex";
+    DIV1.style.flexDirection="row";
+    DIV1.style.alignContent="space-between"
+    DIV1.style.gap='20px';
+
+let DIV2= document.createElement('div');
+    //DIV2.style.background="white";
+    DIV2.style.display="flex";
+    DIV2.style.alignItems='center';
+    DIV2.style.flexDirection="column";
+
+let DIV3= document.createElement('div');
+    //DIV3.style.background="white";
+    DIV3.style.display="flex";
+    DIV3.style.alignItems='center';
+    DIV3.style.flexDirection="column";
+    
     let msg= document.createElement('h3');
     msg.textContent='Select features from both map';
     msg.style.color='#32a852';
@@ -47,7 +63,7 @@ function createOption(key,value,txt){
 
 function lineProcesses(root){
 
-    
+    let br= document.createElement('br');
 
     let opt11= createOption('ER_KER_SIZ_1',3, '');
     let opt12= createOption('ER_ITER_1',3, '');
@@ -59,15 +75,16 @@ function lineProcesses(root){
     let opt24= createOption('WIN_MAX_SIZ_2',31, '');
 
 
-    
-    
-    DIV1.append(
-        msg,
+    DIV2.append(
         title1,
          opt11,
          opt12,
          opt13,
          opt14,
+
+    )
+    
+    DIV3.append(
          title2,
          opt21,
          opt22,
@@ -75,9 +92,11 @@ function lineProcesses(root){
          opt24
          
     );
+
+    DIV1.append(DIV2,DIV3);
     
   
-    root.append(DIV1);
+    root.append(DIV1,br);
     
     
 }
@@ -93,8 +112,8 @@ function colorPalette(root,cls, text){
 
     let pp= document.createElement('p');
     pp.textContent=text;
-    let br= document.createElement('br');
-    root.append(pp,br);
+    //let br= document.createElement('br');
+    root.append(pp);
 
     cls.forEach(e => {
         let clr= Object.keys(e);
