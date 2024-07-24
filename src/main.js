@@ -317,12 +317,16 @@ imgProcessBtn.addEventListener('click',(e)=>{
       contourData1= getContours(imgData1, canvas1);
       imgProcessed1=true;
   
+    }else{
+      alert('Select feature from both map by clicking on it');
     }
   
     if (map2Selected===true){
       let imgData2= canvasCtx2.getImageData(0,0,canvas2.width,canvas2.height);
       contourData2= getContours(imgData2, canvas2);
       imgProcessed2=true;
+    }else{
+      alert('Select feature from both map by clicking on it');
     }
     
     let pji= pixelBasedJI(diffImg1,diffImg2,pixelWidth*pixelHeight);
@@ -346,6 +350,8 @@ imgProcessBtn.addEventListener('click',(e)=>{
       imgProcessed1=true;
       canvasCtx1.putImageData(erodeCannyData1,0,0);
       
+    }else{
+      alert('Select feature from both map by clicking on it');
     }
 
     if (map2Selected===true){
@@ -358,6 +364,8 @@ imgProcessBtn.addEventListener('click',(e)=>{
       canvasCtx2.putImageData(erodeCannyData2,0,0);
       
 
+    }else{
+      alert('Select feature from both map by clicking on it');
     }
 
     let pji= pixelBasedJI(diffImg1,diffImg2,pixelWidth*pixelHeight);

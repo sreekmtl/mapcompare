@@ -8,11 +8,14 @@ Read the docs before proceeding. Install Node.js on your system to build or make
 ## To Run
 Open the terminal, then:
 
->git clone repo
->npm run serve
-
+```bash
+git clone repo
+npm run serve
+```
 ## To Build
 Open the terminal, make the changes you want, then:
 
->npm install
->npm run bundle
+```bash
+npm install
+npm run bundle
+```
