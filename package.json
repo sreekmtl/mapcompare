@@ -23,6 +23,7 @@
     "@turf/nearest-point-on-line": "^6.5.0",
     "@turf/unkink-polygon": "^6.5.0",
     "d3": "^7.9.0",
+    "gridjs": "^6.2.0",
     "image-js": "^0.35.5",
     "node-polyfill-webpack-plugin": "^3.0.0",
     "ol": "^9.1.0",

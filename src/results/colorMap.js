@@ -34,16 +34,22 @@ export function getColorComponents(classData1, classData2){
     let lightnessArray1= getLightness(colorArray1);
     let lightnessArray2= getLightness(colorArray2);
 
-    console.log(distanceArray1,distanceArray2, 'distances');
-    console.log(hueArray1,hueArray2, 'hue');
-    console.log(saturationArray1, saturationArray2, 'saturation');
-    console.log(lightnessArray1,lightnessArray2, 'lightness');
+    //console.log(distanceArray1,distanceArray2, 'distances');
+    //console.log(hueArray1,hueArray2, 'hue');
+    //console.log(saturationArray1, saturationArray2, 'saturation');
+    //console.log(lightnessArray1,lightnessArray2, 'lightness');
 
     return {
         colorArray1:colorArray1,
         colorArray2:colorArray2,
         distanceArray1:distanceArray1,
-        distanceArray2:distanceArray2
+        distanceArray2:distanceArray2,
+        hueArray1:hueArray1,
+        hueArray2:hueArray2,
+        saturationArray1:saturationArray1,
+        saturationArray2:saturationArray2,
+        lightnessArray1,lightnessArray1,
+        lightnessArray2:lightnessArray2
     }
 }
 
@@ -59,7 +65,7 @@ let getHue= (colorArray)=>{
         let Q= yiq[2];
 
         let hue= (Math.atan(Q/I))*(180/Math.PI);
-        hueArray.push(hue);
+        hueArray.push(hue.toFixed(2));
     })
     return hueArray;
 }
@@ -76,7 +82,7 @@ let getSaturation= (colorArray)=>{
         let Q= yiq[2];
 
         let saturation= Math.sqrt((I*I)+(Q*Q));
-        saturationArray.push(saturation);
+        saturationArray.push(saturation.toFixed(2));
     })
     return saturationArray;
 
@@ -91,7 +97,7 @@ let getLightness= (colorArray)=>{
         let yiq= rgbToyiq(rgba[0]/255,rgba[1]/255,rgba[2]/255);
 
         let Y= yiq[0]; //Y is lightness component
-        lightnessArray.push(Y);
+        lightnessArray.push(Y.toFixed(2));
     })
     return lightnessArray;
 }

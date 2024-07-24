@@ -142,6 +142,42 @@ function createResults(txt, param){
 
 }
 
+function createTable(root, cols, data){
+
+    const tbl= document.createElement("table");
+    const tbl_body= document.createElement("tbody");
+
+    let titles=['COLOR', 'HUE', 'SATURATION', 'LIGHTNESS'];
+    let titlerow= []
+
+    for (let i=0; i<titles.length; i++){
+        const titlecell= document.createElement('th');
+        titlecell.style.fontSize='14px';
+        const titlecellText= document.createTextNode(titles[i]);
+        titlecell.append(titlecellText);
+        titlerow.push(titlecell);
+    }
+
+    for (let i=0; i<4; i++){
+        const row= document.createElement('tr');
+        row.append(titlerow[i]);
+
+        for (let j=0; j<cols;j++){ //4 is bcos color, hue, sat, lightness
+            const cell= document.createElement('td');
+            const cellText= document.createTextNode(data[i][j]);
+            cell.style.padding='3px';
+            cell.style.fontSize='14px';
+            cell.appendChild(cellText);
+            row.append(cell);
+        }
+        tbl_body.appendChild(row);
+    }
+    tbl.appendChild(tbl_body);
+    //tbl.setAttribute("border", 0.2);
+
+    root.append(tbl);
+}
+
 function showResults(root, resultData){
 
 Object.entries(resultData).map(entry=>{
@@ -160,4 +196,4 @@ Object.entries(resultData).map(entry=>{
 }
 
 
-export {polygonProcesses,lineProcesses, colorPalette, clearChilds, showResults};
+export {polygonProcesses,lineProcesses, colorPalette, clearChilds, showResults, createTable};

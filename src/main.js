@@ -10,7 +10,7 @@ import { colorInRange } from './imageProcessing/yiqRange.js';
 import { contourToPolygon } from './spatialOperations/imageToPolygon.js';
 import Sources from './mapOperations/mapSources.js';
 import { mapToImg } from './mapOperations/mapToImg.js';
-import { clearChilds, colorPalette, lineProcesses, polygonProcesses, showResults } from './uiElements.js';
+import { clearChilds, colorPalette, createTable, lineProcesses, polygonProcesses, showResults } from './uiElements.js';
 import { growRegion } from './algorithms/regionGrowing.js';
 import { junctionExtract1 } from './spatialOperations/imageToLine.js';
 import { createVectorLayer } from './mapOperations/vectorLyrSrc.js';
@@ -30,7 +30,7 @@ import { mapCurves } from './results/mapCurves.js';
 import { vMeasure } from './results/vmeasure.js';
 import { getColorComponents } from './results/colorMap.js';
 import { createHeatMap } from './results/heatmap.js';
-
+import { Grid } from 'gridjs';
 
 let sources= new Sources();
 
@@ -68,6 +68,7 @@ const inner= document.getElementById('processOptions');
 const colorArea1= document.getElementById('colorArea1');
 const colorArea2= document.getElementById('colorArea2');
 const resultArea= document.getElementById('resultsArea');
+const tableArea= document.getElementById('tableArea');
 //const chartArea= document.getElementById('chart');
 
 let map1Selected= false; //Whether user selected feature from map1 or not
@@ -288,7 +289,7 @@ let sourceMap={
   '10':sources.BhuvanLULC2,
 }
 
-init(sourceMap['1'],sourceMap['2']);
+init(sourceMap['9'],sourceMap['10']);
 let constants= new Constants(canvas1.width, canvas1.height, map1.getView().calculateExtent(map1.getSize()));
 
 mapdd1.addEventListener('change',(c)=>{
@@ -567,8 +568,19 @@ visBtn.addEventListener('click', (e)=>{
   let components= getColorComponents(classData1[0],classData2[0]);
   createHeatMap(components.colorArray1,components.distanceArray1);
 
+  let rows= components.colorArray1.length;
+  let data=[];
+  data.push(components.colorArray1, components.hueArray1, components.saturationArray1, components.lightnessArray1);
+  createTable(tableArea, rows, data);
+
+  //new Grid({ 
+    //columns: ['COLOR', 'HUE', 'SATURATION', 'LIGHTNESS'],
+    //data: [
+      //components.colorArray1, components.hueArray1, components.saturationArray1, components.lightnessArray1
+    //] 
+  //}).render(tableArea);
   
-})
+});
 
 
 
