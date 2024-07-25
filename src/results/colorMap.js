@@ -17,39 +17,23 @@
 import { rgbToyiq } from "../imageProcessing/yiqRange";
 
 
-export function getColorComponents(classData1, classData2){
+export function getColorComponents(classData){
+
+    let data=[];
+
     //add rest of the colors to each classes based on distance in mapToClass
-    let colorArray1= getKeys(classData1);
-    let colorArray2= getKeys(classData2);
-
-    let distanceArray1= getDistanceBetweenColors(colorArray1);
-    let distanceArray2= getDistanceBetweenColors(colorArray2);
-
-    let hueArray1= getHue(colorArray1);
-    let hueArray2= getHue(colorArray2);
-
-    let saturationArray1= getSaturation(colorArray1);
-    let saturationArray2= getSaturation(colorArray2);
-
-    let lightnessArray1= getLightness(colorArray1);
-    let lightnessArray2= getLightness(colorArray2);
-
-    //console.log(distanceArray1,distanceArray2, 'distances');
-    //console.log(hueArray1,hueArray2, 'hue');
-    //console.log(saturationArray1, saturationArray2, 'saturation');
-    //console.log(lightnessArray1,lightnessArray2, 'lightness');
+    let colorArray= getKeys(classData);
+    let distanceArray= getDistanceBetweenColors(colorArray);
+    let hueArray= getHue(colorArray);
+    let saturationArray= getSaturation(colorArray);
+    let lightnessArray= getLightness(colorArray);
 
     return {
-        colorArray1:colorArray1,
-        colorArray2:colorArray2,
-        distanceArray1:distanceArray1,
-        distanceArray2:distanceArray2,
-        hueArray1:hueArray1,
-        hueArray2:hueArray2,
-        saturationArray1:saturationArray1,
-        saturationArray2:saturationArray2,
-        lightnessArray1,lightnessArray1,
-        lightnessArray2:lightnessArray2
+        colorArray:colorArray,
+        distanceArray:distanceArray,
+        hueArray:hueArray,
+        saturationArray:saturationArray,
+        lightnessArray:lightnessArray,
     }
 }
 
@@ -65,6 +49,7 @@ let getHue= (colorArray)=>{
         let Q= yiq[2];
 
         let hue= (Math.atan(Q/I))*(180/Math.PI);
+        if (hue<0) hue= 360+hue;
         hueArray.push(hue.toFixed(2));
     })
     return hueArray;

@@ -30,7 +30,6 @@ import { mapCurves } from './results/mapCurves.js';
 import { vMeasure } from './results/vmeasure.js';
 import { getColorComponents } from './results/colorMap.js';
 import { createHeatMap } from './results/heatmap.js';
-import { Grid } from 'gridjs';
 
 let sources= new Sources();
 
@@ -58,6 +57,7 @@ const clearAllBtn= document.getElementById('clearAll');
 const thematicBtn= document.getElementById('mapGOF');
 const visBtn= document.getElementById('visBtn');
 
+const mapElement2= document.getElementById('map2');
 const extentBox= document.getElementById('extentBox');
 const zoomLevelBox= document.getElementById('zoomLevel');
 const featureDropDown= document.getElementById('FeatureType');
@@ -96,6 +96,9 @@ function init(src1, src2){
       downloadBtn.disabled=false;
       thematicBtn.disabled= false;
       visBtn.disabled= false;
+      mapElement2.style.visibility='visible';
+      canvas2.style.visibility='visible';
+      mapdd2.style.visibility='visible';
 
       clearChilds(inner);
 
@@ -106,6 +109,9 @@ function init(src1, src2){
       downloadBtn.disabled=false;
       thematicBtn.disabled= true;
       visBtn.disabled= true;
+      mapElement2.style.visibility='visible';
+      canvas2.style.visibility='visible';
+      mapdd2.style.visibility='visible';
 
       clearChilds(inner);
       polygonProcesses(inner);
@@ -117,6 +123,9 @@ function init(src1, src2){
       downloadBtn.disabled=false;
       thematicBtn.disabled= true;
       visBtn.disabled= true;
+      mapElement2.style.visibility='visible';
+      canvas2.style.visibility='visible';
+      mapdd2.style.visibility='visible';
       
       clearChilds(inner);
       lineProcesses(inner);
@@ -128,6 +137,9 @@ function init(src1, src2){
       compareBtn.disabled=true;
       downloadBtn.disabled=true;
       visBtn.disabled=true;
+      mapElement2.style.visibility='visible';
+      canvas2.style.visibility='visible';
+      mapdd2.style.visibility='visible';
 
     }else if (featureDropDown.value==='5'){
       visBtn.disabled= false;
@@ -136,6 +148,9 @@ function init(src1, src2){
       compareBtn.disabled=true;
       downloadBtn.disabled=true;
       thematicBtn.disabled=true;
+      mapElement2.style.visibility='hidden';
+      canvas2.style.visibility='hidden';
+      mapdd2.style.visibility='hidden';
     }
   
   });
@@ -560,25 +575,13 @@ visBtn.addEventListener('click', (e)=>{
   canvasCtx1.putImageData(classData1[1],0,0);
   colorPalette(colorArea1, classData1[0], 'map-1 classes');
 
-  let imageData2=canvasCtx2.getImageData(0,0,canvas1.width,canvas1.height);
-  let classData2= mapToClass(imageData2,{merge:true, threshold:10});
-  canvasCtx2.putImageData(classData2[1],0,0);
-  colorPalette(colorArea2,classData2[0],'map-2 classes');
+  let components= getColorComponents(classData1[0]);
+  createHeatMap(components.colorArray,components.distanceArray);
 
-  let components= getColorComponents(classData1[0],classData2[0]);
-  createHeatMap(components.colorArray1,components.distanceArray1);
-
-  let rows= components.colorArray1.length;
+  let rows= components.colorArray.length;
   let data=[];
-  data.push(components.colorArray1, components.hueArray1, components.saturationArray1, components.lightnessArray1);
+  data.push(components.colorArray, components.hueArray, components.saturationArray, components.lightnessArray);
   createTable(tableArea, rows, data);
-
-  //new Grid({ 
-    //columns: ['COLOR', 'HUE', 'SATURATION', 'LIGHTNESS'],
-    //data: [
-      //components.colorArray1, components.hueArray1, components.saturationArray1, components.lightnessArray1
-    //] 
-  //}).render(tableArea);
   
 });
 
