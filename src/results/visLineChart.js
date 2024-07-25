@@ -7,13 +7,13 @@
 
 import * as d3 from 'd3';
 
-export function createLineGraph(sortingArray, colorArray, componentArray,chart){
+export function createLineGraph(sortingArray, colorArray, componentArray,chart,[xTitle,yTitle]){
 
     let [clr, comp]= sortComponent(sortingArray, colorArray,componentArray);
 
     //graph code
 
-var margin = { top: 30, right: 30, bottom: 80, left: 30 };
+var margin = { top: 30, right: 30, bottom: 120, left: 60 };
 var width = 450 - margin.left - margin.right;
 var height = 450 - margin.top - margin.bottom;
 
@@ -49,12 +49,33 @@ svg.append("g")
     .attr("dx", "-0.8em") 
     .attr("dy", "0.15em") 
     .style("font", "10px times")
-    .attr("transform", "rotate(-90)"); 
-
+    .attr("transform", "rotate(-90)");
+    
+svg.append("g")
+    .attr("transform", `translate(0,${height + 40})`)
+    .append("text")
+    .attr("fill", "#000")
+    .attr("x", width / 2)
+    .attr("y", 60)
+    .attr("text-anchor", "middle")
+    .style("font-size", "14px") 
+    .style("font-weight","bold")
+    .text(xTitle);
 
 
 svg.append("g")
-    .call(d3.axisLeft(y));
+    .call(d3.axisLeft(y))
+    .append("text")
+    .attr("fill", "#000")
+    .attr("transform", "rotate(-90)")
+    .attr("x", -height / 2)
+    .attr("y", -40)
+    .attr("dy", "0.71em")
+    .attr("text-anchor", "middle")
+    .style("font-size", "14px") 
+    .style("font-weight","bold")
+    .text(yTitle);
+
 
 
 svg.append("path")
@@ -103,10 +124,5 @@ function sortComponent(sortingArray,colorArray, componentArray){
             }
         }
     }
-    console.log(sortingArray,'srt');
     return [colorArray, componentArray];
-}
-
-function stringify(c){
-    return c.toString();
 }

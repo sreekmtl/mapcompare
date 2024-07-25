@@ -11,8 +11,8 @@ export function createHeatMap(colorArray, distanceArray, chart){
     let max= Math.max(...dis);
 
 
-    var margin={top:30, right:30, bottom:100, left:100}, width= 350-margin.left-margin.right,
-        height= 350-margin.top-margin.bottom;
+    var margin={top:30, right:30, bottom:100, left:100}, width= 400-margin.left-margin.right,
+        height= 400-margin.top-margin.bottom;
 
     var svg= d3.select(chart).append("svg").attr("width", width+margin.left+margin.right)
                 .attr("height", height+margin.top+margin.bottom)
@@ -60,6 +60,14 @@ export function createHeatMap(colorArray, distanceArray, chart){
                                 .text(function(d) { return d.dis.toFixed(2); })
                                 .style("font", "12px times")
                                 .style("fill", "black"); 
+
+    svg.append("text")
+                                .attr("x", width / 2)
+                                .attr("y", -margin.top / 2) 
+                                .attr("text-anchor", "middle")
+                                .style("font-size", "18px") 
+                                .style("font-weight", "bold")
+                                .text("Inter-Color distance");
 
 }
 

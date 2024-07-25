@@ -596,9 +596,9 @@ visBtn.addEventListener('click', (e)=>{
 
   let sortingArray=components.hueArray.slice(); //sorting is done on the basis of hue array
 
-  createLineGraph(sortingArray,components.colorArray, components.hueArray, '#chart' );
-  createLineGraph(sortingArray, components.colorArray, components.saturationArray, '#chart' );
-  createLineGraph(sortingArray,components.colorArray, components.lightnessArray, '#chart' );
+  createLineGraph(sortingArray,components.colorArray, components.hueArray, '#chart',['color','Hue'] );
+  createLineGraph(sortingArray, components.colorArray, components.saturationArray, '#chart',['color','Sauration'] );
+  createLineGraph(sortingArray,components.colorArray, components.lightnessArray, '#chart',['color','Lightness'] );
   createHeatMap(components.colorArray,components.distanceArray,'#chart');
   
 });
