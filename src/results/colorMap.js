@@ -19,8 +19,6 @@ import { rgbToyiq } from "../imageProcessing/yiqRange";
 
 export function getColorComponents(classData){
 
-    let data=[];
-
     //add rest of the colors to each classes based on distance in mapToClass
     let colorArray= getKeys(classData);
     let distanceArray= getDistanceBetweenColors(colorArray);
@@ -50,8 +48,9 @@ let getHue= (colorArray)=>{
 
         let hue= (Math.atan(Q/I))*(180/Math.PI);
         if (hue<0) hue= 360+hue;
-        hueArray.push(hue.toFixed(2));
-    })
+        hueArray.push(Number(hue.toFixed(2)));
+    });
+    
     return hueArray;
 }
 

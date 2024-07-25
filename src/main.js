@@ -30,6 +30,7 @@ import { mapCurves } from './results/mapCurves.js';
 import { vMeasure } from './results/vmeasure.js';
 import { getColorComponents } from './results/colorMap.js';
 import { createHeatMap } from './results/heatmap.js';
+import { createLineGraph } from './results/visLineChart.js';
 
 let sources= new Sources();
 
@@ -69,6 +70,8 @@ const colorArea1= document.getElementById('colorArea1');
 const colorArea2= document.getElementById('colorArea2');
 const resultArea= document.getElementById('resultsArea');
 const tableArea= document.getElementById('tableArea');
+const map1label= document.getElementById('map1label');
+const map2label= document.getElementById('map2label');
 //const chartArea= document.getElementById('chart');
 
 let map1Selected= false; //Whether user selected feature from map1 or not
@@ -99,6 +102,8 @@ function init(src1, src2){
       mapElement2.style.visibility='visible';
       canvas2.style.visibility='visible';
       mapdd2.style.visibility='visible';
+      map1label.style.visibility='visible';
+      map2label.style.visibility='visible';
 
       clearChilds(inner);
 
@@ -112,6 +117,8 @@ function init(src1, src2){
       mapElement2.style.visibility='visible';
       canvas2.style.visibility='visible';
       mapdd2.style.visibility='visible';
+      map1label.style.visibility='visible';
+      map2label.style.visibility='visible';
 
       clearChilds(inner);
       polygonProcesses(inner);
@@ -126,6 +133,8 @@ function init(src1, src2){
       mapElement2.style.visibility='visible';
       canvas2.style.visibility='visible';
       mapdd2.style.visibility='visible';
+      map1label.style.visibility='visible';
+      map2label.style.visibility='visible';
       
       clearChilds(inner);
       lineProcesses(inner);
@@ -140,6 +149,8 @@ function init(src1, src2){
       mapElement2.style.visibility='visible';
       canvas2.style.visibility='visible';
       mapdd2.style.visibility='visible';
+      map1label.style.visibility='visible';
+      map2label.style.visibility='visible';
 
     }else if (featureDropDown.value==='5'){
       visBtn.disabled= false;
@@ -151,6 +162,8 @@ function init(src1, src2){
       mapElement2.style.visibility='hidden';
       canvas2.style.visibility='hidden';
       mapdd2.style.visibility='hidden';
+      map1label.style.visibility='hidden';
+      map2label.style.visibility='hidden';
     }
   
   });
@@ -576,12 +589,17 @@ visBtn.addEventListener('click', (e)=>{
   colorPalette(colorArea1, classData1[0], 'map-1 classes');
 
   let components= getColorComponents(classData1[0]);
-  createHeatMap(components.colorArray,components.distanceArray);
-
   let rows= components.colorArray.length;
   let data=[];
   data.push(components.colorArray, components.hueArray, components.saturationArray, components.lightnessArray);
   createTable(tableArea, rows, data);
+
+  let sortingArray=components.hueArray.slice(); //sorting is done on the basis of hue array
+
+  createLineGraph(sortingArray,components.colorArray, components.hueArray, '#chart' );
+  createLineGraph(sortingArray, components.colorArray, components.saturationArray, '#chart' );
+  createLineGraph(sortingArray,components.colorArray, components.lightnessArray, '#chart' );
+  createHeatMap(components.colorArray,components.distanceArray,'#chart');
   
 });
 

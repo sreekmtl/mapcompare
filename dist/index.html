@@ -14,7 +14,7 @@
         
         <div class="column1" style="background-color:#e9e5e5;">
 
-            <label for="MapType1">Choose reference Map:</label>
+            <label id="map1label" for="MapType1">Choose reference Map:</label>
             <select name="MapType1" id="MapType1">
                 <option value="1">OSM Standard</option>
                 <option value="2">Bing Road only</option>
@@ -26,7 +26,7 @@
             <canvas id="imgCanvas1" style="width: 300px; height: 300px;"></canvas>
         </div>
 
-            <label for="MapType2">Choose comparison Map:</label>
+            <label id="map2label" for="MapType2">Choose comparison Map:</label>
             <select name="MapType2" id="MapType2">
                 <option value="1">OSM Standard</option>
                 <option value="2">Bing Road only</option>
@@ -81,7 +81,9 @@
                 <button id="clearAll">Clear All</button>
             </div>
 
-            <h3>----------------Results----------------</h3>
+            
+            <h3>Results :</h3>
+            
            
             <div class="innerCol">
                 <div id="colorArea1"></div>
@@ -89,9 +91,10 @@
             </div>
             
             <div id="resultsArea"></div>
-
-            <div id="chart"></div>
             <div id="tableArea"></div>
+            
+            <div id="chart"></div>
+           
 
 
             <p class="resultTxt" id="resultView"></p>

@@ -4,7 +4,7 @@
 
 import * as d3 from 'd3';
 
-export function createHeatMap(colorArray, distanceArray){
+export function createHeatMap(colorArray, distanceArray, chart){
 
     let dis= distanceArray.map(getEl);
     let min= Math.min(...dis);
@@ -14,14 +14,12 @@ export function createHeatMap(colorArray, distanceArray){
     var margin={top:30, right:30, bottom:100, left:100}, width= 350-margin.left-margin.right,
         height= 350-margin.top-margin.bottom;
 
-    var svg= d3.select('#chart').append("svg").attr("width", width+margin.left+margin.right)
+    var svg= d3.select(chart).append("svg").attr("width", width+margin.left+margin.right)
                 .attr("height", height+margin.top+margin.bottom)
                 .append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
    
     var labelX= colorArray.map(stringify)
     var labelY= colorArray.map(stringify);
-
-    console.log(labelX,labelY,"labels")
 
     var x= d3.scaleBand().range([0,width]).domain(labelX).padding(0.01);
     svg.append("g")

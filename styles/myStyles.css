@@ -12,7 +12,7 @@
   display: flex;
   flex:2;
   flex-direction: column;
-  height: 100vh;
+  height:fit-content
 }
 
 p{
