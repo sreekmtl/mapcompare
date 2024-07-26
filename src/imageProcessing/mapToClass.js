@@ -208,7 +208,7 @@ function mergeByColor(classes,temp){
 
             let distance= distanceInYIQ(smallYIQ, bigYIQ);
 
-            if (distance!=NaN && distance!=undefined)distanceArray.push(distance);
+            if (distance!=NaN && distance!=undefined && distance!=null)distanceArray.push(distance);
 
         }
 

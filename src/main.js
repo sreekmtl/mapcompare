@@ -210,7 +210,7 @@ function init(src1, src2){
       
   map2=    new Map({
           layers:[
-              new Tile({source: src2}),
+              new TileLayer({source: src2}),
           ],
           view:view,
           target:'map2',
@@ -307,26 +307,31 @@ function download(file, text){
 let sourceMap={
   '1':sources.OSM_Standard,
   '2':sources.Bing_RoadsOnDemand,
-  '3':sources.EsriXYZ,
-  '4':sources.ArcGIS_sample, //NW
-  '5':sources.googleMaps,    
+  '3':sources.googleMaps,
+  '4':sources.BhuvanLULC1,
+  '5':sources.BhuvanLULC2,   
   '6':sources.EsriMaps,
-  '7':sources.ESA_WORLDCOVER2020,
-  '8':sources.ESA_WORLDCOVER2021,
-  '9':sources.BhuvanLULC1,
-  '10':sources.BhuvanLULC2,
+  '7':sources.EsriXYZ,
+  '8':sources.ESA_WORLDCOVER2020,
+  '9':sources.ESA_WORLDCOVER2021,
+  '10':sources.ArcGIS_sample,
 }
 
-init(sourceMap['9'],sourceMap['10']);
+init(sourceMap[mapdd1.value],sourceMap[mapdd2.value]);
 let constants= new Constants(canvas1.width, canvas1.height, map1.getView().calculateExtent(map1.getSize()));
 
 mapdd1.addEventListener('change',(c)=>{
-
-  //init(sourceMap[mapdd1.value], sourceMap[mapdd2.value]);
+  map1.getLayers().forEach((l)=>{
+    map1.removeLayer(l);
+  });
+  map1.addLayer(new TileLayer({source:sourceMap[mapdd1.value]}));
 });
 
 mapdd2.addEventListener('change', (c)=>{
-  //init(sourceMap[mapdd1.value], sourceMap[mapdd2.value]);
+  map2.getLayers().forEach((l)=>{
+    map2.removeLayer(l);
+  });
+  map2.addLayer(new TileLayer({source:sourceMap[mapdd2.value]}));
 });
 
 imgProcessBtn.addEventListener('click',(e)=>{
@@ -584,7 +589,7 @@ thematicBtn.addEventListener('click', (e)=>{
 visBtn.addEventListener('click', (e)=>{
 
   let imageData1=canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
-  let classData1= mapToClass(imageData1,{merge:true, threshold:10});
+  let classData1= mapToClass(imageData1,{merge:false, threshold:10});
   canvasCtx1.putImageData(classData1[1],0,0);
   colorPalette(colorArea1, classData1[0], 'map-1 classes');
 
