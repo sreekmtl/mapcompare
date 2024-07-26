@@ -53,13 +53,6 @@ export function detectAntiAliasPixels(imageData,width, height, options){
                 antialiased=true;
             }
 
-
-            /**
-             * If a particluar pixel is anti-alaised, In our case two options will be there,
-             * 1. Assign a particluar colour to identify
-             * 2. Assign the pixel to a nearby class
-             */
-
             if (antialiased===true){  //case-1
 
                 outputData.data[anchorPosition]=aaColor[0];

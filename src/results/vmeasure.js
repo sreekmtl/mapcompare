@@ -62,7 +62,7 @@ export function vMeasure(class1, class2, areaPerPixel){
     });
 
 
-    console.log(classArray1, classArray2,'vm');
+    //console.log(classArray1, classArray2,'vm');
 
     let segmentArray= segments(classArray1,classArray2, areaPerPixel);
     //console.log(segmentArray,'segments');
@@ -168,8 +168,8 @@ function computeVMeasure(segmentArray, n, m, areaPerPixel){
     }
 
 
-    console.log(Aj_arr, 'Aj');
-    console.log(Ai_arr, 'Ai');
+    //console.log(Aj_arr, 'Aj');
+   // console.log(Ai_arr, 'Ai');
     console.log(A, 'A');
 
     SRj_arr= regionalVariation(segmentArray,Aj_arr,n);
@@ -196,11 +196,11 @@ function computeVMeasure(segmentArray, n, m, areaPerPixel){
     vm= 2*((h*c)/(h+c));
     
 
-    console.log(SRj_arr,'SRj');
-    console.log(SZi_arr, 'SZi');
-    console.log(SR, 'SR');
-    console.log(SZ, 'SZ');
-    console.log(h, c, vm, '  vmeasure ');
+    //console.log(SRj_arr,'SRj');
+    //console.log(SZi_arr, 'SZi');
+    //console.log(SR, 'SR');
+    //console.log(SZ, 'SZ');
+    //console.log(h, c, vm, '  vmeasure ');
 
     result['Homogeneity']=h;
     result['Completeness']=c;

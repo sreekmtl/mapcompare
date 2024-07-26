@@ -1,7 +1,11 @@
-let a= [3,2,3,4,1,7,8];
-let b= [4,5,1,3,7,2,8];
+distanceArray=[2,3,1,4,5,6,1];
 
+function sample(da){
+    let minIndex= distanceArray.indexOf(Math.min(...distanceArray));
+    da[minIndex]=10;
 
-let c= a.slice()
-a[0]=1
-console.log(c);
+    return da;
+}
+
+let d= sample(distanceArray);
+console.log(d);
