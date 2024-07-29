@@ -140,8 +140,8 @@ export default function mapToClass(mapImageData, options){
     mergeByColor(classes, temp);
 
     
-    console.log(classes, 'class');
-    console.log(temp,'temp');
+    //console.log(classes, 'class');
+    //console.log(temp,'temp');
     //console.log(temp1,'temp1');
     //console.log(temp2,'temp2');
     return [classes,returnImage];

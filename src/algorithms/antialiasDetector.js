@@ -1,6 +1,6 @@
 /**
  * JS code to detect antialiased pixels from an imageData
- * Based on the paper- Anti-aliased Pixel and Intensity Slope Detector- V. Vyšniauskas
+ * Based on the paper- Anti-aliased Pixel and Intensity Slope Detector- V. Vyšniauskas         
  * This code converts RGB to YIQ values for calculating change in intensity therefore making the whole calculation more perfect
  * 
  * 

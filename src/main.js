@@ -1,10 +1,11 @@
 import Map from 'ol/Map.js';
 import View from 'ol/View.js';
 import TileLayer from 'ol/layer/Tile.js';
+import ImageLayer from 'ol/layer/Image.js';
 import '../styles/myStyles.css'
 import 'ol/ol.css';
-import { getContours, getCannyEdge, erodePlusCanny } from './imageProcessing/cvOps.js';
-import { colorFromPixel, extractChannel, getChannels, imageCovariance } from './utils.js';
+import { getContours, erodePlusCanny } from './imageProcessing/cvOps.js';
+import { colorFromPixel } from './utils.js';
 import Image from 'image-js';
 import { colorInRange } from './imageProcessing/yiqRange.js';
 import { contourToPolygon } from './spatialOperations/imageToPolygon.js';
@@ -14,23 +15,20 @@ import { clearChilds, colorPalette, createTable, lineProcesses, polygonProcesses
 import { growRegion } from './algorithms/regionGrowing.js';
 import { junctionExtract1 } from './spatialOperations/imageToLine.js';
 import { createVectorLayer } from './mapOperations/vectorLyrSrc.js';
-import { Tile } from 'ol/layer.js';
 import { geometryBasedJI, getPolygonCount, lineCompleteness, pixelBasedJI, polygonCompleteness } from './results/completeness.js';
 import Constants from './constants.js';
-import mapToClass, { detectAntiAlias } from './imageProcessing/mapToClass.js';
 import RasterSource from 'ol/source/Raster.js';
-import modFilter from './imageProcessing/modeFilter.js';
 import { junctionExtract2 } from './spatialOperations/imageToLine2.js';
 import { linePositionalAccuracy } from './results/positionalAccuracy.js';
 import { olVectorLayerToGeoJSON, olVectorLayerToTurfLayer, transformOlLayer } from './mapOperations/vectorUtils.js';
 import { Fill, Stroke, Style } from 'ol/style';
 import ssim from 'ssim.js';
 import { createLineChart } from './results/chart.js';
-import { mapCurves } from './results/mapCurves.js';
 import { vMeasure } from './results/vmeasure.js';
 import { getColorComponents } from './results/colorMap.js';
 import { createHeatMap } from './results/heatmap.js';
 import { createLineGraph } from './results/visLineChart.js';
+import mapToClass from './imageProcessing/mapToClass.js';
 
 let sources= new Sources();
 
@@ -42,13 +40,6 @@ const canvasCtx2= canvas2.getContext('2d',  { willReadFrequently: true });
 
 var mCanvas1= document.createElement('canvas');
 var mCanvas2= document.createElement('canvas');
-
-var mCtx1= mCanvas1.getContext('2d');
-var mCtx2= mCanvas2.getContext('2d');
-
-
-var img1= new Image();
-var img2= new Image();
 
 const imgProcessBtn= document.getElementById('processImgBtn');
 const imgVectorizeBtn= document.getElementById('vectorizeBtn');
@@ -72,7 +63,6 @@ const resultArea= document.getElementById('resultsArea');
 const tableArea= document.getElementById('tableArea');
 const map1label= document.getElementById('map1label');
 const map2label= document.getElementById('map2label');
-//const chartArea= document.getElementById('chart');
 
 let map1Selected= false; //Whether user selected feature from map1 or not
 let map2Selected= false;
@@ -81,7 +71,6 @@ let imgProcessed2= false;
 let vectorFilePresent1= false;
 let vectorFilePresent2=false;
 let selectionAlgorithm= 'YIQ';
-
 
 let contourData1, contourData2, erodeCannyData1, erodeCannyData2, vectorData1, vectorData2, diffImg1, diffImg2 ;
 let polyLayer1, polyLayer2, lineLayer1, lineLayer2;
@@ -202,7 +191,7 @@ function init(src1, src2){
   
   map1=    new Map({
           layers: [
-            new TileLayer({source: src1}),
+            src1
           ],
           view:view,
           target: 'map1',
@@ -210,15 +199,12 @@ function init(src1, src2){
       
   map2=    new Map({
           layers:[
-              new TileLayer({source: src2}),
+              src2
           ],
           view:view,
           target:'map2',
       
       });
-
-  //let url=`https://basemapstyles-api.arcgis.com/arcgis/rest/services/styles/v2/styles/arcgis/streets?token=AAPK3890bdd7605a4e3d9adb68f5790780eczWSlc-Uyepn0n8XMnNwNaiymNVrEy4ihJruVsf2PVK_lD086faryQVtQkssjkq84`
-  //apply(map2, url)
   
   extentBox.textContent="Extent: "+map1.getView().calculateExtent(map1.getSize());
   zoomLevelBox.textContent="Zoom Level: "+map1.getView().getZoom();
@@ -305,16 +291,12 @@ function download(file, text){
  * This includes button, slider events etc.
  */
 let sourceMap={
-  '1':sources.OSM_Standard,
+  '1': sources.OSM_Standard,
   '2':sources.Bing_RoadsOnDemand,
   '3':sources.googleMaps,
   '4':sources.BhuvanLULC1,
   '5':sources.BhuvanLULC2,   
-  '6':sources.EsriMaps,
-  '7':sources.EsriXYZ,
-  '8':sources.ESA_WORLDCOVER2020,
-  '9':sources.ESA_WORLDCOVER2021,
-  '10':sources.ArcGIS_sample,
+  '6':sources.ESALULC,
 }
 
 init(sourceMap[mapdd1.value],sourceMap[mapdd2.value]);
@@ -324,14 +306,14 @@ mapdd1.addEventListener('change',(c)=>{
   map1.getLayers().forEach((l)=>{
     map1.removeLayer(l);
   });
-  map1.addLayer(new TileLayer({source:sourceMap[mapdd1.value]}));
+  map1.addLayer(sourceMap[mapdd1.value]);
 });
 
 mapdd2.addEventListener('change', (c)=>{
   map2.getLayers().forEach((l)=>{
     map2.removeLayer(l);
   });
-  map2.addLayer(new TileLayer({source:sourceMap[mapdd2.value]}));
+  map2.addLayer(sourceMap[mapdd2.value]);
 });
 
 imgProcessBtn.addEventListener('click',(e)=>{
