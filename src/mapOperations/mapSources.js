@@ -116,12 +116,33 @@ class Sources{
         })
         });
 
-        this.ESALULC= new ImageLayer({
+        this.ESALULC_2017= new ImageLayer({
           source: new ImageArcGISRest({
             url:'https://ic.imagery1.arcgis.com/arcgis/rest/services/Sentinel2_10m_LandCover/ImageServer',
             ratio:1,
-            crossOrigin:'Anonymous'
+            crossOrigin:'Anonymous',
+            params:{
+              time:'1483272000000', //1577880000000 (2020)
+            }
           }),
+        });
+
+        this.ESALULC_2023= new ImageLayer({
+          source: new ImageArcGISRest({
+            url:'https://ic.imagery1.arcgis.com/arcgis/rest/services/Sentinel2_10m_LandCover/ImageServer',
+            ratio:1,
+            crossOrigin:'Anonymous',
+            params:{
+              time:'1704023999000',
+            }
+          }),
+        });
+
+        this.EsriWorldImagery= new TileLayer({
+          source:new XYZ({
+            url: 'https://services.arcgisonline.com/arcgis/rest/services/'+EsriLayers['World_Imagery']+'/MapServer/MapServer/tile/{z}/{y}/{x}',
+            crossOrigin:'Anonymous',
+          })
         });
 
         //NOT USING/NOT USEFUL--------------------------------------------------------------------------------
@@ -143,10 +164,7 @@ class Sources{
             crossOrigin: 'Anonymous',
           });
 
-        this.EsriMaps= new XYZ({
-          url: 'https://services.arcgisonline.com/arcgis/rest/services/'+EsriLayers['World_Imagery']+'/MapServer/MapServer/tile/{z}/{y}/{x}',
-          crossOrigin:'Anonymous',
-        });
+       
 
         
 

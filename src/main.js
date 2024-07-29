@@ -296,7 +296,8 @@ let sourceMap={
   '3':sources.googleMaps,
   '4':sources.BhuvanLULC1,
   '5':sources.BhuvanLULC2,   
-  '6':sources.ESALULC,
+  '6':sources.ESALULC_2017,
+  '7':sources.ESALULC_2023,
 }
 
 init(sourceMap[mapdd1.value],sourceMap[mapdd2.value]);
