@@ -17,27 +17,22 @@
 import { rgbToyiq } from "../imageProcessing/yiqRange";
 
 
-export function getColorComponents(classData1, classData2){
+export function getColorComponents(classData){
+
     //add rest of the colors to each classes based on distance in mapToClass
-    let colorArray1= getKeys(classData1);
-    let colorArray2= getKeys(classData2);
+    let colorArray= getKeys(classData);
+    let distanceArray= getDistanceBetweenColors(colorArray);
+    let hueArray= getHue(colorArray);
+    let saturationArray= getSaturation(colorArray);
+    let lightnessArray= getLightness(colorArray);
 
-    let distanceArray1= getDistanceBetweenColors(colorArray1);
-    let distanceArray2= getDistanceBetweenColors(colorArray2);
-
-    let hueArray1= getHue(colorArray1);
-    let hueArray2= getHue(colorArray2);
-
-    let saturationArray1= getSaturation(colorArray1);
-    let saturationArray2= getSaturation(colorArray2);
-
-    let lightnessArray1= getLightness(colorArray1);
-    let lightnessArray2= getLightness(colorArray2);
-
-    console.log(distanceArray1,distanceArray2, 'distances');
-    console.log(hueArray1,hueArray2, 'hue');
-    console.log(saturationArray1, saturationArray2, 'saturation');
-    console.log(lightnessArray1,lightnessArray2, 'lightness');
+    return {
+        colorArray:colorArray,
+        distanceArray:distanceArray,
+        hueArray:hueArray,
+        saturationArray:saturationArray,
+        lightnessArray:lightnessArray,
+    }
 }
 
 let getHue= (colorArray)=>{
@@ -52,8 +47,10 @@ let getHue= (colorArray)=>{
         let Q= yiq[2];
 
         let hue= (Math.atan(Q/I))*(180/Math.PI);
-        hueArray.push(hue);
-    })
+        if (hue<0) hue= 360+hue;
+        hueArray.push(Number(hue.toFixed(2)));
+    });
+    
     return hueArray;
 }
 
@@ -69,7 +66,7 @@ let getSaturation= (colorArray)=>{
         let Q= yiq[2];
 
         let saturation= Math.sqrt((I*I)+(Q*Q));
-        saturationArray.push(saturation);
+        saturationArray.push(saturation.toFixed(2));
     })
     return saturationArray;
 
@@ -84,7 +81,7 @@ let getLightness= (colorArray)=>{
         let yiq= rgbToyiq(rgba[0]/255,rgba[1]/255,rgba[2]/255);
 
         let Y= yiq[0]; //Y is lightness component
-        lightnessArray.push(Y);
+        lightnessArray.push(Y.toFixed(2));
     })
     return lightnessArray;
 }
@@ -100,7 +97,7 @@ let getDistanceBetweenColors= (colorArray)=>{
             let yiq_j= rgbToyiq(colorArray[j][0]/255,colorArray[j][1]/255,colorArray[j][2]/255,colorArray[j][3]/255);
 
             let dis= distanceInYIQ(yiq_i,yiq_j);
-            distanceArray.push(dis);
+            distanceArray.push({c1:colorArray[i].toString(), c2:colorArray[j].toString(), dis:dis});
 
         }
     }

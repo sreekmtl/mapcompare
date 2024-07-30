@@ -62,10 +62,8 @@ export function vMeasure(class1, class2, areaPerPixel){
     });
 
 
-    console.log(classArray1, classArray2,'vm');
-
     let segmentArray= segments(classArray1,classArray2, areaPerPixel);
-    //console.log(segmentArray,'segments');
+    console.log(segmentArray,'segarray');
 
     let vm= computeVMeasure(segmentArray, num1, num2, areaPerPixel);
 
@@ -180,7 +178,8 @@ function computeVMeasure(segmentArray, n, m, areaPerPixel){
 
     if (SR!=0){
         for (let x=0; x<m; x++){ 
-            h+= ((Aj_arr[x]/A)*(SRj_arr[x]/SR));  
+            h+= ((Aj_arr[x]/A)*(SRj_arr[x]/SR)); 
+            
         }
 
     } 
@@ -189,6 +188,7 @@ function computeVMeasure(segmentArray, n, m, areaPerPixel){
     if (SZ!=0){
         for (let y=0; y<n; y++){ 
             c+=((Ai_arr[y]/A)*(SZi_arr[y]/SZ));
+            
         }
     }
     c= 1-c;
@@ -202,9 +202,9 @@ function computeVMeasure(segmentArray, n, m, areaPerPixel){
     console.log(SZ, 'SZ');
     console.log(h, c, vm, '  vmeasure ');
 
-    result['h']=h;
-    result['c']=c;
-    result['vm']=vm;
+    result['Homogeneity']=h;
+    result['Completeness']=c;
+    result['V-Measure']=vm;
 
     return result;
 

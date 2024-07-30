@@ -13,8 +13,6 @@
     and limitations under the License.
     ***************************************************************************** */
 
-/*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
-
 /**
      * splaytree v3.1.2
      * Fast Splay tree for Node and browser

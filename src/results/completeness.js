@@ -121,9 +121,13 @@ export function polygonCompleteness(vectorLayer1, vectorLayer2){
     let area_comp= vectorToGeom(vectorLayer2, 'Polygon');
 
     let completeness_percent= (area_comp/area_ref)*100;
-    console.log('reference area: ', area_ref, 'm^2', '\n', 'comparison area: ', area_comp, 'm^2');
+    //console.log('reference area: ', area_ref, 'm^2', '\n', 'comparison area: ', area_comp, 'm^2');
 
-    return completeness_percent;
+    return {
+        'reference area': area_ref.toFixed(2).toString()+' m^2',
+        'comparison area': area_comp.toFixed(2).toString()+' m^2',
+        'completeness %':completeness_percent.toFixed(2)
+    };
 
 }
 
@@ -147,7 +151,11 @@ export function lineCompleteness(vectorLayer1, vectorLayer2){
     let completeness_percent= (len_comp/len_ref)*100;
     console.log('reference length: ', len_ref, 'm', '\n', 'comp length: ', len_comp, 'm');
 
-    return completeness_percent;
+    return {
+        'reference length': len_ref.toFixed(2).toString()+' m',
+        'comparison length': len_comp.toFixed(2).toString()+' m',
+        'completeness %':completeness_percent.toFixed(2)
+    };
     
 }
 
@@ -165,7 +173,7 @@ export function geometryBasedJI(vectorLayer1, vectorLayer2){
     let JI= A_INTER_B/(A+B-A_INTER_B);
 
     //console.log('A: ', A,'\n', 'B: ',B,'\n', 'A_INTER_B: ', A_INTER_B)
-    console.log(Math.abs(JI).toFixed(2), 'Geometry based Jaccard Index');
+    return Math.abs(JI).toFixed(2);
 }
 
 export function pixelBasedJI(imageData1, imageData2, areaPerPixel){
@@ -183,7 +191,7 @@ export function pixelBasedJI(imageData1, imageData2, areaPerPixel){
 
     let JI= A_INTER_B/(A+B-A_INTER_B);
 
-    console.log(JI, "Pixel based Jaccard Index");
+    return JI.toFixed(2);
     
 }
 

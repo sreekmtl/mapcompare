@@ -10,88 +10,106 @@
 
 
     <div class="row">
-        <div class="column" style="background-color:#aaa;">
 
-            <label for="MapType1">Choose reference Map:</label>
+        
+        <div class="column1" style="background-color:#e9e5e5;">
+
+            <label id="map1label" for="MapType1">Choose reference Map:</label>
             <select name="MapType1" id="MapType1">
                 <option value="1">OSM Standard</option>
                 <option value="2">Bing Road only</option>
-                <option value="3">ESRI XYZ</option>
-                <option value="4">Google Maps</option>
+                <option value="3">Google Maps</option>
+                <option value="4">Bhuvan LULC Uttarakhand 2005</option>
+                <option value="5">Bhuvan LULC Uttarakhand 2011</option>
+                <option value="6">ESA LULC 2017</option>
+                <option value="7">ESA LULC 2023</option>
+                
             </select> <br></br>
+        <div class="innerCol">
             <div id="map1" style="width: 300px; height: 300px"></div>
-
-            <label for="MapType2">Choose comparison Map:</label>
-            <select name="MapType2" id="MapType2">
-                <option value="1">OSM Standard</option>
-                <option value="2">Bing Road only</option>
-                <option value="3">ESRI XYZ</option>
-                <option value="4">Google Maps</option>
-            </select> <br></br>
-            <div id="map2" style="width: 300px; height: 300px"></div>
-          
-        </div>
-        <div class="column" style="background-color:#bbb;">
-
-            <br></br>
             <canvas id="imgCanvas1" style="width: 300px; height: 300px;"></canvas>
-            <br></br>
-            <canvas id="imgCanvas2" style="width: 300px; height: 300px;"></canvas>
-         
         </div>
-        <div class="column" style="background-color:#bbb;">
 
-            <label for="FeatureType">Choose feature/comparison type:</label>
-            <select name="FeatureType" id="FeatureType">
-                <option value="1">Choose Type</option>
-                <option value="2">Polygon</option>
-                <option value="3">Line</option>
-                <option value="4">Thematic</option>
-                <option value="5">Visualization</option>
-            </select>
+            <label id="map2label" for="MapType2">Choose comparison Map:</label>
+            <select name="MapType2" id="MapType2">
+                <option value="2">Bing Road only</option>
+                <option value="1">OSM Standard</option>
+                <option value="3">Google Maps</option>
+                <option value="4">Bhuvan LULC Uttarakhand 2005</option>
+                <option value="5">Bhuvan LULC Uttarakhand 2011</option>
+                <option value="6">ESA LULC 2017</option>
+                <option value="7">ESA LULC 2023</option>
+                
+            </select> <br></br>
+        <div class="innerCol">
+            <div id="map2" style="width: 300px; height: 300px"></div>
+            <canvas id="imgCanvas2" style="width: 300px; height: 300px;"></canvas>
+        </div>
+        <div class="innerCol">
+            <p id="extentBox"></p>
+            <p id="zoomLevel"></p>
+        </div>
+        
+        </div>
+        
+        <div class="column2" style="background-color:#e9e5e5;">
+
+            <div class="innerCol">
+                <label for="FeatureType">Choose feature/comparison type:</label>
+                <select name="FeatureType" id="FeatureType">
+                    <option value="1">Choose Type</option>
+                    <option value="2">Polygon</option>
+                    <option value="3">Line</option>
+                    <option value="4">Thematic</option>
+                    <option value="5">Visualization</option>
+                </select> 
+
+                <label for="SelectionType">Choose feature selection algorithm:</label>
+                <select name="SelectionType" id="SelectionType">
+                    <option value="1">YIQ color space</option>
+                    <option value="2">Region Growing</option>
+                </select>
+            </div>
             <br></br>
 
-            <label for="SelectionType">Choose feature selection algorithm:</label>
-            <select name="SelectionType" id="SelectionType">
-                <option value="1">YIQ color space</option>
-                <option value="2">Region Growing</option>
-            </select>
-            <br></br>
-
-            <div id="processOptions"></div><br></br>
+            <div id="processOptions"></div>
            
-            <button id="processImgBtn" disabled>1. Process Image</button>
-            <button id="vectorizeBtn" disabled>2. Generate Vector File</button>
-            <button id="compareBtn" disabled>3. Compare Maps</button>
+            <div class="innerCol">
+                <button id="processImgBtn" disabled>1. Process Image</button>
+                <button id="vectorizeBtn" disabled>2. Generate Vector File</button>
+                <button id="compareBtn" disabled>3. Compare Maps</button>
+                <button id="downloadVector" disabled>Download Vector File (optional)</button>
+            </div>
+            
             <br></br>
-            <button id="downloadVector" disabled>Download Vector File</button> <br></br>
-           
-            <button id="mapGOF" disabled>Calculate V-Measure</button>
-            <button id="visBtn" disabled>Check visualization</button>
-            <br></br>
-            <button id="imageCov">Clear All</button>
 
+            <div class="innerCol">
+                <button id="mapGOF" disabled>Calculate V-Measure</button>
+                <button id="visBtn" disabled>Check visualization</button>
+                <button id="clearAll">Clear All</button>
+            </div>
+
+            
+            <h3>Results :</h3>
+            
+           
+            <div class="innerCol">
+                <div id="colorArea1"></div>
+                <div id="colorArea2"></div>
+            </div>
+            
+            <div id="resultsArea"></div>
+            <div id="tableArea"></div>
+            
             <div id="chart"></div>
-
-            <div id="colorArea1"></div>
-            <div id="colorArea2"></div>
+           
 
 
-            <br></br>
-
-            <h3>---Results---</h3>
-
-            <br></br>
-
-            <input class="resultTxt" type="text" id="resultView"/>
+            <p class="resultTxt" id="resultView"></p>
 
          
         </div>
     </div>
-
-      
-      <p id="extentBox"></p>
-      <p id="zoomLevel"></p>
     
 
     <script src="./index.js"></script>

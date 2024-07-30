@@ -1,4 +1,5 @@
-import {XYZ,OSM,TileArcGISRest,BingMaps, WMTS, Google, TileWMS} from 'ol/source';
+import {XYZ,OSM,TileArcGISRest, ImageArcGISRest,BingMaps, WMTS, Google, TileWMS} from 'ol/source';
+import {Image as ImageLayer, Tile as TileLayer} from 'ol/layer.js';
 import Keys from './keys';
 import WMTSTileGrid from 'ol/tilegrid/WMTS';
 import {getTopLeft, getWidth} from 'ol/extent.js';
@@ -62,11 +63,90 @@ class Sources{
 
         let key= new Keys();
 
-        this.OSM_Standard= new OSM();
-        this.Bing_RoadsOnDemand= new BingMaps({
+        this.OSM_Standard= new TileLayer({source:new OSM()});
+
+        this.Bing_RoadsOnDemand= new TileLayer({
+          source:new BingMaps({
             key:key.apikeys.BingMapKey,
             imagerySet:'RoadOnDemand'
+        })
         });
+
+        this.googleMaps = new TileLayer({
+          source:new Google({
+            key:key.apikeys.GoogleMapKey,
+            scale: 'scaleFactor2x',
+            highDpi: true,
+          })
+        });
+
+        this.BhuvanLULC1= new TileLayer({
+          source:new TileWMS({
+            url: 'https://bhuvan-vec2.nrsc.gov.in/bhuvan/gwc/service/wms',
+            params: {'LAYERS': bhuvanLayers['Uttarakhand_LULC_2005-06'], 
+            'TILED': true,
+            'VERSION':'1.1.1',
+            'BBOX':'77.575,28.715,81.043,31.467',
+            'SRS':'EPSG:3857',
+            'WIDTH':256,
+            'HEIGHT':256,
+            'FORMAT':'image/png'
+  
+          },
+            serverType: 'geoserver',
+            crossOrigin: 'Anonymous',
+        })
+        });
+
+        this.BhuvanLULC2= new TileLayer({
+          source:new TileWMS({
+            url: 'https://bhuvan-vec2.nrsc.gov.in/bhuvan/gwc/service/wms',
+            params: {'LAYERS': bhuvanLayers['Uttarakhand_LULC_2011-12'], 
+            'TILED': true,
+            'VERSION':'1.1.1',
+            'BBOX':'77.575,28.715,81.043,31.467',
+            'SRS':'EPSG:3857',
+            'WIDTH':256,
+            'HEIGHT':256,
+            'FORMAT':'image/png'
+  
+          },
+            serverType: 'geoserver',
+            crossOrigin: 'Anonymous',
+        })
+        });
+
+        this.ESALULC_2017= new ImageLayer({
+          source: new ImageArcGISRest({
+            url:'https://ic.imagery1.arcgis.com/arcgis/rest/services/Sentinel2_10m_LandCover/ImageServer',
+            ratio:1,
+            crossOrigin:'Anonymous',
+            params:{
+              time:'1483272000000', //1577880000000 (2020)
+            }
+          }),
+        });
+
+        this.ESALULC_2023= new ImageLayer({
+          source: new ImageArcGISRest({
+            url:'https://ic.imagery1.arcgis.com/arcgis/rest/services/Sentinel2_10m_LandCover/ImageServer',
+            ratio:1,
+            crossOrigin:'Anonymous',
+            params:{
+              time:'1704023999000',
+            }
+          }),
+        });
+
+        this.EsriWorldImagery= new TileLayer({
+          source:new XYZ({
+            url: 'https://services.arcgisonline.com/arcgis/rest/services/'+EsriLayers['World_Imagery']+'/MapServer/MapServer/tile/{z}/{y}/{x}',
+            crossOrigin:'Anonymous',
+          })
+        });
+
+        //NOT USING/NOT USEFUL--------------------------------------------------------------------------------
+
         this.ArcGIS_sample= new TileArcGISRest(
             {
                 url:`https://basemapstyles-api.arcgis.com/arcgis/rest/services/styles/v2/styles/${basemapId}?token=${key.apikeys.ArcGISKey}`,
@@ -84,16 +164,11 @@ class Sources{
             crossOrigin: 'Anonymous',
           });
 
-        this.EsriMaps= new XYZ({
-          url: 'https://services.arcgisonline.com/arcgis/rest/services/'+EsriLayers['World_Imagery']+'/MapServer/MapServer/tile/{z}/{y}/{x}',
+       
 
-        });
+        
 
-        this.googleMaps = new Google({
-          key:key.apikeys.GoogleMapKey,
-          scale: 'scaleFactor2x',
-          highDpi: true,
-        });
+        
 
         this.ESA_WORLDCOVER2020= new WMTS({
           url: 'https://services.terrascope.be/wmts/v2',
@@ -125,36 +200,8 @@ class Sources{
           //crossOrigin:'*',
         });
 
-        this.BhuvanLULC1= new TileWMS({
-            url: 'https://bhuvan-vec2.nrsc.gov.in/bhuvan/gwc/service/wms',
-            params: {'LAYERS': bhuvanLayers['Uttarakhand_LULC_2005-06'], 
-            'TILED': true,
-            'VERSION':'1.1.1',
-            'BBOX':'77.575,28.715,81.043,31.467',
-            'SRS':'EPSG:3857',
-            'WIDTH':256,
-            'HEIGHT':256,
-            'FORMAT':'image/png'
-
-          },
-            serverType: 'geoserver',
-            crossOrigin: 'Anonymous',
-        })
-        this.BhuvanLULC2= new TileWMS({
-          url: 'https://bhuvan-vec2.nrsc.gov.in/bhuvan/gwc/service/wms',
-          params: {'LAYERS': bhuvanLayers['Uttarakhand_LULC_2011-12'], 
-          'TILED': true,
-          'VERSION':'1.1.1',
-          'BBOX':'77.575,28.715,81.043,31.467',
-          'SRS':'EPSG:3857',
-          'WIDTH':256,
-          'HEIGHT':256,
-          'FORMAT':'image/png'
-
-        },
-          serverType: 'geoserver',
-          crossOrigin: 'Anonymous',
-      })
+        
+        
         
     }
 
