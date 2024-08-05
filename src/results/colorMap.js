@@ -46,7 +46,7 @@ let getHue= (colorArray)=>{
         let I= yiq[1];
         let Q= yiq[2];
 
-        let hue= (Math.atan(Q/I))*(180/Math.PI);
+        let hue= (Math.atan2(I,Q))*(180/Math.PI);
         if (hue<0) hue= 360+hue;
         hueArray.push(Number(hue.toFixed(2)));
     });
