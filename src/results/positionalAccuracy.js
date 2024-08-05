@@ -34,24 +34,32 @@ export function linePositionalAccuracy(vectorLayer1, vectorLayer2){
 
     src1.forEachFeature((f)=>{
         featureArray1.push(f);
-    })
+    });
     src2.forEachFeature((f)=>{
         featureArray2.push(f);
-    })
+    });
 
-    for (let b=1; b<=20;b++){
+    let value=0;
+    let b=1;
+
+    
+    while (value<=100){
+        if (value>=95){
+            break;
+        }
         let w=b*0.001; //buffer width
-        let value= bufferAnalysis(featureArray1,featureArray2,w,vectorLayer2);
+        value= bufferAnalysis(featureArray1,featureArray2,w,vectorLayer2);
         bufferData.push({
             bufferWidth:b,
             percentageInBuffer:value,
         });
+        b++;
+    }  
 
-    }
+    let acc= calculateAccuracy(bufferData);
+    console.log(bufferData,'bufferData');
 
-    
-
-    return {layers:buffer2m, data:bufferData};
+    return {layers:buffer2m, data:acc};
 
     
 
@@ -144,4 +152,37 @@ function bufferAnalysis(featureArray1, featureArray2,w,vectorLayer2){
 
     return ((len_line_in_bfr/original_len)*100);
 
+}
+
+let calculateAccuracy= (bufferData)=>{
+    let acc90=0;
+    let acc95=0;
+    for (let i=0; i<bufferData.length; i++){
+        if (bufferData[i]['percentageInBuffer']===90 && acc90===0){
+            acc90=bufferData[i]['bufferWidth'];
+        }else if (bufferData[i]['percentageInBuffer']>90 && acc90===0){
+            let x2= bufferData[i]['bufferWidth'];
+            let x1= bufferData[i-1]['bufferWidth'];
+            let y2= bufferData[i]['percentageInBuffer'];
+            let y1= bufferData[i-1]['percentageInBuffer'];
+            let y=90; //target percentage
+
+            acc90= x1+(((y-y1)*(x2-x1))/(y2-y1));
+        }
+
+        if(bufferData[i]['percentageInBuffer']===95 && acc95===0){
+            acc95=bufferData[i]['bufferWidth'];  
+        } else if (bufferData[i]['percentageInBuffer']>95 && acc95===0){
+            let x2= bufferData[i]['bufferWidth'];
+            let x1= bufferData[i-1]['bufferWidth'];
+            let y2= bufferData[i]['percentageInBuffer'];
+            let y1= bufferData[i-1]['percentageInBuffer'];
+            let y=95; //target percentage
+
+            acc95= x1+(((y-y1)*(x2-x1))/(y2-y1));
+
+        }
+    }
+
+    return {'Buffer Width at 90 percentile':acc90,'Buffer width at 95 percentile':acc95};
 }

@@ -1,7 +1,5 @@
 import Map from 'ol/Map.js';
 import View from 'ol/View.js';
-import TileLayer from 'ol/layer/Tile.js';
-import ImageLayer from 'ol/layer/Image.js';
 import '../styles/myStyles.css'
 import 'ol/ol.css';
 import { getContours, erodePlusCanny } from './imageProcessing/cvOps.js';
@@ -298,6 +296,7 @@ let sourceMap={
   '5':sources.BhuvanLULC2,   
   '6':sources.ESALULC_2017,
   '7':sources.ESALULC_2023,
+  '8':sources.BhuvanLULC3,
 }
 
 init(sourceMap[mapdd1.value],sourceMap[mapdd2.value]);
@@ -527,7 +526,7 @@ compareBtn.addEventListener('click', (e)=>{
   let bufferData= linePositionalAccuracy(lineLayer1,lineLayer2);
   let re= bufferData.layers;
   let data= bufferData.data;
-  console.log(data);
+  //console.log(data);
   let buffer3857= transformOlLayer(re[0],'EPSG:4326', 'EPSG:3857');
   let line3857= transformOlLayer(re[1],'EPSG:4326', 'EPSG:3857');
 
@@ -543,8 +542,9 @@ compareBtn.addEventListener('click', (e)=>{
 
   map1.addLayer(buffer3857);
   map1.addLayer(line3857);
+  showResults(resultArea,data);
 
-createLineChart(data);
+//createLineChart(data);
   
 });
 
