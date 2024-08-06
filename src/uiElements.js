@@ -116,8 +116,7 @@ function colorPalette(root,cls, text){
     root.append(pp);
 
     cls.forEach(e => {
-        let clr= Object.keys(e);
-        let clrId= clr.toString();
+        let clrId= e.toString();
         let imgEl= document.createElement('img');
         imgEl.style.width='20px';
         imgEl.style.height='20px';

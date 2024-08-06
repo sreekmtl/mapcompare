@@ -21,17 +21,19 @@ export function getColorComponents(classData){
 
     //add rest of the colors to each classes based on distance in mapToClass
     let colorArray= getKeys(classData);
-    let distanceArray= getDistanceBetweenColors(colorArray);
     let hueArray= getHue(colorArray);
     let saturationArray= getSaturation(colorArray);
     let lightnessArray= getLightness(colorArray);
 
+    let sortedComponents= sortComponent(hueArray,saturationArray,lightnessArray,colorArray);
+    let distanceArray= getDistanceBetweenColors(sortedComponents.colorArray);
+
     return {
-        colorArray:colorArray,
+        colorArray:sortedComponents.colorArray,
         distanceArray:distanceArray,
-        hueArray:hueArray,
-        saturationArray:saturationArray,
-        lightnessArray:lightnessArray,
+        hueArray:sortedComponents.hueArray,
+        saturationArray:sortedComponents.saturationArray,
+        lightnessArray:sortedComponents.lightnessArray,
     }
 }
 
@@ -135,3 +137,44 @@ function getKeys(colorData){
 
     return colorArray;
 }
+
+function sortComponent(hueArray,saturationArray,lightnessArray,colorArray){
+
+    /**
+     * Sort components along with repective color in color array
+     */
+  
+    for (let i=0; i<hueArray.length; i++){
+        for (let j=i+1; j<hueArray.length; j++){
+  
+            if(hueArray[j]<hueArray[i]){
+  
+                let temp= hueArray[i];
+                hueArray[i]=hueArray[j];
+                hueArray[j]=temp;
+  
+  
+                let temp1= saturationArray[i];
+                saturationArray[i]=saturationArray[j];
+                saturationArray[j]=temp1;
+  
+                let temp2= lightnessArray[i];
+                lightnessArray[i]=lightnessArray[j];
+                lightnessArray[j]=temp2;
+  
+  
+                let temp3= colorArray[i];
+                colorArray[i]=colorArray[j];
+                colorArray[j]=temp3;
+                
+            }
+        }
+    }
+    return {
+      hueArray:hueArray,
+      saturationArray:saturationArray,
+      lightnessArray:lightnessArray,
+      colorArray:colorArray,
+    };
+  }
+  

@@ -454,7 +454,7 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
       lineLayer1= createVectorLayer(vectorData1);
       let line3857= transformOlLayer(lineLayer1,'EPSG:4326', 'EPSG:3857');
 
-      map1.addLayer(jn);
+      //map1.addLayer(jn);
       map1.addLayer(line3857);
       vectorData1=olVectorLayerToGeoJSON(lineLayer1);
       imgProcessed1=false;
@@ -476,7 +476,7 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
       lineLayer2= createVectorLayer(redata[1]);
       let line3857= transformOlLayer(lineLayer2,'EPSG:4326', 'EPSG:3857');
 
-      map2.addLayer(jn);
+      //map2.addLayer(jn);
       map2.addLayer(line3857);
       vectorData2=olVectorLayerToGeoJSON(lineLayer2);
       imgProcessed2=false;
@@ -574,22 +574,21 @@ visBtn.addEventListener('click', (e)=>{
   let imageData1=canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
   let classData1= mapToClass(imageData1,{merge:false, threshold:10});
   canvasCtx1.putImageData(classData1[1],0,0);
-  colorPalette(colorArea1, classData1[0], 'map-1 classes');
 
   let components= getColorComponents(classData1[0]);
+  colorPalette(colorArea1, components.colorArray, 'map-1 classes');
   let rows= components.colorArray.length;
   let data=[];
   data.push(components.colorArray, components.hueArray, components.saturationArray, components.lightnessArray);
   createTable(tableArea, rows, data);
-
-  let sortingArray=components.hueArray.slice(); //sorting is done on the basis of hue array
-
-  createLineGraph(sortingArray,components.colorArray, components.hueArray, '#chart',['color','Hue'] );
-  createLineGraph(sortingArray, components.colorArray, components.saturationArray, '#chart',['color','Sauration'] );
-  createLineGraph(sortingArray,components.colorArray, components.lightnessArray, '#chart',['color','Lightness'] );
+  
+  createLineGraph(components.colorArray, components.hueArray, '#chart',['color','Hue'] );
+  createLineGraph(components.colorArray, components.saturationArray, '#chart',['color','Sauration'] );
+  createLineGraph(components.colorArray, components.lightnessArray, '#chart',['color','Lightness'] );
   createHeatMap(components.colorArray,components.distanceArray,'#chart');
   
 });
+
 
 
 
