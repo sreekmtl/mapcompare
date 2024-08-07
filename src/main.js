@@ -560,11 +560,13 @@ thematicBtn.addEventListener('click', (e)=>{
   let cls1= mapToClass(imageData1,{merge:true, threshold:10});
   canvasCtx1.putImageData(cls1[1],0,0);
   colorPalette(colorArea1, returnKeys(cls1[0]), 'map-1 classes');
+  console.log(cls1[0],'111');
 
   let imageData2=canvasCtx2.getImageData(0,0,canvas1.width,canvas1.height);
   let cls2= mapToClass(imageData2,{merge:true, threshold:10});
   canvasCtx2.putImageData(cls2[1],0,0);
   colorPalette(colorArea2,returnKeys(cls2[0]),'map-2 classes');
+  console.log(cls2[0],'222');
 
 
   //let gof= mapCurves(cls1[0],cls2[0], (pixelWidth*pixelHeight));

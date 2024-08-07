@@ -82,8 +82,8 @@ function segments(classArray1, classArray2, areaPerPixel){
 
     let segmentArray=[];
 
-    for (let i=0; i<classArray1.length; i++){
-        for (let j=0; j<classArray2.length; j++){
+    for (let j=0; j<classArray2.length; j++){
+        for (let i=0; i<classArray1.length; i++){
 
             let overlappedSegment= new Array(90000);
             let region= classArray1[i];
