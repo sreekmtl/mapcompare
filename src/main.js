@@ -460,7 +460,7 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
       lineLayer1= createVectorLayer(vectorData1);
       let line3857= transformOlLayer(lineLayer1,'EPSG:4326', 'EPSG:3857');
 
-      //map1.addLayer(jn);
+      map1.addLayer(jn);
       map1.addLayer(line3857);
       vectorData1=olVectorLayerToGeoJSON(lineLayer1);
       imgProcessed1=false;
@@ -482,7 +482,7 @@ imgVectorizeBtn.addEventListener('click', (e)=>{
       lineLayer2= createVectorLayer(redata[1]);
       let line3857= transformOlLayer(lineLayer2,'EPSG:4326', 'EPSG:3857');
 
-      //map2.addLayer(jn);
+      map2.addLayer(jn);
       map2.addLayer(line3857);
       vectorData2=olVectorLayerToGeoJSON(lineLayer2);
       imgProcessed2=false;
