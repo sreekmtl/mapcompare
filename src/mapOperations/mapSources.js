@@ -53,6 +53,7 @@ const EsriLayers={
     'Uttarakhand_LULC_2005-06':'lulc:UK_LULC50K_0506',
     'Uttarakhand_LULC_2011-12':'lulc:UK_LULC50K_1112',
     'Uttarakhand_LULC_2015-16': 'lulc:UK_LULC50K_1516',
+    'INDIA_2022-23':'LULC250K_2223',
 
   }
 
@@ -116,6 +117,8 @@ class Sources{
         })
         });
 
+        
+
         this.ESALULC_2017= new ImageLayer({
           source: new ImageArcGISRest({
             url:'https://ic.imagery1.arcgis.com/arcgis/rest/services/Sentinel2_10m_LandCover/ImageServer',
@@ -146,6 +149,24 @@ class Sources{
         });
 
         //NOT USING/NOT USEFUL--------------------------------------------------------------------------------
+
+        this.BhuvanLULC3= new TileLayer({
+          source:new TileWMS({
+            url: 'https://bhuvan-ras2.nrsc.gov.in/mapcache',
+            params: {'LAYERS': bhuvanLayers['INDIA_2022-23'], 
+            'TILED': true,
+            'VERSION':'1.1.1',
+            //'BBOX':'77.575,28.715,81.043,31.467',
+            'SRS':'EPSG:3857',
+            'WIDTH':256,
+            'HEIGHT':256,
+            'FORMAT':'image/png'
+  
+          },
+            //serverType: 'geoserver',
+            //crossOrigin: 'Anonymous',
+        })
+        });
 
         this.ArcGIS_sample= new TileArcGISRest(
             {

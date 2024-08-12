@@ -16,11 +16,20 @@ let DIV3= document.createElement('div');
     DIV3.style.display="flex";
     DIV3.style.alignItems='center';
     DIV3.style.flexDirection="column";
+
+let DIVNAME= document.createElement('div');
+    //DIV2.style.background="white";
+    DIV2.style.display="flex";
+    DIV2.style.alignItems='center';
+    DIV2.style.flexDirection="column";
     
     let msg= document.createElement('h3');
     msg.textContent='Select features from both map';
     msg.style.color='#32a852';
     msg.style.fontWeight='bold';
+    let title0= document.createElement('h3');
+    title0.className='h3';
+    title0.textContent='Line extraction Parameters';
     let title1= document.createElement('h3');
     title1.className='h3';
     title1.textContent='Enter parameters for Map 1';
@@ -74,6 +83,19 @@ function lineProcesses(root){
     let opt23= createOption('WIN_MIN_SIZ_2',25, '');
     let opt24= createOption('WIN_MAX_SIZ_2',31, '');
 
+    let label1= document.createElement('p');
+    label1.style.padding='2px';
+    label1.textContent='Erosion Window Size';
+    let label2= document.createElement('p');
+    label2.textContent='Erosion Iteration';
+    label2.style.padding='2px';
+    let label3= document.createElement('p');
+    label3.textContent='Min Kernel Radius';
+    label3.style.padding='2px';
+    let label4= document.createElement('p');
+    label4.textContent='Max Kernel Size';
+    label4.style.padding='2px';
+
 
     DIV2.append(
         title1,
@@ -93,7 +115,15 @@ function lineProcesses(root){
          
     );
 
-    DIV1.append(DIV2,DIV3);
+    DIVNAME.append(
+        title0,
+        label1,
+        label2,
+        label3,
+        label4,
+    )
+
+    DIV1.append(DIVNAME,DIV2,DIV3);
     
   
     root.append(DIV1,br);
@@ -116,8 +146,7 @@ function colorPalette(root,cls, text){
     root.append(pp);
 
     cls.forEach(e => {
-        let clr= Object.keys(e);
-        let clrId= clr.toString();
+        let clrId= e.toString();
         let imgEl= document.createElement('img');
         imgEl.style.width='20px';
         imgEl.style.height='20px';

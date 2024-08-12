@@ -7,9 +7,8 @@
 
 import * as d3 from 'd3';
 
-export function createLineGraph(sortingArray, colorArray, componentArray,chart,[xTitle,yTitle]){
+export function createLineGraph(clr,comp,chart,[xTitle,yTitle]){
 
-    let [clr, comp]= sortComponent(sortingArray, colorArray,componentArray);
 
     //graph code
 
@@ -97,32 +96,3 @@ svg.selectAll("circle")
 
 }
 
-function sortComponent(sortingArray,colorArray, componentArray){
-
-    /**
-     * Sort components along with repective color in color array
-     */
-
-    for (let i=0; i<sortingArray.length; i++){
-        for (let j=i+1; j<sortingArray.length; j++){
-
-            if(sortingArray[j]<sortingArray[i]){
-
-                let temp= sortingArray[i];
-                sortingArray[i]=sortingArray[j];
-                sortingArray[j]=temp;
-
-
-                let temp1= componentArray[i];
-                componentArray[i]=componentArray[j];
-                componentArray[j]=temp1;
-
-                let temp2= colorArray[i];
-                colorArray[i]=colorArray[j];
-                colorArray[j]=temp2;
-                
-            }
-        }
-    }
-    return [colorArray, componentArray];
-}

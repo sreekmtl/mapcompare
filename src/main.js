@@ -1,7 +1,5 @@
 import Map from 'ol/Map.js';
 import View from 'ol/View.js';
-import TileLayer from 'ol/layer/Tile.js';
-import ImageLayer from 'ol/layer/Image.js';
 import '../styles/myStyles.css'
 import 'ol/ol.css';
 import { getContours, erodePlusCanny } from './imageProcessing/cvOps.js';
@@ -211,6 +209,9 @@ function init(src1, src2){
   
   map1.on('moveend',(e)=>{
     mapToImg(map1, canvas1, canvasCtx1);
+    clearChilds(resultArea);
+    clearChilds(colorArea1);
+    clearChilds(colorArea2);
     
     if (vectorFilePresent1===true){
       contourData1=undefined;
@@ -230,6 +231,9 @@ function init(src1, src2){
   
   map2.on('moveend',(e)=>{
     mapToImg(map2, canvas2, canvasCtx2);
+    clearChilds(resultArea);
+    clearChilds(colorArea1);
+    clearChilds(colorArea2);
     
     if (vectorFilePresent2===true){
       contourData2=undefined;
@@ -298,6 +302,7 @@ let sourceMap={
   '5':sources.BhuvanLULC2,   
   '6':sources.ESALULC_2017,
   '7':sources.ESALULC_2023,
+  '8':sources.BhuvanLULC3,
 }
 
 init(sourceMap[mapdd1.value],sourceMap[mapdd2.value]);
@@ -527,7 +532,7 @@ compareBtn.addEventListener('click', (e)=>{
   let bufferData= linePositionalAccuracy(lineLayer1,lineLayer2);
   let re= bufferData.layers;
   let data= bufferData.data;
-  console.log(data);
+  //console.log(data);
   let buffer3857= transformOlLayer(re[0],'EPSG:4326', 'EPSG:3857');
   let line3857= transformOlLayer(re[1],'EPSG:4326', 'EPSG:3857');
 
@@ -543,8 +548,9 @@ compareBtn.addEventListener('click', (e)=>{
 
   map1.addLayer(buffer3857);
   map1.addLayer(line3857);
+  showResults(resultArea,data);
 
-createLineChart(data);
+//createLineChart(data);
   
 });
 
@@ -553,12 +559,14 @@ thematicBtn.addEventListener('click', (e)=>{
   let imageData1=canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
   let cls1= mapToClass(imageData1,{merge:true, threshold:10});
   canvasCtx1.putImageData(cls1[1],0,0);
-  colorPalette(colorArea1, cls1[0], 'map-1 classes');
+  colorPalette(colorArea1, returnKeys(cls1[0]), 'map-1 classes');
+  console.log(cls1[0],'111');
 
   let imageData2=canvasCtx2.getImageData(0,0,canvas1.width,canvas1.height);
   let cls2= mapToClass(imageData2,{merge:true, threshold:10});
   canvasCtx2.putImageData(cls2[1],0,0);
-  colorPalette(colorArea2,cls2[0],'map-2 classes');
+  colorPalette(colorArea2,returnKeys(cls2[0]),'map-2 classes');
+  console.log(cls2[0],'222');
 
 
   //let gof= mapCurves(cls1[0],cls2[0], (pixelWidth*pixelHeight));
@@ -574,22 +582,29 @@ visBtn.addEventListener('click', (e)=>{
   let imageData1=canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
   let classData1= mapToClass(imageData1,{merge:false, threshold:10});
   canvasCtx1.putImageData(classData1[1],0,0);
-  colorPalette(colorArea1, classData1[0], 'map-1 classes');
 
   let components= getColorComponents(classData1[0]);
+  colorPalette(colorArea1, components.colorArray, 'map-1 classes');
   let rows= components.colorArray.length;
   let data=[];
   data.push(components.colorArray, components.hueArray, components.saturationArray, components.lightnessArray);
   createTable(tableArea, rows, data);
-
-  let sortingArray=components.hueArray.slice(); //sorting is done on the basis of hue array
-
-  createLineGraph(sortingArray,components.colorArray, components.hueArray, '#chart',['color','Hue'] );
-  createLineGraph(sortingArray, components.colorArray, components.saturationArray, '#chart',['color','Sauration'] );
-  createLineGraph(sortingArray,components.colorArray, components.lightnessArray, '#chart',['color','Lightness'] );
+  
+  createLineGraph(components.colorArray, components.hueArray, '#chart',['color','Hue'] );
+  createLineGraph(components.colorArray, components.saturationArray, '#chart',['color','Sauration'] );
+  createLineGraph(components.colorArray, components.lightnessArray, '#chart',['color','Lightness'] );
   createHeatMap(components.colorArray,components.distanceArray,'#chart');
   
 });
+
+function returnKeys(obj){
+  let keys=[];
+  obj.forEach((e)=>{
+    keys.push(Object.keys(e));
+  })
+  return keys;
+}
+
 
 
 
