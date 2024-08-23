@@ -21,3 +21,22 @@ Open the terminal, then:
 ```bash
 npm run serve
 ```
+
+## Screenshots
+
+Home Page. User have to select the type of feature/comparison and map type from drop down menu before going further
+![alt text](https://github.com/sreekmtl/mapcompare/preview/home.PNG)
+
+Polygon Feature Comparison
+![alt text](https://github.com/sreekmtl/mapcompare/preview/p4.PNG)
+
+Linear Feature Comparison
+![alt text](https://github.com/sreekmtl/mapcompare/preview/l7.PNG)
+
+Thematic Map Comparison (Nominal)
+![alt text](https://github.com/sreekmtl/mapcompare/preview/t4.PNG)
+
+Visualization Evaluation
+![alt text](https://github.com/sreekmtl/mapcompare/preview/v1.PNG)
+
+
