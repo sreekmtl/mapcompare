@@ -23,25 +23,25 @@ npm run serve
 ```
 ## Screenshots
 
-# Home Page 
+### Home Page 
 User have to select the type of feature/comparison and map type from drop down menu before going further.
 
 ![alt text](https://github.com/sreekmtl/mapcompare/blob/main/preview/home.PNG)
 
-# Polygon Feature Comparison
+### Polygon Feature Comparison
 
 ![alt text](https://github.com/sreekmtl/mapcompare/blob/main/preview/p4.PNG)
 
-# Linear Feature Comparison
+### Linear Feature Comparison
 
 ![alt text](https://github.com/sreekmtl/mapcompare/blob/main/preview/l7.PNG)
 
-# Thematic Map Comparison (Nominal)
+### Thematic Map Comparison (Nominal)
 
 ![alt text](https://github.com/sreekmtl/mapcompare/blob/main/preview/t4.PNG)
 
 
-# Visualization Evaluation
+### Visualization Evaluation
 
 ![alt text](https://github.com/sreekmtl/mapcompare/blob/main/preview/v1.PNG)
 
