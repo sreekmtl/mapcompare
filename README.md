@@ -21,10 +21,3 @@ Open the terminal, then:
 ```bash
 npm run serve
 ```
-
-
-
-Visualization Evaluation
-![alt text](https://github.com/sreekmtl/mapcompare/preview/v1.PNG)
-
-
