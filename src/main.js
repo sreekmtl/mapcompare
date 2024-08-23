@@ -167,7 +167,7 @@ function init(src1, src2){
   
 
   const view= new View({
-    center: [8687373.06, 3544749.53],
+    center: [8687373.06, 3544749.53], //8687373.06, 3544749.53
     zoom: 13,
     constrainResolution:true,
   });
