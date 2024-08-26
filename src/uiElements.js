@@ -224,5 +224,25 @@ Object.entries(resultData).map(entry=>{
 
 }
 
+function mapClassProcess(root){
+    let br= document.createElement('br');
 
-export {polygonProcesses,lineProcesses, colorPalette, clearChilds, showResults, createTable};
+    let opt1= createOption('AA_KER_SIZ',3, '');
+    let opt2= createOption('AA_PIX_CNT',2, '');
+
+    let label1= document.createElement('p');
+    label1.style.padding='2px';
+    label1.textContent='Anti-aliasing kernel size';
+    let label2= document.createElement('p');
+    label2.textContent='Anti-aliasing pixel threshold';
+    label2.style.padding='2px';
+
+    DIV1.append(br,label1,opt1,label2,opt2);
+
+    root.append(DIV1);
+
+
+}
+
+
+export {polygonProcesses,lineProcesses, colorPalette, clearChilds, showResults, createTable, mapClassProcess};

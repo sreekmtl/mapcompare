@@ -8,6 +8,8 @@
  * @param {ImageData} outputData
  * @param {Number} width
  * @param {Number} height
+ * @param {Number} kernelSize
+ * @param {Number} threshold
  * @param {Object} options
  * @returns {ImageData}
  */
@@ -15,7 +17,7 @@
 import { rgbToyiq } from "../imageProcessing/yiqRange";
 
 
-export function detectAntiAliasPixels(imageData,width, height, options){
+export function detectAntiAliasPixels(imageData,width, height, kernelSize,threshold, options){
 
     /**
      * Assuming that the edge-most pixels of image don't contains anti-aliased pixels 
@@ -27,10 +29,11 @@ export function detectAntiAliasPixels(imageData,width, height, options){
     let mergeAA= options.merge || false;
 
     let outputData= new ImageData(width, height);
+    let rem= Math.floor(kernelSize/2);
 
 
-    for (let i=1; i<width-1; i++){
-        for (let j=1; j<height-1; j++){
+    for (let i=rem; i<width-rem; i++){
+        for (let j=rem; j<height-rem; j++){
 
             let antialiased=false;
             let pos= ((j*width)+i); 
@@ -38,7 +41,7 @@ export function detectAntiAliasPixels(imageData,width, height, options){
             let anchorValueRGB= [imageData.data[anchorPosition],imageData.data[anchorPosition+1],imageData.data[anchorPosition+2]];
             let anchorValueYIQ= rgbToyiq(anchorValueRGB[0]/255, anchorValueRGB[1]/255, anchorValueRGB[2]/255);
 
-            let adjacentValues= findAdjacentPixels(pos, width, height, imageData,'yiq');
+            let adjacentValues= findAdjacentPixels(pos, width, height, imageData,'yiq',rem);
 
             //if the adjacentValues array contains more than 2 values with anchorValueYIQ, its NOT ANTI-ALIASED
 
@@ -47,7 +50,7 @@ export function detectAntiAliasPixels(imageData,width, height, options){
                 if (distanceInYIQ(anchorValueYIQ, adjacentValues[k])===0) zeros++;
             }
 
-            if (zeros>2){
+            if (zeros>threshold){
                 antialiased=false;
             }else {
                 antialiased=true;
@@ -68,7 +71,7 @@ export function detectAntiAliasPixels(imageData,width, height, options){
 
 }
 
-function findAdjacentPixels(anchorPosition, width, height, imageData, colorSpace){
+function findAdjacentPixels(anchorPosition, width, height, imageData, colorSpace,rem){
 
     let adjacentValues=[];
 
@@ -78,8 +81,8 @@ function findAdjacentPixels(anchorPosition, width, height, imageData, colorSpace
 
     //creating a 3*3 kernel and extracting adjacent values
 
-    for (let i= x-1; i<=x+1; i++){
-        for (let j= y-1; j<=y+1; j++){
+    for (let i= x-rem; i<=x+rem; i++){
+        for (let j= y-rem; j<=y+rem; j++){
 
             let pixpos= ((j*width)+i)*4;
             if (pixpos===anchorPosition) continue;
