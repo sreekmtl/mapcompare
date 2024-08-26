@@ -9,7 +9,7 @@ import { colorInRange } from './imageProcessing/yiqRange.js';
 import { contourToPolygon } from './spatialOperations/imageToPolygon.js';
 import Sources from './mapOperations/mapSources.js';
 import { mapToImg } from './mapOperations/mapToImg.js';
-import { clearChilds, colorPalette, createTable, lineProcesses, polygonProcesses, showResults } from './uiElements.js';
+import { clearChilds, colorPalette, createTable, lineProcesses, mapClassProcess, polygonProcesses, showResults } from './uiElements.js';
 import { growRegion } from './algorithms/regionGrowing.js';
 import { junctionExtract1 } from './spatialOperations/imageToLine.js';
 import { createVectorLayer } from './mapOperations/vectorLyrSrc.js';
@@ -139,6 +139,8 @@ function init(src1, src2){
       map1label.style.visibility='visible';
       map2label.style.visibility='visible';
 
+      mapClassProcess(inner);
+
     }else if (featureDropDown.value==='5'){
       visBtn.disabled= false;
       imgProcessBtn.disabled=true;
@@ -151,6 +153,8 @@ function init(src1, src2){
       mapdd2.style.visibility='hidden';
       map1label.style.visibility='hidden';
       map2label.style.visibility='hidden';
+
+      mapClassProcess(inner);
     }
   
   });
@@ -555,15 +559,18 @@ compareBtn.addEventListener('click', (e)=>{
 });
 
 thematicBtn.addEventListener('click', (e)=>{
+
+  let param1= parseInt(sessionStorage.getItem('AA_KER_SIZ'));
+  let param2= parseInt(sessionStorage.getItem('AA_PIX_CNT'));
   
   let imageData1=canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
-  let cls1= mapToClass(imageData1,{merge:true, threshold:10});
+  let cls1= mapToClass(imageData1,{merge:true, threshold:10}, param1,param2);
   canvasCtx1.putImageData(cls1[1],0,0);
   colorPalette(colorArea1, returnKeys(cls1[0]), 'map-1 classes');
   console.log(cls1[0],'111');
 
   let imageData2=canvasCtx2.getImageData(0,0,canvas1.width,canvas1.height);
-  let cls2= mapToClass(imageData2,{merge:true, threshold:10});
+  let cls2= mapToClass(imageData2,{merge:true, threshold:10},param1,param2);
   canvasCtx2.putImageData(cls2[1],0,0);
   colorPalette(colorArea2,returnKeys(cls2[0]),'map-2 classes');
   console.log(cls2[0],'222');
@@ -580,7 +587,10 @@ thematicBtn.addEventListener('click', (e)=>{
 visBtn.addEventListener('click', (e)=>{
 
   let imageData1=canvasCtx1.getImageData(0,0,canvas1.width,canvas1.height);
-  let classData1= mapToClass(imageData1,{merge:false, threshold:10});
+  let param1= parseInt(sessionStorage.getItem('AA_KER_SIZ'));
+  let param2= parseInt(sessionStorage.getItem('AA_PIX_CNT'));
+
+  let classData1= mapToClass(imageData1,{merge:false, threshold:10},param1,param2);
   canvasCtx1.putImageData(classData1[1],0,0);
 
   let components= getColorComponents(classData1[0]);

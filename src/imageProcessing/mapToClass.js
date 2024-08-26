@@ -7,7 +7,7 @@ import { detectAntiAliasPixels } from "../algorithms/antialiasDetector";
 import { findMode } from "../utils";
 
 
-export default function mapToClass(mapImageData, options){
+export default function mapToClass(mapImageData, options,aaKernelSize,aaThreshold){
 
     let mergeAA= options.merge || false;
     let minimumThreshold= options.threshold || 10;
@@ -20,7 +20,7 @@ export default function mapToClass(mapImageData, options){
 
     //if two seperated classes are closer, then add them together
 
-    let imageData= detectAntiAlias(mapImageData, mapImageData.width, mapImageData.height);
+    let imageData= detectAntiAlias(mapImageData, mapImageData.width, mapImageData.height,aaKernelSize,aaThreshold);
     let aaremoved= new ImageData(imageData.data.slice(), mapImageData.width, mapImageData.height);
     
     let classes=[];
@@ -45,7 +45,7 @@ export default function mapToClass(mapImageData, options){
                 let x= (i%aaremoved.width)/4;
                 let y= Math.floor((i/aaremoved.width))/4;
 
-                let kernelSize= 3;
+                let kernelSize= aaKernelSize;
                 let adjacentPoints= createKernel([x,y], kernelSize);
                 let adjacentValues= [];
 
@@ -149,11 +149,11 @@ export default function mapToClass(mapImageData, options){
 
 }
 
-function detectAntiAlias(imageData, width, height){
+function detectAntiAlias(imageData, width, height,aaKernelSize,aaThreshold){
 
     let count=0;
 
-    let opdat= detectAntiAliasPixels(imageData, width, height,{aaColor:[0,0,0,255], merge:true});
+    let opdat= detectAntiAliasPixels(imageData, width, height,aaKernelSize,aaThreshold,{aaColor:[0,0,0,255], merge:true});
     //console.log(opdat,'OPDAT');
 
   for (let i=0; i<imageData.data.length;i+=4){
