@@ -1,6 +1,6 @@
 # Map Compare
 
-Web application for comparing web map layers. This application compares web maps and produce comparison metrices.
+Web application for comparing web map layers. This application compares web maps and produce comparison metrices. I have created this app as the part of my MSc Thesis work names 'Development of a web map quality evaluation framework'. I have used classical computer vision and image processing techniques to extract spatial information from the raster tiles and later converted these spatial information into vector format for further spatial analysis. The application then displays the quality metrices from the spatial analysis as well as the image processing methods.
 
 ## Warning !
 Read the docs before proceeding. Install Node.js on your system to build or make any changes to the app. 
